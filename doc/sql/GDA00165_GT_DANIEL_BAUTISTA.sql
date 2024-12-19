@@ -19,10 +19,12 @@ DROP USER IF EXISTS [GDA00165_GT_USER];
 -- Eliminar el login del servidor
 IF EXISTS (SELECT * FROM sys.server_principals WHERE name = 'GDA00165_GT')
 	DROP LOGIN GDA00165_GT;
+GO
 -- Crear la base de datos dinámicamente
 CREATE DATABASE [GDA00165_GT_DANIEL_BAUTISTA];
 CREATE LOGIN GDA00165_GT WITH PASSWORD = 'Contrase@nalg_dag123as511';
 -- Usar la base de datos dinámicamente
+GO
 USE [GDA00165_GT_DANIEL_BAUTISTA];
 CREATE USER GDA00165_GT_USER FOR LOGIN GDA00165_GT;
 ALTER ROLE db_owner ADD MEMBER [GDA00165_GT_USER];
@@ -306,17 +308,17 @@ BEGIN
         ('Descontinuado', 'producto que ya no se vende');
 
 
-    -- INSERTS PARA usuarioS CLIENTES
-    EXEC p_insertar_usuario 'cliente1@example.com', 'Cliente Uno', 'CF', 'password1', '1234567890', '1990-01-01', 1, 3;
-    EXEC p_insertar_usuario 'cliente2@example.com', 'Cliente Dos', 'CF', 'password2', '1234567891', '1991-02-02', 1, 3;
-    EXEC p_insertar_usuario 'cliente3@example.com', 'Cliente Tres', 'CF', 'password3', '1234567892', '1992-03-03', 1, 3;
-    EXEC p_insertar_usuario 'cliente4@example.com', 'Cliente Cuatro', 'CF', 'password4', '1234567893', '1993-04-04', 1, 3;
-    EXEC p_insertar_usuario 'cliente5@example.com', 'Cliente Cinco', 'CF', 'password5', '1234567894', '1994-05-05', 1, 3;
-    EXEC p_insertar_usuario 'cliente6@example.com', 'Cliente Seis', 'CF', 'password6', '1234567895', '1995-06-06', 1, 3;
-    EXEC p_insertar_usuario 'cliente7@example.com', 'Cliente Siete', 'CF', 'password7', '1234567896', '1996-07-07', 1, 3;
-    EXEC p_insertar_usuario 'cliente8@example.com', 'Cliente Ocho', 'CF', 'password8', '1234567897', '1997-08-08', 1, 3;
-    EXEC p_insertar_usuario 'cliente9@example.com', 'Cliente Nueve', 'CF', 'password9', '1234567898', '1998-09-09', 1, 3;
-    EXEC p_insertar_usuario 'cliente10@example.com', 'Cliente Diez', 'CF', 'password10', '1234567899', '1999-10-10', 1, 3;
+    -- INSERTS PARA usuarioS CLIENTES: DEFAULT PASS: password
+    EXEC p_insertar_usuario 'cliente1@example.com', 'Cliente Uno', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567890', '1990-01-01', 1, 3;
+    EXEC p_insertar_usuario 'cliente2@example.com', 'Cliente Dos', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567891', '1991-02-02', 1, 3;
+    EXEC p_insertar_usuario 'cliente3@example.com', 'Cliente Tres', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567892', '1992-03-03', 1, 3;
+    EXEC p_insertar_usuario 'cliente4@example.com', 'Cliente Cuatro', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567893', '1993-04-04', 1, 3;
+    EXEC p_insertar_usuario 'cliente5@example.com', 'Cliente Cinco', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567894', '1994-05-05', 1, 3;
+    EXEC p_insertar_usuario 'cliente6@example.com', 'Cliente Seis', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567895', '1995-06-06', 1, 3;
+    EXEC p_insertar_usuario 'cliente7@example.com', 'Cliente Siete', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567896', '1996-07-07', 1, 3;
+    EXEC p_insertar_usuario 'cliente8@example.com', 'Cliente Ocho', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567897', '1997-08-08', 1, 3;
+    EXEC p_insertar_usuario 'cliente9@example.com', 'Cliente Nueve', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567898', '1998-09-09', 1, 3;
+    EXEC p_insertar_usuario 'cliente10@example.com', 'Cliente Diez', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567899', '1999-10-10', 1, 3;
     -- INSERTS PARA usuarioS OPERATIVOS
     EXEC p_insertar_usuario 'operativo1@example.com', 'Operativo Uno', 'CF', 'password12', '0987654322', '1981-02-02', 2, 3;
     EXEC p_insertar_usuario 'operativo2@example.com', 'Operativo Dos', 'CF', 'password12', '0987654322', '1981-02-02', 2, 3;
