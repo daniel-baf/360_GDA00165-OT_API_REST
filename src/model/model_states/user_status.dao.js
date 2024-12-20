@@ -1,4 +1,3 @@
-import { UserStatus } from "./model_status.js";
 import { getConnection } from "@ORM/sequelize_orm.model.js";
 
 /**

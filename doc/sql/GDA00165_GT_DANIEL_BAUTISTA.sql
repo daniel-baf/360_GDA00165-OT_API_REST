@@ -57,7 +57,7 @@ DROP TABLE IF EXISTS estado_pedido;
 CREATE TABLE estado_pedido
 (
     id INT PRIMARY KEY IDENTITY,
-    nombre VARCHAR(50) NOT NULL,
+    nombre VARCHAR(50) NOT NULL UNIQUE,
     descripcion VARCHAR(245),
 );
 
@@ -192,17 +192,22 @@ BEGIN
     DECLARE @output TABLE (id INT);
 
     -- Insertar el nuevo rol y capturar el nuevo ID generado
-    INSERT INTO rol (nombre, descripcion)
-    OUTPUT inserted.id INTO @output(id) -- Capturamos el nuevo ID en la tabla temporal
-    VALUES (@nombre, @descripcion);
+    INSERT INTO rol
+        (nombre, descripcion)
+    OUTPUT inserted.id INTO @output(id)
+    -- Capturamos el nuevo ID en la tabla temporal
+    VALUES
+        (UPPER(@nombre), UPPER(@descripcion));
 
     -- Recuperar el nuevo ID desde la tabla temporal
     DECLARE @newId INT;
-    SELECT @newId = id FROM @output;
+    SELECT @newId = id
+    FROM @output;
 
     -- Retornar el nuevo ID
-    SELECT @newId AS 'id'; -- Retorna el nuevo ID insertado
-		
+    SELECT @newId AS 'id';
+-- Retorna el nuevo ID insertado
+
 END;
 GO
 
@@ -214,12 +219,12 @@ CREATE OR ALTER PROCEDURE p_update_rol
     @json NVARCHAR(MAX)
 AS
 BEGIN
-	SET NOCOUNT ON;
+    SET NOCOUNT ON;
     -- Declarar variables para almacenar datos extraídos del JSON
     DECLARE @nombre NVARCHAR(50), @descripcion NVARCHAR(245);
 
     -- Parsear el JSON
-    SELECT 
+    SELECT
         @nombre = JSON_VALUE(@json, '$.nombre'),
         @descripcion = JSON_VALUE(@json, '$.descripcion');
 
@@ -238,7 +243,7 @@ CREATE OR ALTER PROCEDURE p_list_rol
     @offset INT = 0
 AS
 BEGIN
-	SET NOCOUNT ON;
+    SET NOCOUNT ON;
     IF @limit IS NOT NULL
     BEGIN
         SELECT id, nombre, descripcion
@@ -280,7 +285,7 @@ BEGIN
     INSERT INTO estado_usuario
         (nombre, descripcion)
     VALUES
-        (@nombre, @descripcion);
+        (UPPER(@nombre), UPPER(@descripcion));
 
     SELECT SCOPE_IDENTITY() AS id;
 END;
@@ -303,7 +308,7 @@ GO
 -- Procedimiento para listar todos los estados de usuario con paginación
 CREATE OR ALTER PROCEDURE p_list_estado_usuario
     @limit INT = NULL,
-    @offset INT = NULL
+    @offset INT = 0
 AS
 BEGIN
     IF @limit IS NOT NULL AND @offset IS NOT NULL
@@ -343,10 +348,13 @@ CREATE OR ALTER PROCEDURE p_create_estado_pedido
     @descripcion VARCHAR(245)
 AS
 BEGIN
+    -- CASTEAR TODO A UPPERCASE
     INSERT INTO estado_pedido
         (nombre, descripcion)
     VALUES
-        (@nombre, @descripcion);
+        (UPPER(@nombre), UPPER(@descripcion));
+
+    SELECT SCOPE_IDENTITY() AS id;
 END;
 GO
 
@@ -358,8 +366,8 @@ CREATE OR ALTER PROCEDURE p_update_estado_pedido
 AS
 BEGIN
     UPDATE estado_pedido
-    SET nombre = @nombre,
-        descripcion = @descripcion
+    SET nombre = COALESCE(@nombre, nombre),
+        descripcion = COALESCE(@descripcion, descripcion)
     WHERE id = @id;
 END;
 GO
@@ -367,10 +375,10 @@ GO
 -- Procedimiento para listar todos los estados de pedido con paginación
 CREATE OR ALTER PROCEDURE p_list_estado_pedido
     @limit INT = NULL,
-    @offset INT = NULL
+    @offset INT = 0
 AS
 BEGIN
-    IF @limit IS NOT NULL AND @offset IS NOT NULL
+    IF @limit IS NOT NULL
     BEGIN
         SELECT id, nombre, descripcion
         FROM estado_pedido
@@ -381,7 +389,9 @@ BEGIN
     ELSE
     BEGIN
         SELECT id, nombre, descripcion
-        FROM estado_pedido;
+        FROM estado_pedido
+        ORDER BY id
+        OFFSET @offset ROWS;
     END
 END;
 GO
@@ -460,7 +470,7 @@ GO
 -- Procedimiento para listar usuarios con paginación
 CREATE OR ALTER PROCEDURE p_list_usuario
     @limit INT = NULL,
-    @offset INT = NULL
+    @offset INT = 0
 AS
 BEGIN
     IF @limit IS NOT NULL AND @offset IS NOT NULL
@@ -1130,7 +1140,7 @@ CREATE OR ALTER PROCEDURE p_config_predefinidos
     @num_no_confirmados INT
 AS
 BEGIN
-	SET NOCOUNT ON
+    SET NOCOUNT ON
     -- INSERTS PARA ROLES
     EXEC p_create_rol 'Cliente', 'usuario que compra productos';
     EXEC p_create_rol 'Operativo', 'usuario que gestiona el sistema';
@@ -1190,49 +1200,46 @@ BEGIN
     EXEC p_create_categoria_producto 'Papelería', 'productos de papelería y oficina';
 
     -- INSERTS PARA productoS
-    INSERT INTO producto
-        (nombre, descripcion, precio, precio_mayorista, stock, categoria_producto_id)
-    VALUES
-        ('Pan', 'Pan fresco', 1.00, 0.90, FLOOR(RAND() * 41), 1),
-        ('Leche', 'Leche entera', 1.50, 1.30, FLOOR(RAND() * 41), 1),
-        ('Huevos', 'Docena de huevos', 2.00, 1.80, FLOOR(RAND() * 41), 1),
-        ('Arroz', 'Arroz blanco', 1.20, 1.00, FLOOR(RAND() * 41), 1),
-        ('Frijoles', 'Frijoles negros', 1.30, 1.10, FLOOR(RAND() * 41), 1),
-        ('Jugo de Naranja', 'Jugo de naranja natural', 2.00, 1.80, FLOOR(RAND() * 41), 2),
-        ('Refresco', 'Refresco de cola', 1.00, 0.90, FLOOR(RAND() * 41), 2),
-        ('Agua', 'Agua embotellada', 0.80, 0.70, FLOOR(RAND() * 41), 2),
-        ('Cerveza', 'Cerveza rubia', 1.50, 1.30, FLOOR(RAND() * 41), 2),
-        ('Vino', 'Vino tinto', 10.00, 9.00, FLOOR(RAND() * 41), 2),
-        ('Detergente', 'Detergente en polvo', 3.00, 2.70, FLOOR(RAND() * 41), 3),
-        ('Jabón', 'Jabón de barra', 0.50, 0.40, FLOOR(RAND() * 41), 3),
-        ('Cloro', 'Cloro desinfectante', 1.00, 0.90, FLOOR(RAND() * 41), 3),
-        ('Suavizante', 'Suavizante de ropa', 2.00, 1.80, FLOOR(RAND() * 41), 3),
-        ('Escoba', 'Escoba de cerdas', 2.50, 2.20, FLOOR(RAND() * 41), 3),
-        ('Shampoo', 'Shampoo para cabello', 3.00, 2.70, FLOOR(RAND() * 41), 4),
-        ('Pasta Dental', 'Pasta dental con flúor', 1.50, 1.30, FLOOR(RAND() * 41), 4),
-        ('Jabón Líquido', 'Jabón líquido para manos', 2.00, 1.80, FLOOR(RAND() * 41), 4),
-        ('Desodorante', 'Desodorante en barra', 2.50, 2.20, FLOOR(RAND() * 41), 4),
-        ('Papel Higiénico', 'Papel higiénico de 4 rollos', 3.00, 2.70, FLOOR(RAND() * 41), 4),
-        ('Cuaderno', 'Cuaderno de 100 hojas', 1.00, 0.90, FLOOR(RAND() * 41), 5),
-        ('Lápiz', 'Lápiz de grafito', 0.20, 0.15, FLOOR(RAND() * 41), 5),
-        ('Bolígrafo', 'Bolígrafo de tinta azul', 0.50, 0.40, FLOOR(RAND() * 41), 5),
-        ('Resaltador', 'Resaltador amarillo', 0.80, 0.70, FLOOR(RAND() * 41), 5),
-        ('Carpeta', 'Carpeta de anillas', 2.00, 1.80, FLOOR(RAND() * 41), 5),
-        ('Tijeras', 'Tijeras de oficina', 1.50, 1.30, FLOOR(RAND() * 41), 5),
-        ('Goma de Borrar', 'Goma de borrar blanca', 0.30, 0.25, FLOOR(RAND() * 41), 5),
-        ('Pegamento', 'Pegamento en barra', 0.70, 0.60, FLOOR(RAND() * 41), 5),
-        ('Regla', 'Regla de 30 cm', 0.50, 0.40, FLOOR(RAND() * 41), 5),
-        ('Marcador', 'Marcador permanente', 1.00, 0.90, FLOOR(RAND() * 41), 5),
-        ('Cereal', 'Cereal de maíz', 2.50, 2.20, FLOOR(RAND() * 41), 1),
-        ('Yogurt', 'Yogurt natural', 1.20, 1.00, FLOOR(RAND() * 41), 1),
-        ('Galletas', 'Galletas de chocolate', 1.50, 1.30, FLOOR(RAND() * 41), 1),
-        ('Aceite', 'Aceite vegetal', 2.00, 1.80, FLOOR(RAND() * 41), 1),
-        ('Mantequilla', 'Mantequilla sin sal', 1.50, 1.30, FLOOR(RAND() * 41), 1),
-        ('Té', 'Té verde', 1.00, 0.90, FLOOR(RAND() * 41), 2),
-        ('Café', 'Café molido', 3.00, 2.70, FLOOR(RAND() * 41), 2),
-        ('Champú', 'Champú anticaspa', 3.50, 3.20, FLOOR(RAND() * 41), 4),
-        ('Crema Corporal', 'Crema hidratante', 2.50, 2.20, FLOOR(RAND() * 41), 4),
-        ('Toallas', 'Toallas de papel', 1.50, 1.30, FLOOR(RAND() * 41), 4);
+
+    DECLARE @i INT = 1;
+    -- Contador para el bucle
+    DECLARE @max_products INT = 10;
+    -- Número total de productos que deseas insertar
+    DECLARE @nombre NVARCHAR(50);
+    DECLARE @descripcion NVARCHAR(245);
+    DECLARE @precio DECIMAL(10, 2);
+    DECLARE @precio_mayorista DECIMAL(10, 2);
+    DECLARE @stock INT;
+    DECLARE @categoria_producto_id INT;
+
+    WHILE @i <= @max_products
+    BEGIN
+        -- Generar valores dinámicos
+        SET @nombre = CONCAT('Producto', @i);
+        SET @descripcion = CONCAT('Descripción de ', @nombre);
+        SET @precio = ROUND(1.00 + RAND() * 9.00, 2);
+        -- Precio aleatorio entre 1.00 y 10.00
+        SET @precio_mayorista = ROUND(@precio * 0.90, 2);
+        -- Precio mayorista es el 90% del precio normal
+        SET @stock = FLOOR(RAND() * 41);
+        -- Stock aleatorio entre 0 y 40
+        SET @categoria_producto_id = FLOOR(RAND() * 5) + 1;
+        -- Categoría aleatoria entre 1 y 5
+
+        -- Ejecutar el procedimiento almacenado
+        EXEC p_create_producto 
+        @nombre, 
+        @descripcion, 
+        @precio, 
+        @precio_mayorista, 
+        @stock, 
+        1, -- Estado siempre 1
+        @categoria_producto_id;
+
+        -- Incrementar el contador
+        SET @i = @i + 1;
+    END;
+
 
     -- INSERTAMOS DATOS USADOS PARA CONFIGURAR EL SISTEMA
     INSERT INTO configuracion
@@ -1242,7 +1249,7 @@ BEGIN
         ('CANTIDAD_MAYORISTAS', '12'),
         ('NOMBRE_APLICACION', 'Mi Tienda Online');
 
-    DECLARE @i INT = 1;
+    SET @i = 1;
     DECLARE @total DECIMAL(10, 2);
     DECLARE @cantidad INT;
     DECLARE @precio_venta DECIMAL(10, 2);
@@ -1284,7 +1291,7 @@ BEGIN
         DECLARE @j INT = 1;
         WHILE @j <= FLOOR(RAND() * 4) + 1
             BEGIN
-            SET @producto_id = FLOOR(RAND() * 40) + 1;
+            SET @producto_id = FLOOR(RAND() * @max_products) + 1;
             SET @cantidad = FLOOR(RAND() * 10) + 1;
             SELECT @precio_venta = precio
             FROM producto
