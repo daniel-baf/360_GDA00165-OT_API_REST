@@ -40,6 +40,7 @@
   },
   "aliases": {
     "@services": "./src/services",
-    "@models": "./src/model"
+    "@models": "./src/model",
+    "@ORM": "./src/model/database/"
   }
 }
