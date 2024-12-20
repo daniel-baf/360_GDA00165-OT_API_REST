@@ -16,11 +16,11 @@ const createRol = async (rol_data) => {
       "EXEC p_create_rol :nombre, :descripcion",
       {
         replacements: { nombre, descripcion },
-        type: DataTypes.SELECT,
+        type: sequelize.QueryTypes.SELECT,
       }
     );
 
-    return { id: result[0].id, ... rol_data };
+    return { id: result.id, ...rol_data };
   } catch (err) {
     console.error("Error creating role with Sequelize:", err);
     throw err;
@@ -45,7 +45,7 @@ const updateRol = async (rol_data) => {
       replacements: { id, json: rol_data },
       type: sequelize.QueryTypes.UPDATE,
     });
-    return result;
+    return { id, ...JSON.parse(rol_data) };
   } catch (err) {
     console.error("Error updating role with Sequelize:", err);
     throw err;
@@ -83,7 +83,7 @@ const deleteRol = async (id) => {
       replacements: { id },
       type: sequelize.QueryTypes.DELETE,
     });
-    return `Rol con ID ${id} eliminado`;
+    return { message: `Rol con ID ${id} eliminado` };
   } catch (err) {
     console.error("Error deleting role with Sequelize:", err);
     throw err;

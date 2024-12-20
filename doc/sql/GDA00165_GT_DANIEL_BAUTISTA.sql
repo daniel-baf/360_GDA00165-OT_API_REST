@@ -214,6 +214,7 @@ CREATE OR ALTER PROCEDURE p_update_rol
     @json NVARCHAR(MAX)
 AS
 BEGIN
+	SET NOCOUNT ON;
     -- Declarar variables para almacenar datos extraídos del JSON
     DECLARE @nombre NVARCHAR(50), @descripcion NVARCHAR(245);
 
@@ -237,6 +238,7 @@ CREATE OR ALTER PROCEDURE p_list_rol
     @offset INT = 0
 AS
 BEGIN
+	SET NOCOUNT ON;
     IF @limit IS NOT NULL
     BEGIN
         SELECT id, nombre, descripcion
@@ -279,6 +281,8 @@ BEGIN
         (nombre, descripcion)
     VALUES
         (@nombre, @descripcion);
+
+    SELECT SCOPE_IDENTITY() AS id;
 END;
 GO
 
@@ -290,8 +294,8 @@ CREATE OR ALTER PROCEDURE p_update_estado_usuario
 AS
 BEGIN
     UPDATE estado_usuario
-    SET nombre = @nombre,
-        descripcion = @descripcion
+    SET nombre = COALESCE(@nombre, nombre),
+        descripcion = COALESCE(@descripcion, descripcion)
     WHERE id = @id;
 END;
 GO
