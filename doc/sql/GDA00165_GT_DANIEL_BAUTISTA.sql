@@ -253,19 +253,21 @@ BEGIN
         (nombre, descripcion)
     VALUES
         (@nombre, @descripcion);
+
+    SELECT SCOPE_IDENTITY() AS 'id';
 END;
 GO
 
 -- Procedimiento para actualizar un estado de usuario existente
 CREATE OR ALTER PROCEDURE p_update_estado_usuario
     @id INT,
-    @nombre VARCHAR(50),
-    @descripcion VARCHAR(245)
+    @nombre VARCHAR(50) = NULL,
+    @descripcion VARCHAR(245) = NULL
 AS
 BEGIN
     UPDATE estado_usuario
-    SET nombre = @nombre,
-        descripcion = @descripcion
+    SET nombre = COALESCE(@nombre, nombre),
+        descripcion = COALESCE(@descripcion, descripcion)
     WHERE id = @id;
 END;
 GO
@@ -276,7 +278,7 @@ CREATE OR ALTER PROCEDURE p_list_estado_usuario
     @offset INT = NULL
 AS
 BEGIN
-    IF @limit IS NOT NULL AND @offset IS NOT NULL
+    IF @limit IS NOT NULL
     BEGIN
         SELECT id, nombre, descripcion
         FROM estado_usuario
@@ -287,7 +289,9 @@ BEGIN
     ELSE
     BEGIN
         SELECT id, nombre, descripcion
-        FROM estado_usuario;
+        FROM estado_usuario
+        ORDER BY id
+        OFFSET @offset ROWS;
     END
 END;
 GO
