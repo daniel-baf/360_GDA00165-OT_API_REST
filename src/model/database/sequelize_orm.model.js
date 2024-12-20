@@ -20,6 +20,10 @@ function getConnection() {
             encrypt: true, // Se usa para conexiones seguras, ajusta según sea necesario
             trustServerCertificate: true, // Usado para evitar errores de certificado si no es necesario
           },
+          define: {
+            timestamps: false, // Desactiva los timestamps por defecto
+          },
+          logging: false, // Desactiva los logs por defecto
         }
       );
     }
