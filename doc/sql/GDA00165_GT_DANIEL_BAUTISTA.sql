@@ -763,7 +763,7 @@ DROP PROCEDURE IF EXISTS p_list_pedido;
 DROP PROCEDURE IF EXISTS p_delete_pedido;
 GO
 
-CREATE PROCEDURE p_listar_detalles_pedido
+CREATE OR ALTER PROCEDURE p_listar_detalles_pedido
     @pedido_id INT
 AS
 BEGIN
@@ -786,7 +786,7 @@ END;
 
 GO
 
-CREATE PROCEDURE p_create_detalle_pedido
+CREATE OR ALTER PROCEDURE p_create_detalle_pedido
     @cantidad INT,
     @precio_venta DECIMAL(10, 2),
     @pedido_id INT,
@@ -802,7 +802,7 @@ END;
 
 GO
 
-CREATE PROCEDURE p_update_detalle_pedido
+CREATE OR ALTER PROCEDURE p_update_detalle_pedido
     @id INT,
     -- ID del detalle que se desea actualizar
     @cantidad INT,
@@ -821,7 +821,7 @@ END;
 
 GO
 
-CREATE PROCEDURE p_delete_detalle_pedido
+CREATE OR ALTER PROCEDURE p_delete_detalle_pedido
     @id INT = NULL,
     -- ID del detalle a borrar
     @pedido_id INT = NULL
@@ -849,7 +849,7 @@ END;
 
 GO
 
-CREATE PROCEDURE p_create_pedido
+CREATE OR ALTER PROCEDURE p_create_pedido
     @usuario_id INT,
     -- ID del usuario que valida el pedido
     @direccion_entrega_id INT,
@@ -945,7 +945,7 @@ END;
 
 GO
 
-CREATE PROCEDURE p_list_pedido
+CREATE OR ALTER PROCEDURE p_list_pedido
     @limit INT = NULL,
     @offset INT = NULL,
     @target_state INT = NULL
@@ -971,7 +971,7 @@ BEGIN
 END;
 GO
 
-CREATE PROCEDURE p_delete_pedido
+CREATE OR ALTER PROCEDURE p_delete_pedido
     @id INT
 AS
 BEGIN
