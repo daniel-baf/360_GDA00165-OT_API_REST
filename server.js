@@ -4,7 +4,7 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 import http from "http";
 // routes
-import bundled_router from "./routes.js";
+import bundled_router from "./src/routes/routes.js";
 
 // Load environment variables
 const app = express(); // create express app
@@ -33,4 +33,3 @@ server
   });
 
 server.listen(app.get("port")); // listen on port
-

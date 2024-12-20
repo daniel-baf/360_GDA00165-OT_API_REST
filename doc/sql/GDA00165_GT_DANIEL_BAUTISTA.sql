@@ -11,6 +11,7 @@
 -- RESUMEN
 -- LOS PROCEDIMIENTOS SOLICITADOS SE LLAMAN p_cambiar_estado_producto y  p_insertar_usuario
 -- Las vistas se llaman v_productos_activos_stock_m0, v_total_ingresos_agosto_pedidos v_mayores_clientes
+-- Al principio de tu script o procedimiento almacenado
 USE master;
 GO
 -- Eliminar la base de datos si existe y usuario por defecto
@@ -38,7 +39,7 @@ DROP TABLE IF EXISTS rol;
 CREATE TABLE rol
 (
     id INT PRIMARY KEY IDENTITY,
-    nombre VARCHAR(50) NOT NULL,
+    nombre VARCHAR(50) NOT NULL UNIQUE,
     descripcion VARCHAR(245),
 );
 
@@ -180,40 +181,63 @@ DROP PROCEDURE IF EXISTS p_update_rol;
 DROP PROCEDURE IF EXISTS p_delete_rol;
 GO
 
--- Procedimiento para crear un nuevo rol
 CREATE OR ALTER PROCEDURE p_create_rol
     @nombre VARCHAR(50),
     @descripcion VARCHAR(245)
 AS
 BEGIN
-    INSERT INTO rol
-        (nombre, descripcion)
-    VALUES
-        (@nombre, @descripcion);
+    SET NOCOUNT ON;
+
+    -- Declarar una tabla temporal para almacenar el nuevo ID
+    DECLARE @output TABLE (id INT);
+
+    -- Insertar el nuevo rol y capturar el nuevo ID generado
+    INSERT INTO rol (nombre, descripcion)
+    OUTPUT inserted.id INTO @output(id) -- Capturamos el nuevo ID en la tabla temporal
+    VALUES (@nombre, @descripcion);
+
+    -- Recuperar el nuevo ID desde la tabla temporal
+    DECLARE @newId INT;
+    SELECT @newId = id FROM @output;
+
+    -- Retornar el nuevo ID
+    SELECT @newId AS 'id'; -- Retorna el nuevo ID insertado
+		
 END;
 GO
+
+
 
 -- Procedimiento para actualizar un rol existente
 CREATE OR ALTER PROCEDURE p_update_rol
     @id INT,
-    @nombre VARCHAR(50),
-    @descripcion VARCHAR(245)
+    @json NVARCHAR(MAX)
 AS
 BEGIN
+    -- Declarar variables para almacenar datos extraídos del JSON
+    DECLARE @nombre NVARCHAR(50), @descripcion NVARCHAR(245);
+
+    -- Parsear el JSON
+    SELECT 
+        @nombre = JSON_VALUE(@json, '$.nombre'),
+        @descripcion = JSON_VALUE(@json, '$.descripcion');
+
+    -- Actualizar la tabla
     UPDATE rol
-    SET nombre = @nombre,
-        descripcion = @descripcion
+    SET nombre = COALESCE(@nombre, nombre),
+        descripcion = COALESCE(@descripcion, descripcion)
     WHERE id = @id;
 END;
 GO
 
+
 -- Procedimiento para listar todos los roles con paginación
 CREATE OR ALTER PROCEDURE p_list_rol
     @limit INT = NULL,
-    @offset INT = NULL
+    @offset INT = 0
 AS
 BEGIN
-    IF @limit IS NOT NULL AND @offset IS NOT NULL
+    IF @limit IS NOT NULL
     BEGIN
         SELECT id, nombre, descripcion
         FROM rol
@@ -224,7 +248,9 @@ BEGIN
     ELSE
     BEGIN
         SELECT id, nombre, descripcion
-        FROM rol;
+        FROM rol
+        ORDER BY id
+        OFFSET @offset ROWS;
     END
 END;
 GO
@@ -763,7 +789,7 @@ DROP PROCEDURE IF EXISTS p_list_pedido;
 DROP PROCEDURE IF EXISTS p_delete_pedido;
 GO
 
-CREATE PROCEDURE p_listar_detalles_pedido
+CREATE OR ALTER PROCEDURE p_listar_detalles_pedido
     @pedido_id INT
 AS
 BEGIN
@@ -786,7 +812,7 @@ END;
 
 GO
 
-CREATE PROCEDURE p_create_detalle_pedido
+CREATE OR ALTER PROCEDURE p_create_detalle_pedido
     @cantidad INT,
     @precio_venta DECIMAL(10, 2),
     @pedido_id INT,
@@ -802,7 +828,7 @@ END;
 
 GO
 
-CREATE PROCEDURE p_update_detalle_pedido
+CREATE OR ALTER PROCEDURE p_update_detalle_pedido
     @id INT,
     -- ID del detalle que se desea actualizar
     @cantidad INT,
@@ -821,7 +847,7 @@ END;
 
 GO
 
-CREATE PROCEDURE p_delete_detalle_pedido
+CREATE OR ALTER PROCEDURE p_delete_detalle_pedido
     @id INT = NULL,
     -- ID del detalle a borrar
     @pedido_id INT = NULL
@@ -849,7 +875,7 @@ END;
 
 GO
 
-CREATE PROCEDURE p_create_pedido
+CREATE OR ALTER PROCEDURE p_create_pedido
     @usuario_id INT,
     -- ID del usuario que valida el pedido
     @direccion_entrega_id INT,
@@ -945,7 +971,7 @@ END;
 
 GO
 
-CREATE PROCEDURE p_list_pedido
+CREATE OR ALTER PROCEDURE p_list_pedido
     @limit INT = NULL,
     @offset INT = NULL,
     @target_state INT = NULL
@@ -971,7 +997,7 @@ BEGIN
 END;
 GO
 
-CREATE PROCEDURE p_delete_pedido
+CREATE OR ALTER PROCEDURE p_delete_pedido
     @id INT
 AS
 BEGIN
@@ -1100,6 +1126,7 @@ CREATE OR ALTER PROCEDURE p_config_predefinidos
     @num_no_confirmados INT
 AS
 BEGIN
+	SET NOCOUNT ON
     -- INSERTS PARA ROLES
     EXEC p_create_rol 'Cliente', 'usuario que compra productos';
     EXEC p_create_rol 'Operativo', 'usuario que gestiona el sistema';
@@ -1337,6 +1364,8 @@ GO
 -- Invocar el procedimiento almacenado
 EXEC p_config_predefinidos 15, 5;
 
+
+-- Habilita las salidas
 
 -- TESTEO
 -- EXEC p_cambiar_estado_producto 1, 2;
