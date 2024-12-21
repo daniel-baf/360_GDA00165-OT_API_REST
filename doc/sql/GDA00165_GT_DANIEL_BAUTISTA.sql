@@ -104,7 +104,7 @@ DROP TABLE IF EXISTS estado_producto;
 CREATE TABLE estado_producto
 (
     id INT PRIMARY KEY IDENTITY,
-    nombre VARCHAR(50) NOT NULL,
+    nombre VARCHAR(50) NOT NULL UNIQUE,
     descripcion VARCHAR(245),
 );
 
@@ -631,10 +631,24 @@ CREATE OR ALTER PROCEDURE p_create_estado_producto
     @descripcion VARCHAR(245)
 AS
 BEGIN
+    IF @nombre IS NULL OR @nombre = ''
+    BEGIN
+        RAISERROR ('El nombre es obligatorio.', 16, 1);
+        RETURN;
+    END;
+
+    IF @descripcion IS NULL OR @descripcion = ''
+    BEGIN
+        RAISERROR ('La descripcion es obligatoria.', 16, 1);
+        RETURN;
+    END;
+
     INSERT INTO estado_producto
         (nombre, descripcion)
     VALUES
-        (@nombre, @descripcion);
+        (UPPER(@nombre), UPPER(@descripcion));
+
+	SELECT SCOPE_IDENTITY() AS 'id';
 END;
 GO
 
@@ -644,9 +658,15 @@ CREATE OR ALTER PROCEDURE p_update_estado_producto
     @descripcion VARCHAR(245)
 AS
 BEGIN
-    UPDATE estado_producto
-    SET nombre = @nombre,
-        descripcion = @descripcion
+    IF @nombre IS NULL AND @descripcion IS NULL
+    BEGIN
+        RAISERROR ('No se ha actualizado nada.', 16, 1);
+        RETURN;
+    END;
+
+	UPDATE estado_producto
+    SET nombre = COALESCE(@nombre, nombre),
+        descripcion = COALESCE(@descripcion, descripcion)
     WHERE id = @id;
 END;
 GO
@@ -665,7 +685,7 @@ CREATE OR ALTER PROCEDURE p_list_estado_producto
     @offset INT = NULL
 AS
 BEGIN
-    IF @limit IS NOT NULL AND @offset IS NOT NULL
+    IF @limit IS NOT NULL
     BEGIN
         SELECT id, nombre, descripcion
         FROM estado_producto
@@ -676,7 +696,9 @@ BEGIN
     ELSE
     BEGIN
         SELECT id, nombre, descripcion
-        FROM estado_producto;
+        FROM estado_producto
+        ORDER BY id
+        OFFSET @offset ROWS;
     END
 END;
 

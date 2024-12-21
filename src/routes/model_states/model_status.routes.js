@@ -1,6 +1,7 @@
 import express from "express";
 import user_status_router from "./states/user_status.routes.js";
 import order_status_router from "./states/order_status.routes.js";
+import product_status_router from "./states/product_status.routes.js";
 
 const model_status_router = express.Router();
 
@@ -8,5 +9,7 @@ const model_status_router = express.Router();
 model_status_router.use("/user", user_status_router);
 // order status routes -> /api/states/order
 model_status_router.use("/order", order_status_router);
+// product status routes -> /api/states/product
+model_status_router.use("/product", product_status_router);
 
 export default model_status_router;
