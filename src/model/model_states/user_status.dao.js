@@ -13,12 +13,11 @@ async function createUserStatus(nombre, descripcion) {
       "EXEC p_create_estado_usuario @nombre = :nombre, @descripcion = :descripcion",
       {
         replacements: { nombre, descripcion },
-        type: connection.QueryTypes.SELECT,
+        type: connection.QueryTypes.CREATE,
       }
     );
-    console.log(result);
 
-    return { id: result.id, ...{ nombre, descripcion } };
+    return { id: result[0].id, ...{ nombre, descripcion } };
   } catch (error) {
     throw new Error("Error creating user status: " + error.message);
   }
@@ -38,10 +37,13 @@ async function updateUserStatus(id, nombre = null, descripcion = null) {
       "EXEC p_update_estado_usuario @id = :id, @nombre = :nombre, @descripcion = :descripcion",
       {
         replacements: { id, nombre, descripcion },
-        type: connection.QueryTypes.SELECT,
+        type: connection.QueryTypes.UPDATE,
       }
     );
-    return { message: `Estado de usuario con id ${id} actualizado` };
+
+    return Object.fromEntries(
+      Object.entries({ id, nombre, descripcion }).filter(([, value]) => !!value)
+    );
   } catch (error) {
     throw new Error("Error updating user status: " + error.message);
   }
@@ -84,10 +86,10 @@ async function deleteUserStatus(id) {
       "EXEC p_delete_estado_usuario @id = :id",
       {
         replacements: { id },
-        type: connection.QueryTypes.SELECT,
+        type: connection.QueryTypes.DELETE,
       }
     );
-    return { message: `Estado de usuario con id ${id} borrado exitosamente` };
+    return { id };
   } catch (error) {
     throw new Error("Error deleting user status: " + error.message);
   }

@@ -1,5 +1,4 @@
 import { getConnection } from "@ORM/sequelize_orm.model.js";
-import { DataTypes, json } from "sequelize";
 
 const sequelize = getConnection();
 
@@ -16,14 +15,15 @@ const createRol = async (rol_data) => {
       "EXEC p_create_rol :nombre, :descripcion",
       {
         replacements: { nombre, descripcion },
-        type: sequelize.QueryTypes.SELECT,
+        type: sequelize.QueryTypes.CREATE,
       }
     );
 
-    return { id: result.id, ...rol_data };
+    return { id: result[0].id, ...rol_data };
   } catch (err) {
-    console.error("Error creating role with Sequelize:", err);
-    throw err;
+    throw new Error(
+      "No se pudo crear el rol, es posible que ya exista un rol con el mismo nombre"
+    );
   }
 };
 
@@ -47,8 +47,7 @@ const updateRol = async (rol_data) => {
     });
     return { id, ...JSON.parse(rol_data) };
   } catch (err) {
-    console.error("Error updating role with Sequelize:", err);
-    throw err;
+    throw new Error("Error al actualizar el rol " + err);
   }
 };
 
@@ -67,8 +66,7 @@ const listRol = async (limit = null, offset = 0) => {
 
     return result;
   } catch (err) {
-    console.error("Error listing roles with Sequelize:", err);
-    throw err;
+    throw new Error("Error listing roles with Sequelize: " + err);
   }
 };
 
@@ -83,10 +81,11 @@ const deleteRol = async (id) => {
       replacements: { id },
       type: sequelize.QueryTypes.DELETE,
     });
-    return { message: `Rol con ID ${id} eliminado` };
+    return { id };
   } catch (err) {
-    console.error("Error deleting role with Sequelize:", err);
-    throw err;
+    throw new Error(
+      "No se pudo eliminar el rol, es posible que no exista " + err
+    );
   }
 };
 

@@ -4,7 +4,7 @@ import {
   listRol,
   updateRol,
   deleteRol,
-} from "@models/rol/rol.dao.js";
+} from "@models/user/rol/rol.dao.js";
 
 const rol_router = express.Router();
 async function listRolManager(limit = null, offset = 0) {

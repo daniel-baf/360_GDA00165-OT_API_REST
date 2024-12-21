@@ -9,7 +9,7 @@
 -- #########################################################################
 
 -- RESUMEN
--- LOS PROCEDIMIENTOS SOLICITADOS SE LLAMAN p_cambiar_estado_producto y  p_insertar_usuario
+-- LOS PROCEDIMIENTOS SOLICITADOS SE LLAMAN p_cambiar_estado_producto y  p_create_usuario
 -- Las vistas se llaman v_productos_activos_stock_m0, v_total_ingresos_agosto_pedidos v_mayores_clientes
 -- Al principio de tu script o procedimiento almacenado
 USE master;
@@ -48,7 +48,7 @@ DROP TABLE IF EXISTS estado_usuario;
 CREATE TABLE estado_usuario
 (
     id INT PRIMARY KEY IDENTITY,
-    nombre VARCHAR(50) NOT NULL,
+    nombre VARCHAR(50) NOT NULL UNIQUE,
     descripcion VARCHAR(245),
 );
 
@@ -332,6 +332,11 @@ CREATE OR ALTER PROCEDURE p_delete_estado_usuario
     @id INT = NULL
 AS
 BEGIN
+    IF @id <= 3
+    BEGIN
+        RAISERROR ('Este rol es imposible de borrar, el sistema depende de el', 16, 1);
+        RETURN;
+    END;
     DELETE FROM estado_usuario WHERE id = @id;
 END;
 
@@ -401,11 +406,17 @@ CREATE OR ALTER PROCEDURE p_delete_estado_pedido
     @id INT = NULL
 AS
 BEGIN
+    IF @id <= 3
+    BEGIN
+        RAISERROR ('Este rol es imposible de borrar, el sistema depende de el', 16, 1);
+        RETURN;
+    END;
+
     DELETE FROM estado_pedido WHERE id = @id;
 END;
 
 GO
-DROP PROCEDURE IF EXISTS p_insertar_usuario;
+DROP PROCEDURE IF EXISTS p_create_usuario;
 DROP PROCEDURE IF EXISTS p_listar_usuarios;
 DROP PROCEDURE IF EXISTS p_update_usuario;
 DROP PROCEDURE IF EXISTS p_delete_usuario;
@@ -413,7 +424,7 @@ GO
 
 
 -- PROCEDIMIENTO ALMACENADO PARA INSERTAR usuarioS EN LA BASE DE DATOS
-CREATE OR ALTER PROCEDURE p_insertar_usuario
+CREATE OR ALTER PROCEDURE p_create_usuario
     @email VARCHAR(50),
     @nombre_completo VARCHAR(50),
     @NIT VARCHAR(15),
@@ -428,6 +439,8 @@ BEGIN
         (email, nombre_completo, NIT, password, telefono, fecha_nacimiento, rol_id, estado_usuario_id)
     VALUES
         (@email, @nombre_completo, @NIT, @password, @telefono, @fecha_nacimiento, @rol_id, @estado_usuario_id);
+    -- RETORNAMOS EL NUEVO ID
+    SELECT SCOPE_IDENTITY() AS id;
 END;
 GO
 
@@ -440,19 +453,20 @@ CREATE OR ALTER PROCEDURE p_update_usuario
     @password VARCHAR(75),
     @telefono VARCHAR(10),
     @fecha_nacimiento DATE,
-    @rol_id INT,
-    @estado_usuario_id INT
+    @estado_usuario_id INT,
+    @rol_id INT
 AS
 BEGIN
+    -- UPDATE ONLY VALUES WICH ARE NOT NULL
     UPDATE usuario
-    SET email = @email,
-        nombre_completo = @nombre_completo,
-        NIT = @NIT,
-        password = @password,
-        telefono = @telefono,
-        fecha_nacimiento = @fecha_nacimiento,
-        rol_id = @rol_id,
-        estado_usuario_id = @estado_usuario_id
+    SET email = COALESCE(@email, email),
+        nombre_completo = COALESCE(@nombre_completo, nombre_completo),
+        NIT = COALESCE(@NIT, NIT),
+        password = COALESCE(@password, password),
+        telefono = COALESCE(@telefono, telefono),
+        fecha_nacimiento = COALESCE(@fecha_nacimiento, fecha_nacimiento),
+        estado_usuario_id = COALESCE(@estado_usuario_id, estado_usuario_id),
+        rol_id = COALESCE(@rol_id, rol_id)
     WHERE id = @id;
 END;
 GO
@@ -462,8 +476,26 @@ CREATE OR ALTER PROCEDURE p_delete_usuario
     @id INT
 AS
 BEGIN
-    DELETE FROM usuario
-    WHERE id = @id;
+    -- TODO: se que lo correcto es simplemente inhabilitar el usuario, pero por fines practicos lo eliminare
+    BEGIN TRY
+        DELETE FROM usuario
+        WHERE id = @id;
+
+        SELECT 'El usuario se ha borrado exitosamente, no habian registros ligados a el' AS mensaje;
+        RETURN;
+    END TRY
+    BEGIN CATCH
+        IF ERROR_NUMBER() = 547 -- Error de restricción de clave externa
+        BEGIN
+        UPDATE usuario
+            SET estado_usuario_id = (SELECT id
+        FROM estado_usuario
+        WHERE UPPER(nombre) = UPPER('Inhabilitado'))
+            WHERE id = @id
+        --  SHOW THE FINAL MESSAGE TO THE USER
+        SELECT 'El usuario no puede ser borrado, pero se ha deshabilitado.' AS mensaje;
+    END
+    END CATCH;
 END;
 GO
 
@@ -473,7 +505,7 @@ CREATE OR ALTER PROCEDURE p_list_usuario
     @offset INT = 0
 AS
 BEGIN
-    IF @limit IS NOT NULL AND @offset IS NOT NULL
+    IF @limit IS NOT NULL
     BEGIN
         SELECT id, email, nombre_completo, NIT, telefono, fecha_nacimiento, fecha_creacion, rol_id, estado_usuario_id
         FROM usuario
@@ -484,19 +516,33 @@ BEGIN
     ELSE
     BEGIN
         SELECT id, email, nombre_completo, NIT, telefono, fecha_nacimiento, fecha_creacion, rol_id, estado_usuario_id
-        FROM usuario;
+        FROM usuario
+        ORDER BY id
+        OFFSET @offset ROWS;
     END
 END;
 GO
 
 -- Procedimiento para buscar un usuario por ID
 CREATE OR ALTER PROCEDURE p_search_usuario
-    @id INT
+    @id INT,
+    @email VARCHAR(50) 
 AS
 BEGIN
-    SELECT id, email, nombre_completo, NIT, telefono, fecha_nacimiento, fecha_creacion, rol_id, estado_usuario_id
-    FROM usuario
-    WHERE id = @id;
+    IF @id IS NOT NULL
+    BEGIN
+        SELECT id, email, nombre_completo, NIT, telefono, fecha_nacimiento, fecha_creacion, rol_id, estado_usuario_id
+        FROM usuario
+        WHERE id = @id;
+        RETURN
+    END;
+    ELSE IF @email IS NOT NULL
+    BEGIN
+        SELECT id, email, nombre_completo, NIT, telefono, fecha_nacimiento, fecha_creacion, rol_id, estado_usuario_id
+        FROM usuario
+        WHERE email = @email;
+        RETURN
+    END;
 END;
 
 GO
@@ -648,7 +694,7 @@ BEGIN
     VALUES
         (UPPER(@nombre), UPPER(@descripcion));
 
-	SELECT SCOPE_IDENTITY() AS 'id';
+    SELECT SCOPE_IDENTITY() AS 'id';
 END;
 GO
 
@@ -664,7 +710,7 @@ BEGIN
         RETURN;
     END;
 
-	UPDATE estado_producto
+    UPDATE estado_producto
     SET nombre = COALESCE(@nombre, nombre),
         descripcion = COALESCE(@descripcion, descripcion)
     WHERE id = @id;
@@ -675,6 +721,13 @@ CREATE OR ALTER PROCEDURE p_delete_estado_producto
     @id INT
 AS
 BEGIN
+    IF @id <= 4
+    BEGIN
+        RAISERROR ('Este rol es imposible de borrar, el sistema depende de el', 16, 1);
+        RETURN;
+    END;
+
+
     DELETE FROM estado_producto
     WHERE id = @id;
 END;
@@ -1185,19 +1238,19 @@ BEGIN
 
 
     -- INSERTS PARA usuarioS CLIENTES: DEFAULT PASS: password
-    EXEC p_insertar_usuario 'cliente1@example.com', 'Cliente Uno', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567890', '1990-01-01', 1, 3;
-    EXEC p_insertar_usuario 'cliente2@example.com', 'Cliente Dos', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567891', '1991-02-02', 1, 3;
-    EXEC p_insertar_usuario 'cliente3@example.com', 'Cliente Tres', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567892', '1992-03-03', 1, 3;
-    EXEC p_insertar_usuario 'cliente4@example.com', 'Cliente Cuatro', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567893', '1993-04-04', 1, 3;
-    EXEC p_insertar_usuario 'cliente5@example.com', 'Cliente Cinco', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567894', '1994-05-05', 1, 3;
-    EXEC p_insertar_usuario 'cliente6@example.com', 'Cliente Seis', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567895', '1995-06-06', 1, 3;
-    EXEC p_insertar_usuario 'cliente7@example.com', 'Cliente Siete', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567896', '1996-07-07', 1, 3;
-    EXEC p_insertar_usuario 'cliente8@example.com', 'Cliente Ocho', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567897', '1997-08-08', 1, 3;
-    EXEC p_insertar_usuario 'cliente9@example.com', 'Cliente Nueve', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567898', '1998-09-09', 1, 3;
-    EXEC p_insertar_usuario 'cliente10@example.com', 'Cliente Diez', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567899', '1999-10-10', 1, 3;
+    EXEC p_create_usuario 'cliente1@example.com', 'Cliente Uno', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567890', '1990-01-01', 1, 3;
+    EXEC p_create_usuario 'cliente2@example.com', 'Cliente Dos', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567891', '1991-02-02', 1, 3;
+    EXEC p_create_usuario 'cliente3@example.com', 'Cliente Tres', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567892', '1992-03-03', 1, 3;
+    EXEC p_create_usuario 'cliente4@example.com', 'Cliente Cuatro', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567893', '1993-04-04', 1, 3;
+    EXEC p_create_usuario 'cliente5@example.com', 'Cliente Cinco', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567894', '1994-05-05', 1, 3;
+    EXEC p_create_usuario 'cliente6@example.com', 'Cliente Seis', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567895', '1995-06-06', 1, 3;
+    EXEC p_create_usuario 'cliente7@example.com', 'Cliente Siete', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567896', '1996-07-07', 1, 3;
+    EXEC p_create_usuario 'cliente8@example.com', 'Cliente Ocho', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567897', '1997-08-08', 1, 3;
+    EXEC p_create_usuario 'cliente9@example.com', 'Cliente Nueve', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567898', '1998-09-09', 1, 3;
+    EXEC p_create_usuario 'cliente10@example.com', 'Cliente Diez', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567899', '1999-10-10', 1, 3;
     -- INSERTS PARA usuarioS OPERATIVOS
-    EXEC p_insertar_usuario 'operativo1@example.com', 'Operativo Uno', 'CF', 'password12', '0987654322', '1981-02-02', 2, 3;
-    EXEC p_insertar_usuario 'operativo2@example.com', 'Operativo Dos', 'CF', 'password12', '0987654322', '1981-02-02', 2, 3;
+    EXEC p_create_usuario 'operativo1@example.com', 'Operativo Uno', 'CF', 'password12', '0987654322', '1981-02-02', 2, 3;
+    EXEC p_create_usuario 'operativo2@example.com', 'Operativo Dos', 'CF', 'password12', '0987654322', '1981-02-02', 2, 3;
 
     -- INSERTS PARA DIRECCIONES DE CLIENTES
     EXEC p_create_direccion_cliente 'Departamento1', 'Municipio1', 'Direccion1', '1234567890', 1;
@@ -1402,7 +1455,7 @@ EXEC p_config_predefinidos 15, 5;
 
 -- TESTEO
 -- EXEC p_cambiar_estado_producto 1, 2;
--- EXEC p_insertar_usuario 'a@example.com', 'EX NAME', 'EX NIT', 'EX PASS', 'EX NIT', '1990-01-01', 1, 3;
+-- EXEC p_create_usuario 'a@example.com', 'EX NAME', 'EX NIT', 'EX PASS', 'EX NIT', '1990-01-01', 1, 3;
 -- SELECT * FROM v_productos_activos_stock_m0;
 -- SELECT * FROM v_total_ingresos_agosto_pedidos;
 -- SELECT TOP 10 * FROM v_mayores_clientes ORDER BY gasto_total DESC;
