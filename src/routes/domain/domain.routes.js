@@ -1,9 +1,9 @@
 import express from "express";
-import rol_router from "./rol/rol.routes.js";
+import user_router from "./users/user.routes.js";
 
 const domain_router = express.Router();
 
-// ROL ROUTES
-domain_router.use("/rol", rol_router);
+// USER ROUTES
+domain_router.use("/user", user_router);
 
 export default domain_router;

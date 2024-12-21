@@ -9,7 +9,6 @@ import {
   updateOrderStatus,
   deleteOrderStatus,
 } from "@models/model_states/order_status.dao.js";
-import { ValidationError } from "sequelize";
 
 const order_status_router = express.Router();
 
@@ -32,13 +31,9 @@ order_status_router.post("/create", async (req, res) => {
 
     res.status(201).json(await createOrderStatus(nombre, descripcion));
   } catch (error) {
-    if (error.name === "ValidationError") {
-      res.status(400).send(`Datos inválidos: ${error.message}`);
-    } else {
-      res
-        .status(500)
-        .send(`No ha sido posible crear el estado de orden: ${error}`);
-    }
+    res
+      .status(500)
+      .send(`No ha sido posible crear el estado de orden: ${error}`);
   }
 });
 

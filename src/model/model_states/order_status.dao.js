@@ -19,11 +19,11 @@ async function createOrderStatus(nombre, descripcion) {
     "EXEC p_create_estado_pedido :nombre, :descripcion",
     {
       replacements: { nombre, descripcion },
-      type: sequelize.QueryTypes.SELECT,
+      type: sequelize.QueryTypes.CREATE,
     }
   );
 
-  return { id: result.id, nombre, descripcion };
+  return { id: result[0].id, nombre, descripcion };
 }
 /**
  * Updates an existing order status. retorna el objeto actualizado, excluyendo los campos que no se actualizan
@@ -89,7 +89,7 @@ async function deleteOrderStatus(id) {
     type: sequelize.QueryTypes.DELETE,
   });
 
-  return { message: `Estado de orden con id ${id} eliminado` };
+  return { id };
 }
 
 export {

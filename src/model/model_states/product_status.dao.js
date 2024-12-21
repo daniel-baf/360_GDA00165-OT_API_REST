@@ -19,10 +19,11 @@ async function createProductStatus(nombre, descripcion) {
       "EXEC p_create_estado_producto @nombre = :nombre, @descripcion = :descripcion",
       {
         replacements: { nombre, descripcion },
+        type: sequelize.QueryTypes.CREATE,
       }
     );
 
-    return { id: result.id, nombre, descripcion };
+    return { id: result[0].id, nombre, descripcion };
   } catch (error) {
     throw new Error(`Error creating product status: ${error.message}`);
   }
@@ -44,6 +45,7 @@ async function updateProductStatus(id, nombre = null, descripcion = null) {
       "EXEC p_update_estado_producto @id = :id, @nombre = :nombre, @descripcion = :descripcion",
       {
         replacements: { id, nombre, descripcion },
+        type: sequelize.QueryTypes.UPDATE,
       }
     );
 
@@ -66,6 +68,7 @@ async function deleteProductStatus(id) {
 
     await sequelize.query("EXEC p_delete_estado_producto @id = :id", {
       replacements: { id },
+      type: sequelize.QueryTypes.DELETE,
     });
 
     return { message: `Estado de producto con id: ${id} borrado` };
@@ -82,15 +85,16 @@ async function deleteProductStatus(id) {
  */
 async function listProductStatus(limit = null, offset = 0) {
   try {
-    if ((limit && limit < 1) || offset < 0)
+    if ((!!limit && limit < 1) || offset < 0)
       throw new RangeError(
         "El limite y el offset deben ser mayores a 0 o nulos"
       );
 
-    const [results] = await sequelize.query(
+    const results = await sequelize.query(
       "EXEC p_list_estado_producto @limit = :limit, @offset = :offset",
       {
         replacements: { limit, offset },
+        type: sequelize.QueryTypes.SELECT,
       }
     );
     return results;
