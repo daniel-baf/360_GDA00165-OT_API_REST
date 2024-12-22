@@ -99,14 +99,6 @@ El proyecto utiliza las siguientes dependencias principales:
 
 Instalar todas las dependencias usando:
 
-
-```bash
-npm install
-npm install
-=======
-
-Instalar todas las dependencias usando:
-
 ```bash
 npm install
 
