@@ -813,6 +813,7 @@ BEGIN
     IF @stock < 0
     BEGIN
         RAISERROR ('El stock no puede ser negativo.', 16, 1);
+        return;
     END;
 
     INSERT INTO producto
@@ -946,21 +947,22 @@ END;
 
 GO
 DROP PROCEDURE IF EXISTS p_create_detalle_pedido;
-DROP PROCEDURE IF EXISTS p_listar_detalles_pedido;
+DROP PROCEDURE IF EXISTS p_list_detalles_pedido;
 DROP PROCEDURE IF EXISTS p_update_detalle_pedido;
 DROP PROCEDURE IF EXISTS p_delete_detalle_pedido;
 DROP PROCEDURE IF EXISTS p_create_pedido;
 DROP PROCEDURE IF EXISTS p_list_pedido;
+DROP PROCEDURE IF EXISTS p_search_pedido;
 DROP PROCEDURE IF EXISTS p_delete_pedido;
 GO
 
-CREATE OR ALTER PROCEDURE p_listar_detalles_pedido
+CREATE OR ALTER PROCEDURE p_list_detalles_pedido
     @pedido_id INT
 AS
 BEGIN
     -- Seleccionar todos los detalles del pedido especificado por @pedido_id
     SELECT
-        dp.id AS detalle_id,
+        dp.id AS id,
         dp.cantidad,
         dp.precio_venta,
         (dp.cantidad * dp.precio_venta) AS subtotal, -- Subtotal calculado
@@ -989,6 +991,7 @@ BEGIN
         (cantidad, precio_venta, pedido_id, producto_id)
     VALUES
         (@cantidad, @precio_venta, @pedido_id, @producto_id);
+
 END;
 
 GO
@@ -1042,28 +1045,28 @@ GO
 
 CREATE OR ALTER PROCEDURE p_create_pedido
     @usuario_id INT,
-    -- ID del usuario que valida el pedido
     @direccion_entrega_id INT,
-    -- ID de la dirección de entrega
     @estado_pedido_id INT,
-    -- Estado del pedido
     @json_detalles NVARCHAR(MAX)
--- JSON que contiene los detalles del pedido
 AS
 BEGIN
+    -- Procesar el JSON y extraer los detalles
+    DECLARE @Detalles TABLE (
+        cantidad INT,
+        precio_venta DECIMAL(10, 2),
+        producto_id INT
+        );
+
     -- Iniciar una transacción
     BEGIN TRANSACTION;
 
     BEGIN TRY
         -- Variables para almacenar el total y los valores extraídos del JSON
         DECLARE @total DECIMAL(10, 2) = 0;
-
         -- Variables para los valores de cada detalle del pedido
         DECLARE @producto_id INT, @cantidad INT, @precio_venta DECIMAL(10, 2);
-
         -- Crear el pedido y obtener el ID generado
         DECLARE @pedido_id INT;
-
         -- Insertar el pedido (sin el total) primero, ya que se calculará después
         INSERT INTO pedido
         (total, usuario_id, direccion_entrega_id, estado_pedido_id)
@@ -1073,44 +1076,48 @@ BEGIN
         -- Obtener el ID del pedido recién insertado
         SET @pedido_id = SCOPE_IDENTITY();
 
-        -- Procesar el JSON y extraer los detalles
-        DECLARE @Detalles TABLE (
-        producto_id INT,
-        cantidad INT,
-        precio_venta DECIMAL(10, 2)
-        );
-
         -- Insertar los detalles desde el JSON en la tabla temporal
         INSERT INTO @Detalles
         (producto_id, cantidad, precio_venta)
     SELECT
-        JSON_VALUE(value, '$.producto_id') AS producto_id,
-        JSON_VALUE(value, '$.cantidad') AS cantidad,
-        JSON_VALUE(value, '$.precio_venta') AS precio_venta
-    FROM OPENJSON(@json_detalles, '$.productos');
+        producto_id, cantidad, precio_venta
+    FROM OPENJSON(@json_detalles)
+                WITH (
+                    producto_id INT,
+                    cantidad INT,
+                    precio_venta DECIMAL(10, 2)
+                );
 
-        -- Insertar los detalles en la tabla detalle_pedido y calcular el total
+
+    -- Insertar los detalles del pedido en la tabla detalle_pedido
         DECLARE detalle_cursor CURSOR FOR
-            SELECT producto_id, cantidad, precio_venta
+        SELECT producto_id, cantidad, precio_venta
     FROM @Detalles;
 
         OPEN detalle_cursor;
+
         FETCH NEXT FROM detalle_cursor INTO @producto_id, @cantidad, @precio_venta;
 
-        -- Iterar sobre cada detalle y sumarlo al total
+        -- Iterar sobre los detalles y calcular el total
         WHILE @@FETCH_STATUS = 0
         BEGIN
-        -- Llamar al procedimiento p_create_detalle_pedido para insertar cada detalle, pasando el @pedido_id
-        EXEC p_create_detalle_pedido @cantidad, @precio_venta, @pedido_id, @producto_id;
-
-        -- Calcular el total (sumar cantidad * precio_venta)
+        -- Calcular el total para cada detalle
         SET @total = @total + (@cantidad * @precio_venta);
 
+        -- Insertar el detalle en la tabla detalle_pedido
+        -- INSERT INTO detalle_pedido
+        --     (pedido_id, producto_id, cantidad, precio_venta)
+        -- VALUES
+        --     (@pedido_id, @producto_id, @cantidad, @precio_venta);
+        EXEC p_create_detalle_pedido @cantidad, @precio_venta, @pedido_id, @producto_id;
+
+
         FETCH NEXT FROM detalle_cursor INTO @producto_id, @cantidad, @precio_venta;
-    END
+    END;
 
         CLOSE detalle_cursor;
         DEALLOCATE detalle_cursor;
+
 
         -- Actualizar el total del pedido
         UPDATE pedido
@@ -1121,19 +1128,16 @@ BEGIN
         COMMIT TRANSACTION;
 
         -- Retornar el ID del pedido creado
-        SELECT @pedido_id AS pedido_id;
+        SELECT @pedido_id AS id;
 
     END TRY
     BEGIN CATCH
         -- Si ocurre un error, hacer rollback
         ROLLBACK TRANSACTION;
-
         -- Retornar el mensaje de error
         THROW;
     END CATCH
 END;
-
-
 GO
 
 CREATE OR ALTER PROCEDURE p_list_pedido
@@ -1142,7 +1146,7 @@ CREATE OR ALTER PROCEDURE p_list_pedido
     @target_state INT = NULL
 AS
 BEGIN
-    IF @limit IS NOT NULL AND @offset IS NOT NULL
+    IF @limit IS NOT NULL
     BEGIN
         SELECT id, fecha_creacion, fecha_confirmacion, fecha_entrega, total,
             usuario_validador_id, usuario_id, direccion_entrega_id, estado_pedido_id
@@ -1157,7 +1161,9 @@ BEGIN
         SELECT id, fecha_creacion, fecha_confirmacion, fecha_entrega, total,
             usuario_validador_id, usuario_id, direccion_entrega_id, estado_pedido_id
         FROM pedido
-        WHERE (@target_state IS NULL OR estado_pedido_id = @target_state);
+        WHERE (@target_state IS NULL OR estado_pedido_id = @target_state)
+        ORDER BY id
+        OFFSET @offset ROWS;
     END
 END;
 GO
@@ -1166,20 +1172,29 @@ CREATE OR ALTER PROCEDURE p_delete_pedido
     @id INT
 AS
 BEGIN
+    -- Verificar el estado del pedido
+    DECLARE @estado_pedido_id INT;
+    SELECT @estado_pedido_id = estado_pedido_id
+    FROM pedido
+    WHERE id = @id;
+
+    -- Si el estado del pedido es distinto de 1, lanzar un error
+    IF @estado_pedido_id != 1
+    BEGIN
+        RAISERROR ('No se puede eliminar el pedido, ya ha sido validado.', 16, 1);
+        RETURN;
+    END
+
+    -- se puede borrar o invalidar el pedido
     BEGIN TRANSACTION;
     BEGIN TRY
-        -- Verificar si el estado del pedido es 1
-        IF EXISTS (SELECT 1
-    FROM pedido
-    WHERE id = @id AND estado_pedido_id = 1)
-        BEGIN
         -- Obtener todos los detalles de este pedido
         DECLARE @detalle_id INT;
 
         DECLARE detalle_cursor CURSOR FOR
                 SELECT id
-        FROM detalle_pedido
-        WHERE pedido_id = @id;
+    FROM detalle_pedido
+    WHERE pedido_id = @id;
 
         OPEN detalle_cursor;
         FETCH NEXT FROM detalle_cursor INTO @detalle_id;
@@ -1187,34 +1202,43 @@ BEGIN
         -- Iterar sobre cada detalle del pedido
         WHILE @@FETCH_STATUS = 0
             BEGIN
-            -- Llamar al procedimiento para borrar el detalle
-            EXEC p_delete_detalle_pedido @detalle_id;
+        -- Llamar al procedimiento para borrar el detalle
+        EXEC p_delete_detalle_pedido @detalle_id;
 
-            FETCH NEXT FROM detalle_cursor INTO @detalle_id;
-        END
+        FETCH NEXT FROM detalle_cursor INTO @detalle_id;
+    END
 
         CLOSE detalle_cursor;
         DEALLOCATE detalle_cursor;
 
         -- Eliminar el pedido si todo salió bien
         DELETE FROM pedido WHERE id = @id;
-    END
-        ELSE
-        BEGIN
-        -- Si el estado no es 1, no se puede eliminar el pedido
-        PRINT 'No se puede eliminar el pedido, el estado no es 1.';
-    END
 
         -- Si todo se ha ejecutado correctamente, hacer commit
         COMMIT TRANSACTION;
+
+        -- Retornar un mensaje de éxito
+        SELECT 'El pedido se ha eliminado exitosamente.' AS mensaje;
     END TRY
     BEGIN CATCH
         -- En caso de error, hacer rollback
         ROLLBACK TRANSACTION;
-
         -- Opcionalmente, puedes manejar el error o lanzar una excepción
-        PRINT 'Se ha producido un error y la transacción ha sido revertida.';
+        RAISERROR ('Se ha producido un error y la transacción ha sido revertida', 16, 1);
+        RETURN;
     END CATCH
+END;
+
+GO
+
+CREATE OR ALTER PROCEDURE p_search_pedido
+    @id INT
+AS
+BEGIN
+    SELECT id, fecha_creacion, fecha_confirmacion, fecha_entrega, total,
+        usuario_validador_id, usuario_id, direccion_entrega_id, estado_pedido_id
+    FROM pedido
+    WHERE id = @id;
 END;
 
 GO
