@@ -39,7 +39,6 @@ const updateRol = async (rol_data) => {
     let { id } = rol_data;
     delete rol_data.id;
     rol_data = JSON.stringify(rol_data);
-    console.log(rol_data);
 
     const result = await sequelize.query("EXEC p_update_rol :id, :json", {
       replacements: { id, json: rol_data },

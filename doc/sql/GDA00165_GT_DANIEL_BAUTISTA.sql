@@ -114,7 +114,7 @@ DROP TABLE IF EXISTS producto;
 CREATE TABLE producto
 (
     id INT PRIMARY KEY IDENTITY,
-    nombre VARCHAR(50) NOT NULL,
+    nombre VARCHAR(50) NOT NULL UNIQUE,
     descripcion VARCHAR(245),
     precio DECIMAL(10, 2) NOT NULL,
     precio_mayorista DECIMAL(10, 2),
@@ -810,10 +810,17 @@ CREATE OR ALTER PROCEDURE p_create_producto
     @categoria_producto_id INT = NULL
 AS
 BEGIN
+    IF @stock < 0
+    BEGIN
+        RAISERROR ('El stock no puede ser negativo.', 16, 1);
+    END;
+
     INSERT INTO producto
         (nombre, descripcion, precio, precio_mayorista, stock, estado_producto_id, categoria_producto_id)
     VALUES
-        (@nombre, @descripcion, @precio, @precio_mayorista, @stock, @estado_producto_id, @categoria_producto_id);
+        (UPPER(@nombre), LOWER(@descripcion), @precio, @precio_mayorista, @stock, @estado_producto_id, @categoria_producto_id);
+
+    SELECT SCOPE_IDENTITY() AS id;
 END;
 GO
 
@@ -822,9 +829,9 @@ CREATE OR ALTER PROCEDURE p_update_producto
     @id INT,
     @nombre VARCHAR(50),
     @descripcion VARCHAR(245),
-    @precio DECIMAL(10, 2),
+    @precio DECIMAL(10, 2) = NULL,
     @precio_mayorista DECIMAL(10, 2) = NULL,
-    @stock INT,
+    @stock INT = NULL,
     @estado_producto_id INT,
     @categoria_producto_id INT = NULL
 AS
@@ -844,35 +851,67 @@ BEGIN
         RETURN;
     END;
 
-    IF @precio_mayorista IS NOT NULL AND @precio_mayorista > @precio
+    -- Verificar que el precio mayorista no sea mayor que el precio de venta
+    IF (@precio_mayorista IS NOT NULL AND @precio IS NOT NULL) AND @precio_mayorista > @precio
     BEGIN
         RAISERROR ('El precio mayorista no puede ser mayor al precio de venta.', 16, 1);
         RETURN;
     END;
 
+    -- Verificar cuando al menos un valor de dinero es NULL
+    IF COALESCE(@precio, (SELECT precio FROM producto WHERE id = @id)) <= 
+        (COALESCE(@precio_mayorista, (SELECT precio_mayorista FROM producto WHERE id = @id)))
+    BEGIN
+        RAISERROR ('El precio mayorista no puede ser mayor o igual al precio de venta.', 16, 1);
+        RETURN;
+    END;
 
+    -- Actualizar el producto con los valores proporcionados, solo si no son NULL
     UPDATE producto
-    SET nombre = @nombre,
-        descripcion = @descripcion,
-        precio = @precio,
-        precio_mayorista = @precio_mayorista,
-        stock = @stock,
-        estado_producto_id = @estado_producto_id,
-        categoria_producto_id = @categoria_producto_id
+    SET nombre = COALESCE(@nombre, nombre),
+        descripcion = COALESCE(@descripcion, descripcion),
+        precio = COALESCE(@precio, precio),
+        precio_mayorista = COALESCE(@precio_mayorista, precio_mayorista),
+        stock = COALESCE(@stock, stock),
+        estado_producto_id = COALESCE(@estado_producto_id, estado_producto_id),
+        categoria_producto_id = COALESCE(@categoria_producto_id, categoria_producto_id)
     WHERE id = @id;
 END;
 GO
-
 
 CREATE OR ALTER PROCEDURE p_delete_producto
     @id INT
 AS
 BEGIN
-    DELETE FROM producto
-    WHERE id = @id;
+    DECLARE @disable_status INT;
+
+    BEGIN TRY
+        -- Intentar eliminar el producto
+        DELETE FROM producto
+        WHERE id = @id;
+        SELECT 'El producto se ha eliminado exitosamente.' AS mensaje;
+        RETURN;
+    END TRY
+    BEGIN CATCH
+        -- Si el error es de restricción de clave externa (Error 547)
+        IF ERROR_NUMBER() != 547 -- Error de restricción de clave externa
+        BEGIN
+        RAISERROR('No se pudo borrar el producto', 16, 1);
+    END;
+        
+        -- Si hubo un error, actualizar el estado del producto a "Deshabilitado"
+        -- Esto se ejecuta solo si la eliminación falla
+    UPDATE producto
+    SET estado_producto_id = (SELECT id
+    FROM estado_producto
+    WHERE UPPER(nombre) = UPPER('Deshabilitado'))
+        WHERE id = @id;
+    END CATCH;
+
+    -- RETORNAMOS EL MENSAJE DE QUE SE HA ACTUALIZADO
+    SELECT 'El producto se ha deshabilitado exitosamente.' AS mensaje;
 END;
 GO
-
 
 CREATE OR ALTER PROCEDURE p_list_producto
     @limit INT = NULL,
