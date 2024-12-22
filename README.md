@@ -1,7 +1,7 @@
 # Proyecto API-REST con Node.js, Express y SQL Server
 
 <p align="center">
-   <img src="./doc/imgs/project_banner.png" alt="Project Banner">
+   <img src="./doc/imgs/banner.jpg" alt="Project Banner">
 </p>
 
 ## Descripción del Proyecto
@@ -77,12 +77,7 @@ El proyecto incluye:
 
 5. Probar los endpoints utilizando Postman.
 
-<p align="center">
-   <img src="./doc/imgs/postman.png" alt="Postman">
-</p>
 
-**Todos los endpoints testeados se encuentran en la carpeta de /postman para que sean importados.**
-**Los endpoints fueron exportados en la versión 2.1 de Postman.**
 
 ---
 
@@ -177,6 +172,13 @@ Si tienes alguna duda o sugerencia sobre este proyecto, ¡no dudes en comunicart
 
 ## Funcionalidad
 
+<p align="center">
+   <img src="https://th.bing.com/th/id/OIP.Txf8ugHH_MlHPM8JU6hT5wHaEh?rs=1&pid=ImgDetMain" alt="Postman">
+</p>
+
+**Todos los endpoints testeados se encuentran en la carpeta de /postman para que sean importados.**
+**Los endpoints fueron exportados en la versión 2.1 de Postman.**
+
 SIEMPRE se debe iniciar por llamar al API en /auth/ verificar que el script funcione
 
 <p align="center">
@@ -190,6 +192,7 @@ Luego puedes llamar a los endpoints, el token se cargara automaticamente
 </p>
 
 ## Distribucion proyecto
+
 ```
 D:\
 ├── .env
@@ -263,5 +266,6 @@ D:\
 │       ├── auth
 │       │   └── auth.service.js
 │       └── hashing
+            └── crypter.service.js
 │
 ```
