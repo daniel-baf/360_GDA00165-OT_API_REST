@@ -7,7 +7,7 @@ const verifyTokenTimeout = async (req, res, next) => {
     if (!token) throw new Error("No token provided");
 
     // Verificar el token
-    const decoded = checkToken(token); 
+    const decoded = checkToken(token);
     req.user = decoded.payload.user;
 
     next();
