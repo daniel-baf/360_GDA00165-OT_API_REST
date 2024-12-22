@@ -8,7 +8,7 @@ bundled_router.get("/", (req, res) => {
   res.send("API works!");
 });
 
-bundled_router.use(domain_router);
 bundled_router.use("/states", model_status_router);
+bundled_router.use(domain_router);
 
 export default bundled_router;

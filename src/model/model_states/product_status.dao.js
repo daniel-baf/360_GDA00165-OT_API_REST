@@ -71,7 +71,7 @@ async function deleteProductStatus(id) {
       type: sequelize.QueryTypes.DELETE,
     });
 
-    return { message: `Estado de producto con id: ${id} borrado` };
+    return { id };
   } catch (error) {
     throw new Error(`Error deleting product status: ${error.message}`);
   }

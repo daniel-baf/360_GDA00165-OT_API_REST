@@ -96,7 +96,7 @@ DROP TABLE IF EXISTS categoria_producto;
 CREATE TABLE categoria_producto
 (
     id INT PRIMARY KEY IDENTITY,
-    nombre VARCHAR(50) NOT NULL,
+    nombre VARCHAR(50) NOT NULL UNIQUE,
     descripcion VARCHAR(245),
 );
 
@@ -630,18 +630,21 @@ BEGIN
         (nombre, descripcion)
     VALUES
         (@nombre, @descripcion);
+
+    -- Retorna el nuevo ID generado
+    SELECT SCOPE_IDENTITY() AS id;
 END;
 GO
 
 CREATE OR ALTER PROCEDURE p_update_categoria_producto
     @id INT,
-    @nombre VARCHAR(50),
-    @descripcion VARCHAR(245)
+    @nombre VARCHAR(50) = NULL,
+    @descripcion VARCHAR(245) = NULL
 AS
 BEGIN
     UPDATE categoria_producto
-    SET nombre = @nombre,
-        descripcion = @descripcion
+    SET nombre = COALESCE(@nombre, nombre),
+        descripcion = COALESCE(@descripcion, descripcion)
     WHERE id = @id;
 END;
 GO
@@ -657,10 +660,10 @@ GO
 
 CREATE OR ALTER PROCEDURE p_list_categoria_producto
     @limit INT = NULL,
-    @offset INT = NULL
+    @offset INT = 0
 AS
 BEGIN
-    IF @limit IS NOT NULL AND @offset IS NOT NULL
+    IF @limit IS NOT NULL
     BEGIN
         SELECT id, nombre, descripcion
         FROM categoria_producto
@@ -671,8 +674,32 @@ BEGIN
     ELSE
     BEGIN
         SELECT id, nombre, descripcion
-        FROM categoria_producto;
+        FROM categoria_producto
+        ORDER BY id
+        OFFSET @offset ROWS;
     END
+END;
+
+GO
+
+CREATE OR ALTER PROCEDURE p_search_producto
+    @id INT = NULL,
+    @nombre VARCHAR(50) = NULL
+AS
+BEGIN
+
+
+
+    IF @id IS NOT NULL
+    BEGIN
+        SELECT id, nombre, descripcion, precio, precio_mayorista, stock, estado_producto_id, categoria_producto_id
+        FROM producto
+        WHERE id = @id;
+        RETURN;
+    END
+    SELECT id, nombre, descripcion, precio, precio_mayorista, stock, estado_producto_id, categoria_producto_id
+    FROM producto
+    WHERE nombre = @nombre;
 END;
 
 GO
@@ -710,13 +737,13 @@ GO
 
 CREATE OR ALTER PROCEDURE p_update_estado_producto
     @id INT,
-    @nombre VARCHAR(50),
-    @descripcion VARCHAR(245)
+    @nombre VARCHAR(50) = NULL,
+    @descripcion VARCHAR(245) = NULL
 AS
 BEGIN
     IF @nombre IS NULL AND @descripcion IS NULL
     BEGIN
-        RAISERROR ('No se ha actualizado nada.', 16, 1);
+        RAISERROR ('Al menos uno de los parámetros @nombre o @descripcion debe ser no nulo.', 16, 1);
         RETURN;
     END;
 
