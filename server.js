@@ -33,3 +33,11 @@ server
   });
 
 server.listen(app.get("port")); // listen on port
+
+// close the server if the process is interrupted
+process.on("SIGINT", () => {
+  server.close(() => {
+    console.log("Server closed");
+    process.exit(0);
+  });
+});

@@ -532,14 +532,14 @@ AS
 BEGIN
     IF @id IS NOT NULL
     BEGIN
-        SELECT id, email, nombre_completo, NIT, telefono, fecha_nacimiento, fecha_creacion, rol_id, estado_usuario_id
+        SELECT id, email, nombre_completo, NIT, telefono, fecha_nacimiento, fecha_creacion, rol_id, estado_usuario_id, password
         FROM usuario
         WHERE id = @id;
         RETURN
     END;
     ELSE IF @email IS NOT NULL
     BEGIN
-        SELECT id, email, nombre_completo, NIT, telefono, fecha_nacimiento, fecha_creacion, rol_id, estado_usuario_id
+        SELECT id, email, nombre_completo, NIT, telefono, fecha_nacimiento, fecha_creacion, rol_id, estado_usuario_id, password
         FROM usuario
         WHERE email = @email;
         RETURN
