@@ -87,7 +87,8 @@ CREATE TABLE direccion_cliente
     municipio VARCHAR(50) NOT NULL,
     direccion VARCHAR(100) NOT NULL,
     telefono VARCHAR(10),
-    usuario_id INT FOREIGN KEY REFERENCES usuario(id) NOT NULL,
+    usuario_id INT NOT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES usuario(id)
 );
 
 -- TABLA USADA PARA CATEGORIZAR LOS productoS Y FACILITAR LA BUSQUEDA
@@ -526,7 +527,7 @@ GO
 -- Procedimiento para buscar un usuario por ID
 CREATE OR ALTER PROCEDURE p_search_usuario
     @id INT,
-    @email VARCHAR(50) 
+    @email VARCHAR(50)
 AS
 BEGIN
     IF @id IS NOT NULL
@@ -556,32 +557,33 @@ CREATE OR ALTER PROCEDURE p_create_direccion_cliente
     @departamento VARCHAR(50),
     @municipio VARCHAR(50),
     @direccion VARCHAR(100),
-    @telefono VARCHAR(10),
+    @telefono VARCHAR(10) = NULL,
     @usuario_id INT
 AS
 BEGIN
+
     INSERT INTO direccion_cliente
         (departamento, municipio, direccion, telefono, usuario_id)
     VALUES
         (@departamento, @municipio, @direccion, @telefono, @usuario_id);
+-- Retorna el nuevo ID generado: MANEJADO POR EL TRIGGER
 END;
 GO
 
+-- DISABLE THE UPDATE OF USER REFERENCE DIRECTION
 CREATE OR ALTER PROCEDURE p_update_direccion_cliente
     @id INT,
-    @departamento VARCHAR(50),
-    @municipio VARCHAR(50),
-    @direccion VARCHAR(100),
-    @telefono VARCHAR(10),
-    @usuario_id INT
+    @departamento VARCHAR(50) = NULL,
+    @municipio VARCHAR(50) = NULL,
+    @direccion VARCHAR(100) = NULL,
+    @telefono VARCHAR(10) = NULL
 AS
 BEGIN
     UPDATE direccion_cliente
-    SET departamento = @departamento,
-        municipio = @municipio,
-        direccion = @direccion,
-        telefono = @telefono,
-        usuario_id = @usuario_id
+    SET departamento = COALESCE(@departamento, departamento),
+        municipio = COALESCE(@municipio, municipio),
+        direccion = COALESCE(@direccion, direccion),
+        telefono = COALESCE(@telefono, telefono)
     WHERE id = @id;
 END;
 GO
@@ -596,12 +598,20 @@ END;
 GO
 
 CREATE OR ALTER PROCEDURE p_list_direccion_cliente
-    @usuario_id INT
+    @usuario_id INT = NULL
 AS
 BEGIN
+    IF @usuario_id IS NOT NULL
+    BEGIN
+        SELECT id, departamento, municipio, direccion, telefono, usuario_id
+        FROM direccion_cliente
+        WHERE usuario_id = @usuario_id;
+        RETURN;
+    END
     SELECT id, departamento, municipio, direccion, telefono, usuario_id
-    FROM direccion_cliente
-    WHERE usuario_id = @usuario_id;
+    FROM direccion_cliente;
+    RETURN;
+;
 END;
 
 GO
@@ -1154,48 +1164,31 @@ ON direccion_cliente
 INSTEAD OF INSERT
 AS 
 BEGIN
-    DECLARE @usuario_id INT,
-            @rol_id INT;
+    DECLARE @rol_id INT;
 
-    -- Iteramos sobre todas las filas de la tabla inserted (en caso de que se inserten varias filas a la vez)
-    DECLARE usuario_cursor CURSOR FOR
-        SELECT usuario_id
-    FROM inserted;
-
-    OPEN usuario_cursor;
-
-    FETCH NEXT FROM usuario_cursor INTO @usuario_id;
-
-    -- Recorremos todas las filas
-    WHILE @@FETCH_STATUS = 0
+    -- Verificamos si todos los usuarios que intentan insertar tienen rol 1 (Cliente)
+    IF EXISTS (
+        SELECT 1
+    FROM inserted i
+        JOIN usuario u ON i.usuario_id = u.id
+    WHERE u.rol_id != 1
+    )
     BEGIN
-        -- Obtenemos el rol del usuario
-        SELECT @rol_id = rol_id
-        FROM usuario
-        WHERE id = @usuario_id;
-
-        -- Verificamos si el rol es diferente de 1 (Cliente)
-        IF @rol_id != 1
-        BEGIN
-            RAISERROR ('Solo los usuarios con rol de Cliente pueden tener direcciones de entrega.', 16, 1);
-            CLOSE usuario_cursor;
-            DEALLOCATE usuario_cursor;
-            RETURN;
-        END;
-
-        FETCH NEXT FROM usuario_cursor INTO @usuario_id;
+        RAISERROR ('Solo los usuarios con rol de Cliente pueden tener direcciones de entrega.', 16, 1);
+        RETURN;
     END
-
-    CLOSE usuario_cursor;
-    DEALLOCATE usuario_cursor;
 
     -- Si todos los usuarios tienen rol 1, realizamos la inserción en la tabla direccion_cliente
     INSERT INTO direccion_cliente
         (departamento, municipio, direccion, telefono, usuario_id)
+    OUTPUT
+    INSERTED.id
+    -- Captura el ID generado
     SELECT departamento, municipio, direccion, telefono, usuario_id
     FROM inserted;
 END;
 GO
+
 
 -- PROCEDIMIENTO SOLICITADO TAREA, CAMBIAR ESTADO DE UN producto
 CREATE OR ALTER PROCEDURE p_cambiar_estado_producto

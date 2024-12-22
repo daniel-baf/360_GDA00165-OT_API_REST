@@ -1,10 +1,24 @@
 /**
  * Express router for user-related routes.
+ * This router handles the following routes:
+ * - /rol: Routes related to user roles.
+ * - /direction: Routes related to client directions.
+ * - /create: Route to create a new user.
+ * - /list: Route to list all users, excluding passwords.
+ * - /list/:limit/:offset: Route to list users with pagination.
+ * - /search: Route to search for a user by ID or email.
+ * - /update/:id: Route to update an existing user by ID.
+ * - /block/:id: Route to disable a user by ID.
+ * - /unlock/:id: Route to unlock a user by ID.
+ * - /delete/:id: Route to delete a user by ID.
+ *
  * @module routes/domain/users/user.routes
  */
 
 import express from "express";
 import rol_router from "./rol/rol.routes.js";
+import client_direction_router from "./directions/client_direction.routes.js";
+
 import {
   listUsers,
   createUser,
@@ -18,13 +32,22 @@ import {
 const user_router = express.Router();
 
 /**
- * Middleware to use rol routes.
+ * routers to use rol routes.
  * @name /rol
  * @function
  * @memberof module:routes/domain/users/user.routes
  * @inner
  */
 user_router.use("/rol", rol_router);
+
+/**
+ * Router to use rol routes.
+ * @name /direction
+ * @function
+ * @memberof module:routes/domain/users/user.routes
+ * @inner
+ */
+user_router.use("/direction", client_direction_router);
 
 /**
  * Route to create a new user.
@@ -128,9 +151,9 @@ user_router.put("/update/:id", async (req, res) => {
 
     const updatedUser = await updateUser(req.params.id, req.body);
     if (updatedUser) {
-      res.json(updatedUser);
+      return res.status(200).json(updatedUser);
     } else {
-      res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "User not found" });
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
