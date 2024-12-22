@@ -21,7 +21,9 @@
   "main": "server.js",
   "scripts": {
     "test": "node  --loader esm-module-alias/loader --no-warnings",
-    "dev": "node --watch --loader esm-module-alias/loader --no-warnings server.js"
+    "dev": "node --watch --loader esm-module-alias/loader --no-warnings server.js",
+    "devn": "node --loader esm-module-alias/loader --no-warnings server.js"
+
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -29,6 +31,7 @@
     "dotenv": "^16.4.7",
     "esm-module-alias": "^2.2.1",
     "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
     "path": "^0.12.7",
     "process": "^0.11.10",
     "sequelize": "^6.37.5",
@@ -41,6 +44,8 @@
   "aliases": {
     "@services": "./src/services",
     "@models": "./src/model",
-    "@ORM": "./src/model/database/"
+    "@ORM": "./src/model/database/",
+    "@helpers": "./src/helpers",
+    "@middlewares": "./src/middlewares"
   }
 }
