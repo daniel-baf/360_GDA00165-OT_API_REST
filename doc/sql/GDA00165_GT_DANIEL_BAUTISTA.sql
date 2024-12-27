@@ -16,22 +16,39 @@ USE master;
 GO
 -- Eliminar la base de datos si existe y usuario por defecto
 DROP DATABASE IF EXISTS [GDA00165_GT_DANIEL_BAUTISTA];
-DROP USER IF EXISTS [GDA00165_GT_USER];
--- Eliminar el login del servidor
-IF EXISTS (SELECT *
-FROM sys.server_principals
-WHERE name = 'GDA00165_GT')
-	DROP LOGIN GDA00165_GT;
+
+IF EXISTS (SELECT * FROM sys.server_principals WHERE name = 'GDA00165_GT')
+BEGIN
+    DROP LOGIN [GDA00165_GT];
+END
 GO
+-- Create the login with a password
+CREATE LOGIN [GDA00165_GT] WITH PASSWORD = 'Contrase@nalg_dag123as511';
+GO
+
+
 -- Crear la base de datos dinámicamente
 CREATE DATABASE [GDA00165_GT_DANIEL_BAUTISTA];
-CREATE LOGIN GDA00165_GT WITH PASSWORD = 'Contrase@nalg_dag123as511';
 -- Usar la base de datos dinámicamente
 GO
 USE [GDA00165_GT_DANIEL_BAUTISTA];
-CREATE USER GDA00165_GT_USER FOR LOGIN GDA00165_GT;
+GO
+
+-- Delete the user if it exists in the current database
+IF EXISTS (SELECT * FROM sys.database_principals WHERE name = 'GDA00165_GT_USER')
+BEGIN
+    DROP USER [GDA00165_GT_USER];
+END
+GO
+
+-- Create the user for the login in the current database
+CREATE USER [GDA00165_GT_USER] FOR LOGIN [GDA00165_GT];
+GO
+
+-- Add the user to the db_owner role
 ALTER ROLE db_owner ADD MEMBER [GDA00165_GT_USER];
 GO
+
 
 
 -- TABLA USADA PARA ALMACENAR LOS ROLES DE LOS usuarioS Y DAR ACCESO A DISTINTAS VISTAS
@@ -333,7 +350,7 @@ CREATE OR ALTER PROCEDURE p_delete_estado_usuario
     @id INT = NULL
 AS
 BEGIN
-    IF @id <= 3
+    IF @id < 3
     BEGIN
         RAISERROR ('Este rol es imposible de borrar, el sistema depende de el', 16, 1);
         RETURN;
@@ -758,7 +775,7 @@ CREATE OR ALTER PROCEDURE p_delete_estado_producto
     @id INT
 AS
 BEGIN
-    IF @id <= 4
+    IF @id < 4
     BEGIN
         RAISERROR ('Este rol es imposible de borrar, el sistema depende de el', 16, 1);
         RETURN;
@@ -1332,8 +1349,8 @@ BEGIN
     EXEC p_create_usuario 'cliente9@example.com', 'Cliente Nueve', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567898', '1998-09-09', 1, 3;
     EXEC p_create_usuario 'cliente10@example.com', 'Cliente Diez', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '1234567899', '1999-10-10', 1, 3;
     -- INSERTS PARA usuarioS OPERATIVOS
-    EXEC p_create_usuario 'operativo1@example.com', 'Operativo Uno', 'CF', 'password12', '0987654322', '1981-02-02', 2, 3;
-    EXEC p_create_usuario 'operativo2@example.com', 'Operativo Dos', 'CF', 'password12', '0987654322', '1981-02-02', 2, 3;
+    EXEC p_create_usuario 'operativo1@example.com', 'Operativo Uno', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '0987654322', '1981-02-02', 2, 3;
+    EXEC p_create_usuario 'operativo2@example.com', 'Operativo Dos', 'CF', '$2a$10$c5y8g40AqPFO06ot8Iwli.6mMBddh6AreKD3mzMX0LFKbomf8Ag6q', '0987654322', '1981-02-02', 2, 3;
 
     -- INSERTS PARA DIRECCIONES DE CLIENTES
     EXEC p_create_direccion_cliente 'Departamento1', 'Municipio1', 'Direccion1', '1234567890', 1;

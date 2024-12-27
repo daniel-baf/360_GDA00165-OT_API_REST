@@ -1350,6 +1350,16 @@
 						{
 							"name": "LIST",
 							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
 								"method": "GET",
 								"header": [],
 								"url": {
@@ -1372,6 +1382,16 @@
 						{
 							"name": "LIST FILTER",
 							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{jwt_token}}",
+											"type": "string"
+										}
+									]
+								},
 								"method": "GET",
 								"header": [],
 								"url": {
@@ -1587,6 +1607,16 @@
 				{
 					"name": "SEARCH",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
@@ -1801,7 +1831,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:4000/api/order/list",
+							"raw": "http://localhost:4000/api/order/list?detailed=true",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1816,8 +1846,7 @@
 								{
 									"key": "detailed",
 									"value": "true",
-									"description": "request a detailed json, each detail is appended to the request if exitst\n",
-									"disabled": true
+									"description": "request a detailed json, each detail is appended to the request if exitst\n"
 								}
 							]
 						}
@@ -1840,7 +1869,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:4000/api/order/list/5/14",
+							"raw": "http://localhost:4000/api/order/list/5/14?detailed=true",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1856,8 +1885,7 @@
 							"query": [
 								{
 									"key": "detailed",
-									"value": "true",
-									"disabled": true
+									"value": "true"
 								}
 							]
 						}
