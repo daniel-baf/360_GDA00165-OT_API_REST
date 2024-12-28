@@ -23,7 +23,7 @@ function getConnection() {
           define: {
             timestamps: false, // Desactiva los timestamps por defecto
           },
-          // logging: false, // Desactiva los logs por defecto
+          logging: false, // Desactiva los logs por defecto
         }
       );
     }

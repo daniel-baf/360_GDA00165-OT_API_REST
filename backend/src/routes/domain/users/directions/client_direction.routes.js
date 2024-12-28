@@ -4,14 +4,7 @@
 
 import express from "express";
 import { checkAdminPermission } from "@middlewares/auth/auth.middleware.js";
-import {
-  createDirection,
-  updateDirection,
-  deleteDirection,
-  listDirections,
-} from "@models/user/direction/client_direction.dao.js";
-import { checkUserAccesOwnedData } from "@helpers/auth.helper.js";
-
+import { client_direction_controller as controller } from "@controllers/domain/users/directions/client_direction.controller.js";
 
 const client_direction_router = express.Router();
 
@@ -27,8 +20,7 @@ const client_direction_router = express.Router();
  */
 client_direction_router.post("/create", async (req, res) => {
   try {
-    const directionData = req.body;
-    res.status(201).json(await createDirection(directionData));
+    res.status(201).json(await controller.create(req.body, req.user));
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -46,8 +38,7 @@ client_direction_router.post("/create", async (req, res) => {
  */
 client_direction_router.get("/list", checkAdminPermission, async (req, res) => {
   try {
-    const directions = await listDirections();
-    res.status(200).json(directions);
+    res.status(200).json(await controller.list());
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -64,11 +55,10 @@ client_direction_router.get("/list", checkAdminPermission, async (req, res) => {
  * @returns {Promise<void>} A promise that resolves to sending the list of directions for the specified user.
  */
 client_direction_router.get("/list/:user_id", async (req, res) => {
-  let { user_id } = req.params;
   try {
-    user_id = parseInt(user_id);
-    checkUserAccesOwnedData(req.user.id, user_id);
-    return res.status(200).json(await listDirections(user_id));
+    return res
+      .status(200)
+      .json(await controller.listByUser(req.params.user_id, req.user));
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -88,10 +78,14 @@ client_direction_router.put("/update/:id", async (req, res) => {
   try {
     let update_form = req.body;
     update_form.id = parseInt(req.params.id);
-    // validate user_id is same as user.user_id if not admin
-    checkUserAccesOwnedData(req.user.id, update_form.usuario_id);
-
-    return res.status(200).json(await updateDirection(update_form));
+    return res
+      .status(200)
+      .json(
+        await controller.update(
+          { ...update_form, id: parseInt(req.params.id) },
+          req.user
+        )
+      );
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -109,8 +103,9 @@ client_direction_router.put("/update/:id", async (req, res) => {
  */
 client_direction_router.delete("/delete/:id", async (req, res) => {
   try {
-    const { id } = req.params;
-    return res.status(200).json(await deleteDirection(id));
+    return res
+      .status(200)
+      .json(await controller.delete(req.params.id, req.user));
   } catch (error) {
     res.status(500).send(error.message);
   }

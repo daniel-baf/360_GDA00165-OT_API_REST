@@ -1,10 +1,5 @@
 import express from "express";
-import {
-  createProductStatus,
-  listProductStatus,
-  updateProductStatus,
-  deleteProductStatus,
-} from "@models/model_states/product_status.dao.js";
+import { product_status_controller as controller } from "@controllers/model_states/states/product_status.controller.js";
 
 const product_status_router = express.Router();
 
@@ -22,14 +17,9 @@ const product_status_router = express.Router();
  */
 product_status_router.post("/create", async (req, res) => {
   try {
-    let { nombre, descripcion } = req.body;
-    if (!nombre || !descripcion) throw new Error("Los campos son obligatorios");
-   
-    return res.status(201).json(await createProductStatus(nombre, descripcion));
+    return res.status(201).json(await controller.create(req.body));
   } catch (error) {
-    res
-      .status(500)
-      .send(`No ha sido posible crear el estado de producto: ${error}`);
+    res.status(500).send(error.message);
   }
 });
 
@@ -46,11 +36,9 @@ product_status_router.post("/create", async (req, res) => {
  */
 product_status_router.get("/list", async (req, res) => {
   try {
-    res.status(200).json(await listProductStatus());
+    res.status(200).json(await controller.list());
   } catch (error) {
-    res
-      .status(500)
-      .send(`${error.message}`);
+    res.status(500).send(error.message);
   }
 });
 
@@ -68,13 +56,10 @@ product_status_router.get("/list", async (req, res) => {
  * @returns {Promise<void>} 500 - Error message if unable to retrieve product statuses.
  */
 product_status_router.get("/list/:limit/:offset", async (req, res) => {
-  const { limit, offset } = req.params;
   try {
-    res.status(200).json(await listProductStatus(limit, offset));
+    res.status(200).json(await controller.listLImitOffset(req.params));
   } catch (error) {
-    res
-      .status(500)
-      .send(`${error.message}`);
+    res.status(500).send(error.message);
   }
 });
 
@@ -93,18 +78,10 @@ product_status_router.get("/list/:limit/:offset", async (req, res) => {
  * @returns {Promise<void>} 500 - Error message if unable to update the product status.
  */
 product_status_router.put("/update/:id", async (req, res) => {
-  const { id } = req.params;
-  const { nombre, descripcion } = req.body;
   try {
-    res.status(200).json(await updateProductStatus(id, nombre, descripcion));
+    res.status(200).json(await controller.update(req.params.id, req.body));
   } catch (error) {
-    if (error.name === "ValidationError") {
-      res.status(400).send(`Datos inválidos: ${error.message}`);
-    } else {
-      res
-        .status(error)
-        .send(`No ha sido posible actualizar el estado de producto: ${error}`);
-    }
+    res.status(500).send(error.message);
   }
 });
 
@@ -122,13 +99,10 @@ product_status_router.put("/update/:id", async (req, res) => {
  * @returns {Promise<void>} 500 - Error message if unable to delete the product status.
  */
 product_status_router.delete("/delete/:id", async (req, res) => {
-  const { id } = req.params;
   try {
-    res.status(200).json(await deleteProductStatus(id));
+    res.status(200).json(await controller.delete(req.params.id));
   } catch (error) {
-    res
-      .status(error.name === "ValidationError" ? 400 : 500)
-      .send(`${error.message}`);
+    res.status(500).send(error.message);
   }
 });
 

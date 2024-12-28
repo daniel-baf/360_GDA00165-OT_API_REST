@@ -19,7 +19,7 @@ async function createUserStatus(nombre, descripcion) {
 
     return { id: result[0].id, ...{ nombre, descripcion } };
   } catch (error) {
-    throw new Error("Error creating user status: " + error.message);
+    throw new Error("Es posible que ya exista un valor con esta clave: " + error.message)
   }
 }
 

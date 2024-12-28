@@ -568,6 +568,7 @@ DROP PROCEDURE IF EXISTS p_create_direccion_cliente;
 DROP PROCEDURE IF EXISTS p_list_direccion_cliente;
 DROP PROCEDURE IF EXISTS p_update_direccion_cliente;
 DROP PROCEDURE IF EXISTS p_delete_direccion_cliente;
+DROP PROCEDURE IF EXISTS p_search_direccion_cliente;
 GO
 
 CREATE OR ALTER PROCEDURE p_create_direccion_cliente
@@ -628,7 +629,17 @@ BEGIN
     SELECT id, departamento, municipio, direccion, telefono, usuario_id
     FROM direccion_cliente;
     RETURN;
-;
+END;
+
+GO
+
+CREATE OR ALTER PROCEDURE p_search_direccion_cliente
+    @id INT
+AS
+BEGIN
+    SELECT id, departamento, municipio, direccion, telefono, usuario_id
+    FROM direccion_cliente
+    WHERE id = @id;
 END;
 
 GO

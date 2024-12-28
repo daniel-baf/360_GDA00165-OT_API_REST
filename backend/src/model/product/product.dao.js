@@ -58,7 +58,7 @@ async function createProduct(product_form) {
       }).filter(([_, v]) => v !== undefined && v !== null)
     );
   } catch (error) {
-    throw new Error("Error creating product: " + error.message);
+    throw new Error("Es probable que el producto ya exista con este ID: " + error.message);
   }
 }
 

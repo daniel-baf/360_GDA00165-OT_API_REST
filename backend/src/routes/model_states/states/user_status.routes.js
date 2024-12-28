@@ -1,21 +1,11 @@
 import express from "express";
-import {
-  createUserStatus,
-  updateUserStatus,
-  listUserStatuses,
-  deleteUserStatus,
-} from "@models/model_states/user_status.dao.js";
+import { user_status_controller as controller } from "@controllers/model_states/states/user_status.controller.js";
 
 const user_status_router = express.Router();
 
 user_status_router.post("/create", async (req, res) => {
-  let { nombre, descripcion } = req.body;
   try {
-    if (!nombre || !descripcion) {
-      throw new Error("Nombre y descripción son requeridos.");
-    }
-    const user_status = await createUserStatus(nombre, descripcion);
-    res.status(201).json(user_status);
+    res.status(201).json(await controller.create(req.body));
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -26,8 +16,7 @@ user_status_router.post("/create", async (req, res) => {
  */
 user_status_router.get("/list", async (req, res) => {
   try {
-    const user_statuses = await listUserStatuses();
-    res.status(200).json(user_statuses);
+    res.status(200).json(await controller.list());
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -37,10 +26,8 @@ user_status_router.get("/list", async (req, res) => {
  * List all users status on DB by limit and offset
  */
 user_status_router.get("/list/:limit/:offset", async (req, res) => {
-  const { limit, offset } = req.params;
   try {
-    const user_statuses = await listUserStatuses(limit, offset);
-    res.status(200).json(user_statuses);
+    res.status(200).json(await controller.listLimitOffset(req.params));
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -50,20 +37,19 @@ user_status_router.get("/list/:limit/:offset", async (req, res) => {
  * Call the process to update the user status dta
  */
 user_status_router.put("/update/:id", async (req, res) => {
-  const { id } = req.params;
-  const { nombre, descripcion } = req.body;
   try {
-    const user_status = await updateUserStatus(id, nombre, descripcion);
-    res.status(200).json(user_status);
+    res.status(200).json(await controller.update(req.params.id, req.body));
   } catch (error) {
     res.status(500).send(error.message);
   }
 });
 
+/**
+ * Call the process to delete a user status
+ */
 user_status_router.delete("/delete/:id", async (req, res) => {
-  let { id } = req.params;
   try {
-    res.status(200).json(await deleteUserStatus(id));
+    res.status(200).json(await controller.delete(req.params.id));
   } catch (error) {
     res.status(500).send(error.message);
   }

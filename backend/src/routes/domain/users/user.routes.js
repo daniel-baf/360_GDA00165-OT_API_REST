@@ -17,19 +17,9 @@
 
 import express from "express";
 import rol_router from "./rol/rol.routes.js";
-import client_direction_router from "./directions/client_direction.routes.js";
-
-import {
-  listUsers,
-  createUser,
-  deleteUser,
-  updateUser,
-  searchUser,
-  blockUserAccess,
-  grantUserAccess,
-} from "@models/user/user.dao.js";
 import { checkAdminPermission } from "@middlewares/auth/auth.middleware.js";
-
+import { userController as controller } from "@controllers/domain/users/user.controller.js";
+import client_direction_router from "./directions/client_direction.routes.js";
 
 const user_router = express.Router();
 
@@ -63,10 +53,9 @@ user_router.use("/direction", client_direction_router);
  */
 user_router.post("/create", async (req, res) => {
   try {
-    const newUser = await createUser(req.body);
-    res.status(201).json(newUser);
+    res.status(201).json(controller.create(req.body));
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).send(error.message);
   }
 });
 
@@ -82,9 +71,9 @@ user_router.post("/create", async (req, res) => {
  */
 user_router.get("/list", checkAdminPermission, async (req, res) => {
   try {
-    return res.status(200).json(await listUsers());
+    return res.status(200).json(await controller.list());
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).send(error.message);
   }
 });
 
@@ -98,16 +87,20 @@ user_router.get("/list", checkAdminPermission, async (req, res) => {
  * @param {Object} res - Express response object.
  * @returns {Promise<void>}
  */
-user_router.get("/list/:limit/:offset", checkAdminPermission, async (req, res) => {
-  try {
-    let { limit, offset } = req.params;
-    limit = parseInt(limit) || null;
-    offset = parseInt(offset) || 0;
-    return res.status(200).json(await listUsers(limit, offset));
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+user_router.get(
+  "/list/:limit/:offset",
+  checkAdminPermission,
+  async (req, res) => {
+    try {
+      let { limit, offset } = req.params;
+      return res
+        .status(200)
+        .json(await controller.listLimitOffset(limit, offset));
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
   }
-});
+);
 
 /**
  * Route to search for a user by ID. at least 1 parameter is required, if both are provided,
@@ -121,15 +114,10 @@ user_router.get("/list/:limit/:offset", checkAdminPermission, async (req, res) =
  * @returns {Promise<void>}
  */
 user_router.get("/search/", async (req, res) => {
-  let { id, mail } = req.query; // req.params.id is a string
   try {
-    if (!id && !mail) {
-      throw new Error("Se requiere al menos un parametro para buscar");
-    }
-
-    return res.status(200).json(await searchUser(id, mail));
+    return res.status(200).json(await controller.search(req.query));
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).send(error.message);
   }
 });
 
@@ -145,30 +133,9 @@ user_router.get("/search/", async (req, res) => {
  */
 user_router.put("/update/:id", async (req, res) => {
   try {
-    let update_data = req.body;
-    // try to cast date if it is a
-    if (!!update_data.fecha_nacimiento) {
-      try {
-        update_data.fecha_nacimiento = new Date(update_data.fecha_nacimiento);
-        // check if the date is valid
-        if (isNaN(update_data.fecha_nacimiento.getTime())) {
-          throw new Error("Fecha de nacimiento invalida");
-        }
-      } catch (error) {
-        throw new Error(
-          "Error al intentar convertir la fecha de nacimiento " + error.message
-        );
-      }
-    }
-
-    const updatedUser = await updateUser(req.params.id, req.body);
-    if (updatedUser) {
-      return res.status(200).json(updatedUser);
-    } else {
-      return res.status(404).json({ message: "User not found" });
-    }
+    res.status(200).json(await controller.update(req.params.id, req.body));
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).send(error.message);
   }
 });
 
@@ -183,14 +150,10 @@ user_router.put("/update/:id", async (req, res) => {
  * @returns {Promise<void>}
  */
 user_router.put("/block/:id", checkAdminPermission, async (req, res) => {
-  let id = req.params.id;
   try {
-    if (!id) {
-      throw new Error("Se requiere al menos un parametro para inhabilitar");
-    }
-    return res.json(await blockUserAccess(id));
+    return res.json(await controller.block(req.params.id));
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).send(error.message);
   }
 });
 
@@ -205,14 +168,10 @@ user_router.put("/block/:id", checkAdminPermission, async (req, res) => {
  * @returns {Promise<void>}
  */
 user_router.put("/unlock/:id", checkAdminPermission, async (req, res) => {
-  let id = req.params.id;
   try {
-    if (!id) {
-      throw new Error("Se requiere al menos un parametro para desbloquear");
-    }
-    return res.json(await grantUserAccess(id));
+    return res.json(await controller.unlock(req.params.id));
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).send(error.message);
   }
 });
 
@@ -228,10 +187,9 @@ user_router.put("/unlock/:id", checkAdminPermission, async (req, res) => {
  */
 user_router.delete("/delete/:id", checkAdminPermission, async (req, res) => {
   try {
-    let { id } = req.params;
-    return res.status(200).json(await deleteUser(id));
+    return res.status(200).json(await controller.delete(req.params.id));
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).send(error.message);
   }
 });
 

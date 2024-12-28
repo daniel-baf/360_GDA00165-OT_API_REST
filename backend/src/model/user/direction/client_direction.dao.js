@@ -115,11 +115,42 @@ async function listDirections(usuario_id = null) {
     `EXEC p_list_direccion_cliente :usuario_id`,
     {
       replacements: { usuario_id },
-      type: sequelize.QueryTypes.SELECT
+      type: sequelize.QueryTypes.SELECT,
     }
   );
 
   return results;
 }
 
-export { createDirection, updateDirection, deleteDirection, listDirections };
+/**
+ * Search for a client direction by ID
+ * @param {number} id - The direction ID
+ * @returns {Promise<Object>} The direction data
+ */
+async function searchDirection(id) {
+  if (!id) {
+    throw new Error("ID necesario para buscar la direccion");
+  }
+
+  const [result] = await sequelize.query(
+    `EXEC p_search_direccion_cliente @id=:id`,
+    {
+      replacements: { id },
+      type: sequelize.QueryTypes.SELECT,
+    }
+  );
+
+  if (!result) {
+    throw new Error("Direccion no encontrada");
+  }
+
+  return result;
+}
+
+export {
+  createDirection,
+  updateDirection,
+  deleteDirection,
+  listDirections,
+  searchDirection,
+};

@@ -3,12 +3,7 @@
  */
 
 import express from "express";
-import {
-  createOrderStatus,
-  listOrderStatuses,
-  updateOrderStatus,
-  deleteOrderStatus,
-} from "@models/model_states/order_status.dao.js";
+import { order_status_controller as controller } from "@controllers/model_states/states/order_status.controller.js";
 
 const order_status_router = express.Router();
 
@@ -26,14 +21,9 @@ const order_status_router = express.Router();
  */
 order_status_router.post("/create", async (req, res) => {
   try {
-    let { nombre, descripcion } = req.body;
-    if (!nombre || !descripcion) throw new Error("Los campos son obligatorios");
-
-    res.status(201).json(await createOrderStatus(nombre, descripcion));
+    res.status(201).json(await controller.create(req.body));
   } catch (error) {
-    res
-      .status(500)
-      .send(`No ha sido posible crear el estado de orden: ${error}`);
+    res.status(500).send(error.message);
   }
 });
 
@@ -50,11 +40,9 @@ order_status_router.post("/create", async (req, res) => {
  */
 order_status_router.get("/list", async (req, res) => {
   try {
-    res.status(200).json(await listOrderStatuses());
+    res.status(200).json(await controller.list());
   } catch (error) {
-    req
-      .status(500)
-      .send(`No ha sido posible recuperar los estados de ordenes: ${error}`);
+    req.status(500).send(error.message);
   }
 });
 
@@ -74,11 +62,9 @@ order_status_router.get("/list", async (req, res) => {
 order_status_router.get("/list/:limit/:offset", async (req, res) => {
   const { limit, offset } = req.params;
   try {
-    res.status(200).json(await listOrderStatuses(limit, offset));
+    res.status(200).json(await controller.listLimitOffset(limit, offset));
   } catch (error) {
-    res
-      .status(500)
-      .send(`No ha sido posible recuperar los estados de ordenes: ${error}`);
+    res.status(500).send(error.message);
   }
 });
 
@@ -97,29 +83,18 @@ order_status_router.get("/list/:limit/:offset", async (req, res) => {
  * @returns {Promise<void>} 500 - Error message if unable to update the order status.
  */
 order_status_router.put("/update/:id", async (req, res) => {
-  const { id } = req.params;
-  const { nombre, descripcion } = req.body;
   try {
-    res.status(200).json(await updateOrderStatus(id, nombre, descripcion));
+    res.status(200).json(await controller.update(req.params.id, req.body));
   } catch (error) {
-    if (error.name === "ValidationError") {
-      res.status(400).send(`Datos inválidos: ${error.message}`);
-    } else {
-      res
-        .status(error)
-        .send(`No ha sido posible actualizar el estado de orden: ${error}`);
-    }
+    res.status(500).send(error.message);
   }
 });
 
 order_status_router.delete("/delete/:id", async (req, res) => {
-  const { id } = req.params;
   try {
-    res.status(200).json(await deleteOrderStatus(id));
+    res.status(200).json(await controller.delete(req.params.id));
   } catch (error) {
-    res
-      .status(error.name === "ValidationError" ? 400 : 500)
-      .send(`No ha sido posible eliminar el estado de orden: ${error}`);
+    res.status(500).send(error.message);
   }
 });
 

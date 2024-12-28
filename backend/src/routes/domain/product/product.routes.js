@@ -5,15 +5,8 @@
 
 import express from "express";
 import { checkAdminPermission } from "@middlewares/auth/auth.middleware.js";
+import { productController as controller } from "@controllers/domain/product/product.controller.js";
 import product_category_router from "./category/product_category.routes.js";
-import {
-  createProduct,
-  searchProduct,
-  listProducts,
-  updateProduct,
-  changeProductStatus,
-  deleteProduct,
-} from "@models/product/product.dao.js";
 
 const product_router = express.Router();
 
@@ -24,7 +17,7 @@ const product_router = express.Router();
  * @memberof module:routes/domain/product/product.routes~product_router
  * @inner
  */
-product_router.use("/category", checkAdminPermission, product_category_router);
+product_router.use("/category", product_category_router);
 
 /**
  * Route to create a new product.
@@ -38,7 +31,7 @@ product_router.use("/category", checkAdminPermission, product_category_router);
  */
 product_router.post("/create", checkAdminPermission, async (req, res) => {
   try {
-    return res.status(201).json(await createProduct(req.body));
+    return res.status(201).json(await controller.create(req.body));
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -56,7 +49,7 @@ product_router.post("/create", checkAdminPermission, async (req, res) => {
  */
 product_router.get("/list", async (req, res) => {
   try {
-    res.status(200).json(await listProducts());
+    res.status(200).json(await controller.list());
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -77,7 +70,7 @@ product_router.get("/list", async (req, res) => {
 product_router.get("/list/:limit/:offset", async (req, res) => {
   try {
     let { limit, offset } = req.params;
-    res.status(200).json(await listProducts(limit, offset));
+    res.status(200).json(await controller.listLimitOffset(limit, offset));
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -97,7 +90,7 @@ product_router.get("/list/:limit/:offset", async (req, res) => {
 product_router.get("/search/:id", async (req, res) => {
   try {
     let { id } = req.params;
-    return res.status(200).json(await searchProduct(id));
+    return res.status(200).json(await controller.search(id));
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -116,8 +109,9 @@ product_router.get("/search/:id", async (req, res) => {
  */
 product_router.put("/update/:id", checkAdminPermission, async (req, res) => {
   try {
-    let { id } = req.params;
-    res.status(200).json(await updateProduct({ id, ...req.body }));
+    res
+      .status(200)
+      .json(await controller.update({ id: req.params.id, ...req.body }));
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -134,16 +128,19 @@ product_router.put("/update/:id", checkAdminPermission, async (req, res) => {
  * @param {string} req.query.id - The ID of the product to update.
  * @param {string} req.query.estado_producto_id - The ID of the new status.
  * @returns {JSON} The updated product.
- * 
-*/
-product_router.put("/status/change/", checkAdminPermission, async (req, res) => {
-  try {
-    let { id, estado_producto_id } = req.query;
-    res.status(200).json(await changeProductStatus(id, estado_producto_id));
-  } catch (error) {
-    res.status(500).send(error.message);
+ *
+ */
+product_router.put(
+  "/status/change/",
+  checkAdminPermission,
+  async (req, res) => {
+    try {
+      res.status(200).json(await controller.changeStatus(req.query));
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
   }
-});
+);
 
 /**
  * Route to delete a product by ID.
@@ -158,8 +155,7 @@ product_router.put("/status/change/", checkAdminPermission, async (req, res) => 
  */
 product_router.delete("/delete/:id", checkAdminPermission, async (req, res) => {
   try {
-    let { id } = req.params;
-    res.status(200).json(await deleteProduct(id));
+    res.status(200).json(await controller.delete(req.params.id));
   } catch (error) {
     res.status(500).send(error.message);
   }

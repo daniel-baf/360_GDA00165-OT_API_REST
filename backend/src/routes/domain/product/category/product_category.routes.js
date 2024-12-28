@@ -1,11 +1,6 @@
 import express from "express";
-
-import {
-  createProductCategory,
-  listProductsCategory,
-  updateProductCategory,
-  deleteProductCategory,
-} from "@models/product/product_category.dao.js";
+import { checkAdminPermission } from "@middlewares/auth/auth.middleware.js";
+import { productCategoryController as controller } from "@controllers/domain/product/category/product_category.controller.js";
 
 const product_category_router = express.Router();
 
@@ -23,21 +18,14 @@ const product_category_router = express.Router();
  */
 product_category_router.post("/create", async (req, res) => {
   try {
-    let { nombre, descripcion } = req.body;
-    if (!nombre || !descripcion) throw new Error("Los campos son obligatorios");
-
-    return res
-      .status(201)
-      .json(await createProductCategory({ nombre, descripcion }));
+    return res.status(201).json(await controller.create(req.body));
   } catch (error) {
-    res
-      .status(500)
-      .send(`No ha sido posible crear la categoria de producto: ${error}`);
+    res.status(500).send(error.message);
   }
 });
 
 /**
- * Route to list all product categories.
+ * Route to list all product categories. all user can check the categories.
  * @name GET /list
  * @function
  * @memberof module:routes/domain/product/category/product_category.routes
@@ -47,7 +35,7 @@ product_category_router.post("/create", async (req, res) => {
  */
 product_category_router.get("/list", async (req, res) => {
   try {
-    res.status(200).json(await listProductsCategory());
+    res.status(200).json(await controller.list());
   } catch (error) {
     res
       .status(500)
@@ -71,14 +59,9 @@ product_category_router.get("/list", async (req, res) => {
  */
 product_category_router.get("/list/:limit/:offset", async (req, res) => {
   try {
-    let { limit, offset } = req.params;
-    res.status(200).json(await listProductsCategory(limit, offset));
+    res.status(200).json(await controller.listLimitOffset(req.params));
   } catch (error) {
-    res
-      .status(500)
-      .send(
-        `No ha sido posible recuperar las categorias de productos: ${error}`
-      );
+    res.status(500).send(error.message);
   }
 });
 
@@ -96,19 +79,19 @@ product_category_router.get("/list/:limit/:offset", async (req, res) => {
  * @param {Object} res - Express response object.
  * @returns {Promise<void>}
  */
-product_category_router.put("/update/:id", async (req, res) => {
-  try {
-    let id = req.params.id;
-    let { nombre, descripcion } = req.body;
-    if (!id) throw new Error("El id es un campo obligatorio");
-
-    return res
-      .status(200)
-      .json(await updateProductCategory({ nombre, descripcion, id }));
-  } catch (error) {
-    res.status(500).send(error.message);
+product_category_router.put(
+  "/update/:id",
+  checkAdminPermission,
+  async (req, res) => {
+    try {
+      return res
+        .status(200)
+        .json(await controller.update({ ...req.params, ...req.body }));
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
   }
-});
+);
 
 /**
  * Route to delete a product category.
@@ -121,14 +104,16 @@ product_category_router.put("/update/:id", async (req, res) => {
  * @param {Object} res - Express response object.
  * @returns {Promise<void>}
  */
-product_category_router.delete("/delete/:id", async (req, res) => {
-  try {
-    let id = req.params.id;
-    if (!id) throw new Error("El id es un campo obligatorio");
-    return res.status(200).json(await deleteProductCategory(id));
-  } catch (error) {
-    res.status(500).send(error.message);
+product_category_router.delete(
+  "/delete/:id",
+  checkAdminPermission,
+  async (req, res) => {
+    try {
+      return res.status(200).json(await controller.delete(req.params.id));
+    } catch (error) {
+      res.status(500).send(error.message);
+    }
   }
-});
+);
 
 export default product_category_router;

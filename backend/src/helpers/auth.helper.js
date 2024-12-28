@@ -27,27 +27,5 @@ function checkToken(token) {
   return jwt.verify(token, process.env.JWT_SECRET, { complete: true });
 }
 
-/**
- * Verify if a user [not admin] is trying to access data that is not owned by him
- * ej. trying to upddate other's user or direcciont...
- * or acces to other user's data, just call the middleware and pass the id to check
- * as check_id in the params
- * @param {*} req 
- * @param {*} res 
- * @param {*} next 
- * @returns 
- */
-function checkUserAccesOwnedData(id, check_id) {
-  id = parseInt(id);
-  check_id = parseInt(check_id);
 
-  if (req.user.rol_id === 2) {
-    return true;
-  }
-  if (id !== check_id) {
-    throw new Error("No tienes permisos para acceder a estos datos, solo puedes acceder a tus propios datos");
-  }
-};
-
-
-export { createToken, checkToken, checkUserAccesOwnedData };
+export { createToken, checkToken,  };

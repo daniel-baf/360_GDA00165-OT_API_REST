@@ -1,15 +1,7 @@
 import express from "express";
-import {
-  createRol,
-  listRol,
-  updateRol,
-  deleteRol,
-} from "@models/user/rol/rol.dao.js";
+import { rolController as controller } from "@controllers/domain/users/rol/rol.controller.js";
 
 const rol_router = express.Router();
-async function listRolManager(limit = null, offset = 0) {
-  return await listRol(limit, offset);
-}
 
 /**
  * Create a new rol in the DB
@@ -17,9 +9,9 @@ async function listRolManager(limit = null, offset = 0) {
 rol_router.post("/create", async (req, res) => {
   try {
     const { nombre, descripcion } = req.body;
-    res.status(201).json(await createRol({ nombre, descripcion }));
+    res.status(201).json(await controller.create(nombre, descripcion));
   } catch (error) {
-    res.status(500).send("Error creando rol: " + error.message);
+    res.status(500).send(error.message);
   }
 });
 
@@ -28,9 +20,9 @@ rol_router.post("/create", async (req, res) => {
  */
 rol_router.get("/list", async (req, res) => {
   try {
-    res.status(200).json(await listRol());
+    res.status(200).json(await controller.list());
   } catch (error) {
-    res.status(500).send("Error listando roles: " + error.message);
+    res.status(500).send(error.message);
   }
 });
 
@@ -40,11 +32,9 @@ rol_router.get("/list", async (req, res) => {
 rol_router.get("/list/:limit/:offset", async (req, res) => {
   try {
     let { limit, offset } = req.params;
-    offset = Number(offset) || 0; // manage possible null parameter
-    limit = Number(limit) || null; // manage possible null parameter
-    res.status(200).json(await listRolManager(limit, offset));
+    res.status(200).json(await controller.listLimitOffset(limit, offset));
   } catch (error) {
-    res.status(500).send("Error listando roles: " + error.message);
+    res.status(500).send(error.message);
   }
 });
 
@@ -55,9 +45,9 @@ rol_router.put("/update/:id", async (req, res) => {
   try {
     let { id } = req.params;
     let data = { id, ...req.body }; // req.body contain multiple data to replacementes
-    return res.status(200).json(await updateRol(data));
+    return res.status(200).json(await controller.update(data));
   } catch (error) {
-    res.status(500).send("Error actualizando rol: " + error.message);
+    res.status(500).send(error.message);
   }
 });
 
@@ -66,10 +56,9 @@ rol_router.put("/update/:id", async (req, res) => {
  */
 rol_router.delete("/delete/:id", async (req, res) => {
   try {
-    const { id } = req.params;
-    res.status(200).json(await deleteRol(id));
+    res.status(200).json(await controller.delete(req.params.id));
   } catch (error) {
-    res.status(500).send("Error eliminando rol: " + error.message);
+    res.status(500).send(error.message);
   }
 });
 
