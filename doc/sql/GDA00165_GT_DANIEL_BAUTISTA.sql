@@ -259,30 +259,29 @@ END;
 GO
 
 
--- Procedimiento para listar todos los roles con paginación
 CREATE OR ALTER PROCEDURE p_list_rol
     @limit INT = NULL,
     @offset INT = 0
 AS
 BEGIN
     SET NOCOUNT ON;
-    IF @limit IS NOT NULL
-    BEGIN
-        SELECT id, nombre, descripcion
-        FROM rol
-        ORDER BY id
-        OFFSET @offset ROWS
-        FETCH NEXT @limit ROWS ONLY;
-    END
-    ELSE
-    BEGIN
-        SELECT id, nombre, descripcion
-        FROM rol
-        ORDER BY id
-        OFFSET @offset ROWS;
-    END
+
+    SELECT
+        id,
+        nombre,
+        descripcion
+    FROM
+        rol
+    ORDER BY 
+        id
+    OFFSET 
+        @offset ROWS
+    FETCH NEXT 
+        ISNULL(@limit, 2147483647) ROWS ONLY;
+-- Si @limit es NULL, devolvemos todos los registros restantes.
 END;
 GO
+
 
 CREATE OR ALTER PROCEDURE p_delete_rol
     @id INT = NULL
@@ -1010,15 +1009,29 @@ BEGIN
         dp.precio_venta,
         (dp.cantidad * dp.precio_venta) AS subtotal, -- Subtotal calculado
         dp.producto_id,
-        p.nombre AS producto_nombre
-    -- Suponiendo que tienes una columna 'nombre' en la tabla producto
+        p.nombre AS producto_nombre,
+        -- Dirección extendida como string JSON
+        (
+            SELECT
+            direccion_cliente.direccion AS [direccion],
+            direccion_cliente.municipio AS [municipio],
+            direccion_cliente.departamento AS [departamento],
+            direccion_cliente.telefono AS [telefono]
+        FROM
+            direccion_cliente
+            INNER JOIN pedido ON direccion_cliente.id = pedido.direccion_entrega_id
+        WHERE 
+                pedido.id = dp.pedido_id
+        FOR JSON PATH, INCLUDE_NULL_VALUES
+        ) AS direccion_detallada
     FROM
         detalle_pedido dp
-        JOIN
+        INNER JOIN
         producto p ON dp.producto_id = p.id
     WHERE 
         dp.pedido_id = @pedido_id;
 END;
+
 
 GO
 
@@ -1186,28 +1199,31 @@ GO
 CREATE OR ALTER PROCEDURE p_list_pedido
     @limit INT = NULL,
     @offset INT = NULL,
-    @target_state INT = NULL
+    @target_state INT = NULL,
+    @target_user INT = NULL
 AS
 BEGIN
-    IF @limit IS NOT NULL
-    BEGIN
-        SELECT id, fecha_creacion, fecha_confirmacion, fecha_entrega, total,
-            usuario_validador_id, usuario_id, direccion_entrega_id, estado_pedido_id
-        FROM pedido
-        WHERE (@target_state IS NULL OR estado_pedido_id = @target_state)
-        ORDER BY id
-        OFFSET @offset ROWS
-        FETCH NEXT @limit ROWS ONLY;
-    END
-    ELSE
-    BEGIN
-        SELECT id, fecha_creacion, fecha_confirmacion, fecha_entrega, total,
-            usuario_validador_id, usuario_id, direccion_entrega_id, estado_pedido_id
-        FROM pedido
-        WHERE (@target_state IS NULL OR estado_pedido_id = @target_state)
-        ORDER BY id
-        OFFSET @offset ROWS;
-    END
+    SELECT
+        id,
+        fecha_creacion,
+        fecha_confirmacion,
+        fecha_entrega,
+        total,
+        usuario_validador_id,
+        usuario_id,
+        direccion_entrega_id,
+        estado_pedido_id
+    FROM
+        pedido
+    WHERE 
+        (@target_state IS NULL OR estado_pedido_id = @target_state) AND
+        (@target_user IS NULL OR usuario_id = @target_user)
+    ORDER BY 
+        id
+    OFFSET 
+        ISNULL(@offset, 0) ROWS
+    FETCH NEXT 
+        ISNULL(@limit, 2147483647) ROWS ONLY;
 END;
 GO
 

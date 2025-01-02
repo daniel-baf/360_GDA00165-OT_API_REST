@@ -6,7 +6,7 @@ import { NotificationContext } from "../../Notification.context";
 import { Settings } from "../../../helpers/CONFIGURATION.enum";
 
 // Context type definitions
-interface ClientContextType {
+interface ClientPorductsGridType {
   products: Product[];
   loadProducts: (maxProducts?: number, offset?: number) => Promise<void>;
   loadMoreProducts: () => Promise<void>;
@@ -15,14 +15,16 @@ interface ClientContextType {
 }
 
 // Provider props
-interface ClientContextProviderProps {
+interface ClientPorductsGridProviderProps {
   children: ReactNode;
 }
 
 // Create the context, initialize undefined to handle errors
-const ClientContext = createContext<ClientContextType | undefined>(undefined);
+const ClientPorductsGridContext = createContext<
+  ClientPorductsGridType | undefined
+>(undefined);
 
-const ClientContextProvider: React.FC<ClientContextProviderProps> = ({
+const ClientPorductsGridProvider: React.FC<ClientPorductsGridProviderProps> = ({
   children,
 }) => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -81,7 +83,7 @@ const ClientContextProvider: React.FC<ClientContextProviderProps> = ({
   };
 
   return (
-    <ClientContext.Provider
+    <ClientPorductsGridContext.Provider
       value={{
         products,
         loadProducts,
@@ -91,13 +93,13 @@ const ClientContextProvider: React.FC<ClientContextProviderProps> = ({
       }}
     >
       {children}
-    </ClientContext.Provider>
+    </ClientPorductsGridContext.Provider>
   );
 };
 
 // Custom hook for consuming the context
-const useClientContext = () => {
-  const context = useContext(ClientContext);
+const useClientPorductsGridContext = () => {
+  const context = useContext(ClientPorductsGridContext);
   if (!context) {
     throw new Error(
       "useClientContext debe ser usado dentro de un ClientContextProvider"
@@ -106,4 +108,8 @@ const useClientContext = () => {
   return context;
 };
 
-export { ClientContext, ClientContextProvider, useClientContext };
+export {
+  ClientPorductsGridContext,
+  ClientPorductsGridProvider,
+  useClientPorductsGridContext,
+};

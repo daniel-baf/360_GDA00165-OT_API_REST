@@ -6,39 +6,17 @@ const order_router = express.Router();
 
 /**
  * Endpoint to list all orders. the path is /api/orders/list, and is accessed by an admin user.
+ * Filters are passed as query parameters.
  */
-order_router.get("/list", checkAdminPermission, async (req, res) => {
+order_router.get("/list", async (req, res) => {
   try {
-    let detailed = req.query.detailed;
     return res
       .status(200)
-      .json(await orderController.listAll(detailed, req.user));
+      .json(await orderController.listAll(req.query, req.user));
   } catch (error) {
     res.status(500).send(error.message);
   }
 });
-
-/**
- *  * Endpoint to list all orders with limit and offset. the path is /api/orders/list, and is accessed by an admin user.
- */
-order_router.get(
-  "/list/:limit/:offset",
-  checkAdminPermission,
-  async (req, res) => {
-    try {
-      let detailed = req.query.detailed;
-      let limit = parseInt(req.params.limit);
-      let offset = parseInt(req.params.offset);
-      return res
-        .status(200)
-        .json(
-          await orderController.listAllLimitOffset(detailed, limit, offset)
-        );
-    } catch (error) {
-      res.status(500).send(`Unable to retrieve orders: ${error}`);
-    }
-  }
-);
 
 /**
  * Query parameter to determine if detailed information is requested.

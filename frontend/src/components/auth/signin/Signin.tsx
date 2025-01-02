@@ -5,6 +5,7 @@ import { AuthContext } from "../../../context/auth/signin/Signin.context";
 import { useRedirect } from "../../../helpers/redirec.helper";
 import { useContext } from "react";
 import { NotificationContext } from "../../../context/Notification.context";
+import { getTokenDecoded } from "../../../helpers/auth/auth.service";
 
 interface SignInProps {
   switchToSignUp: () => void;
@@ -23,7 +24,8 @@ const SignIn: React.FC<SignInProps> = ({ switchToSignUp }) => {
     try {
       const response = await signInService(data);
       saveToken(response.token);
-      redirectTo(`/dashboard/${response.rol_id === 2 ? "admin" : "client"}`);
+      const token_user = getTokenDecoded(response.token);
+      redirectTo(`/dashboard/${token_user?.rol_id === 2 ? "admin" : "client"}`);
     } catch (error) {
       alertManager?.showError(`${error}`);
     }

@@ -1,14 +1,26 @@
-import { Route, Routes } from "react-router-dom";
 import { ClientProductGrid } from "./products/ClientProductGrid";
-import { ClientContextProvider } from "../../../context/user/client/ClientProductGrid.context";
+import { ClientPorductsGridProvider } from "../../../context/user/client/ClientProductGrid.context";
+import ClientCart from "./cart/ClientCart";
+import { ClientCartProvider } from "../../../context/user/client/ClientCart.context";
+import { Route, Routes } from "react-router-dom";
+import ClientOrderGrid from "./orders/ClientOrderGrid";
 
 const ClientDashboard: React.FC = () => {
-  // TODO save needed data in the context
-
   return (
-    <ClientContextProvider>
-      <ClientProductGrid />
-    </ClientContextProvider>
+    <ClientCartProvider>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <ClientPorductsGridProvider>
+              <ClientProductGrid />
+            </ClientPorductsGridProvider>
+          }
+        />
+        <Route path="cart" element={<ClientCart />} />
+        <Route path="orders" element={<ClientOrderGrid/>} />
+      </Routes>
+    </ClientCartProvider>
   );
 };
 

@@ -16,7 +16,7 @@ async function validateLogin(email, password_plain) {
   if (db_user.estado_usuario_id !== 3) {
     throw new Error("Usuario no autorizado");
   }
-  
+
   // check if the user_db password is the same as the password_plain
   if (!compareHash(password_plain, db_user.password)) {
     throw new Error("Credenciales incorrectas");
@@ -30,7 +30,7 @@ async function validateLogin(email, password_plain) {
     id: db_user.id,
   };
   // return a valid session token
-  return { token: createToken(db_user), rol_id: db_user.rol_id };
+  return { token: createToken(db_user) };
 }
 
 export { validateLogin };

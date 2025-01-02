@@ -6,7 +6,7 @@ import {
 } from "@models/oders/order.dao.js";
 
 const orderController = {
-  listAll: async (detailed = false) => await listOrders(detailed),
+  listAll: async (filters, user) => await listOrders(filters, user),
 
   listAllLimitOffset: async (detailed = false, limit, offset = 0) =>
     await listOrders(detailed, limit, offset),

@@ -9,13 +9,13 @@ import { ToastContainer } from "react-toastify";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <NotificationProvider>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="bg-gray-800 dark:bg-gray-900 flex flex-col min-h-screen">
+      <NotificationProvider>
         <Router>
           <App />
         </Router>
-      </div>
-      <ToastContainer position="top-right" autoClose={3000} />
-    </NotificationProvider>
+        <ToastContainer position="top-right" autoClose={3000} />
+      </NotificationProvider>
+    </div>
   </StrictMode>
 );

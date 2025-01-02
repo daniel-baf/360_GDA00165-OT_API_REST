@@ -45,7 +45,9 @@ async function createOrder(order_insert) {
   }
 }
 
-async function listOrders(detailed = false, limit = null, offset = 0) {
+async function listOrders(filters, user) {
+  let { limit = null, offset = 0, detailed = false, target_user = null, target_state = null } = filters;
+
   if (!!limit && limit < 1)
     throw new Error("El limite debe ser de al menos 1 o null");
   if (detailed && (limit === null || limit > 100)) {
@@ -53,9 +55,15 @@ async function listOrders(detailed = false, limit = null, offset = 0) {
   }
 
   try {
+    // verify the one requesting non filtered orders is an admin
+    if (!target_user && user.rol_id !== 2 && user.id !== target_user) {
+      throw new Error("No tienes permisos para acceder a estos datos, solo puedes acceder a tus propios datos");
+    }
+
+
     // recover the orders
-    let orders = await connection.query(`EXEC p_list_pedido :limit, :offset`, {
-      replacements: { limit: limit, offset: offset },
+    let orders = await connection.query(`EXEC p_list_pedido :limit, :offset, :target_state, :target_user`, {
+      replacements: { limit, offset, target_user, target_state },
       type: connection.QueryTypes.SELECT,
     });
 
