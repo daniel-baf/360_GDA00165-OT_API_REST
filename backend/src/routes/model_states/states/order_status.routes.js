@@ -40,31 +40,9 @@ order_status_router.post("/create", async (req, res) => {
  */
 order_status_router.get("/list", async (req, res) => {
   try {
-    res.status(200).json(await controller.list());
+    res.status(200).json(await controller.list(req.query));
   } catch (error) {
     req.status(500).send(error.message);
-  }
-});
-
-/**
- * Route to list order statuses with pagination.
- * @name GET /list/:limit/:offset
- * @function
- * @memberof module:order_status_router
- * @async
- * @param {express.Request} req - Express request object.
- * @param {express.Response} res - Express response object.
- * @param {number} req.params.limit - The maximum number of order statuses to return.
- * @param {number} req.params.offset - The number of order statuses to skip before starting to collect the result set.
- * @returns {Promise<void>} 200 - An array of order statuses.
- * @returns {Promise<void>} 500 - Error message if unable to retrieve order statuses.
- */
-order_status_router.get("/list/:limit/:offset", async (req, res) => {
-  const { limit, offset } = req.params;
-  try {
-    res.status(200).json(await controller.listLimitOffset(limit, offset));
-  } catch (error) {
-    res.status(500).send(error.message);
   }
 });
 

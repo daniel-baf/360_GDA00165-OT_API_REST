@@ -55,7 +55,8 @@ async function updateUserStatus(id, nombre = null, descripcion = null) {
  * @param {number} offset
  * @returns
  */
-async function listUserStatuses(limit = null, offset = 0) {
+async function listUserStatuses(filters) {
+  let { limit = null, offset = 0 } = filters;
   const connection = await getConnection();
   try {
     const result = await connection.query(

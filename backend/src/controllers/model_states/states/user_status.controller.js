@@ -7,8 +7,7 @@ import {
 
 const user_status_controller = {
   create: async (new_user_status) => await createUserSCtrl(new_user_status),
-  list: async () => listUserStatuses(),
-  listLimitOffset: async ({ limit, offset }) => listUserStatuses(limit, offset),
+  list: async (filters) => listUserStatuses(filters),
   update: async (id, { nombre, descripcion }) =>
     updateUserStatus(id, nombre, descripcion),
   delete: async (id) => deleteUserStatus(id),

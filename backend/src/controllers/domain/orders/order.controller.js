@@ -8,9 +8,6 @@ import {
 const orderController = {
   listAll: async (filters, user) => await listOrders(filters, user),
 
-  listAllLimitOffset: async (detailed = false, limit, offset = 0) =>
-    await listOrders(detailed, limit, offset),
-
   search: async (id, detailed = false, user) =>
     await checkOrderOwner(user, [id, detailed]),
 

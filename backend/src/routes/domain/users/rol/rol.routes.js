@@ -20,19 +20,7 @@ rol_router.post("/create", async (req, res) => {
  */
 rol_router.get("/list", async (req, res) => {
   try {
-    res.status(200).json(await controller.list());
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-});
-
-/**
- * Get all roles with pagination, limit and offset can be null
- */
-rol_router.get("/list/:limit/:offset", async (req, res) => {
-  try {
-    let { limit, offset } = req.params;
-    res.status(200).json(await controller.listLimitOffset(limit, offset));
+    res.status(200).json(await controller.list(req.query));
   } catch (error) {
     res.status(500).send(error.message);
   }

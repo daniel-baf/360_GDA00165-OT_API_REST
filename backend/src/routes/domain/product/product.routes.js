@@ -50,34 +50,9 @@ product_router.post("/create", checkAdminPermission, async (req, res) => {
  */
 product_router.get("/list", async (req, res) => {
   try {
-    let { status_id } = req.query;
     res
       .status(200)
-      .json(await controller.list({ status_id: status_id ? status_id : null }));
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-});
-
-/**
- * Route to list products with pagination.
- * @name GET /list/:limit/:offset
- * @function
- * @memberof module:routes/domain/product/product.routes~product_router
- * @inner
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
- * @param {string} req.params.limit - The limit of products to return.
- * @param {string} req.params.offset - The offset of products to return.
- * @returns {JSON} The list of products.
- */
-product_router.get("/list/:limit/:offset", async (req, res) => {
-  try {
-    let { limit, offset } = req.params;
-    let { status_id = null } = req.query;
-    res
-      .status(200)
-      .json(await controller.listLimitOffset({ limit, offset, status_id }));
+      .json(await controller.list(req.query));
   } catch (error) {
     res.status(500).send(error.message);
   }

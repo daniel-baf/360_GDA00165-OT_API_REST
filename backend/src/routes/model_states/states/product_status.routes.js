@@ -36,32 +36,12 @@ product_status_router.post("/create", async (req, res) => {
  */
 product_status_router.get("/list", async (req, res) => {
   try {
-    res.status(200).json(await controller.list());
+    res.status(200).json(await controller.list(req.query));
   } catch (error) {
     res.status(500).send(error.message);
   }
 });
 
-/**
- * Route to list product statuses with pagination.
- * @name GET /list/:limit/:offset
- * @function
- * @memberof module:product_status_router
- * @async
- * @param {express.Request} req - Express request object.
- * @param {express.Response} res - Express response object.
- * @param {number} req.params.limit - The maximum number of product statuses to return.
- * @param {number} req.params.offset - The number of product statuses to skip before starting to collect the result set.
- * @returns {Promise<void>} 200 - An array of product statuses.
- * @returns {Promise<void>} 500 - Error message if unable to retrieve product statuses.
- */
-product_status_router.get("/list/:limit/:offset", async (req, res) => {
-  try {
-    res.status(200).json(await controller.listLImitOffset(req.params));
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-});
 
 /**
  * Route to update an existing product status.

@@ -60,7 +60,8 @@ async function updateOrderStatus(id, nombre = null, descripcion = null) {
  * @param {number} offset - The number of order statuses to skip before starting to collect the result set.
  * @returns {Promise<Array>} The list of order statuses.
  */
-async function listOrderStatuses(limit = null, offset = 0) {
+async function listOrderStatuses(filters) {
+  let { limit = null, offset = 0 } = filters;
   const results = await sequelize.query(
     "EXEC p_list_estado_pedido :limit, :offset",
     {

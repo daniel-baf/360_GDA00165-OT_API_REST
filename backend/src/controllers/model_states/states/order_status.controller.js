@@ -8,11 +8,7 @@ import {
 const order_status_controller = {
   create: async (new_order_status) => createOStatosController(new_order_status),
 
-  list: async () => await listOrderStatuses(),
-
-  listLimitOffset: async (limit, offset) =>
-    await listOrderStatuses(limit, offset),
-
+  list: async (filters) => await listOrderStatuses(filters),
   update: async (id, updated_order_status) =>
     updateOSController(id, updated_order_status),
 

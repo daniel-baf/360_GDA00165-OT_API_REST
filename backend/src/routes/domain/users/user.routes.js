@@ -71,36 +71,13 @@ user_router.post("/create", async (req, res) => {
  */
 user_router.get("/list", checkAdminPermission, async (req, res) => {
   try {
-    return res.status(200).json(await controller.list());
+    return res.status(200).json(await controller.list(req.query, req.user));
   } catch (error) {
     res.status(500).send(error.message);
   }
 });
 
-/**
- * Route to list users with pagination.
- * @name /list/:limit/:offset
- * @function
- * @memberof module:routes/domain/users/user.routes
- * @inner
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
- * @returns {Promise<void>}
- */
-user_router.get(
-  "/list/:limit/:offset",
-  checkAdminPermission,
-  async (req, res) => {
-    try {
-      let { limit, offset } = req.params;
-      return res
-        .status(200)
-        .json(await controller.listLimitOffset(limit, offset));
-    } catch (error) {
-      res.status(500).send(error.message);
-    }
-  }
-);
+
 
 /**
  * Route to search for a user by ID. at least 1 parameter is required, if both are provided,

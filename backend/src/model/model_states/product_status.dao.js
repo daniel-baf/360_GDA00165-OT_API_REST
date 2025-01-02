@@ -83,7 +83,8 @@ async function deleteProductStatus(id) {
  * @param {number} [offset] - The number of product statuses to skip.
  * @returns {Promise<Array>} - A promise that resolves to an array of product statuses.
  */
-async function listProductStatus(limit = null, offset = 0) {
+async function listProductStatus(filters) {
+  const { limit = null, offset = 0 } = filters
   try {
     if ((!!limit && limit < 1) || offset < 0)
       throw new RangeError(

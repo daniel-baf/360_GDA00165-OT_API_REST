@@ -332,19 +332,12 @@ CREATE OR ALTER PROCEDURE p_list_estado_usuario
     @offset INT = 0
 AS
 BEGIN
-    IF @limit IS NOT NULL AND @offset IS NOT NULL
-    BEGIN
-        SELECT id, nombre, descripcion
-        FROM estado_usuario
-        ORDER BY id
+    SET NOCOUNT ON;
+    SELECT id, nombre, descripcion
+    FROM estado_usuario
+    ORDER BY id
         OFFSET @offset ROWS
-        FETCH NEXT @limit ROWS ONLY;
-    END
-    ELSE
-    BEGIN
-        SELECT id, nombre, descripcion
-        FROM estado_usuario;
-    END
+        FETCH NEXT ISNULL(@limit, 2147483647) ROWS ONLY;
 END;
 GO
 
@@ -404,21 +397,12 @@ CREATE OR ALTER PROCEDURE p_list_estado_pedido
     @offset INT = 0
 AS
 BEGIN
-    IF @limit IS NOT NULL
-    BEGIN
-        SELECT id, nombre, descripcion
-        FROM estado_pedido
-        ORDER BY id
+    SET NOCOUNT ON;
+    SELECT id, nombre, descripcion
+    FROM estado_pedido
+    ORDER BY id
         OFFSET @offset ROWS
-        FETCH NEXT @limit ROWS ONLY;
-    END
-    ELSE
-    BEGIN
-        SELECT id, nombre, descripcion
-        FROM estado_pedido
-        ORDER BY id
-        OFFSET @offset ROWS;
-    END
+        FETCH NEXT ISNULL(@limit, 2147483647) ROWS ONLY;
 END;
 GO
 
@@ -526,21 +510,13 @@ CREATE OR ALTER PROCEDURE p_list_usuario
     @offset INT = 0
 AS
 BEGIN
-    IF @limit IS NOT NULL
-    BEGIN
-        SELECT id, email, nombre_completo, NIT, telefono, fecha_nacimiento, fecha_creacion, rol_id, estado_usuario_id
-        FROM usuario
-        ORDER BY id
+    SET NOCOUNT ON;
+    SELECT id, email, nombre_completo, NIT, telefono, fecha_nacimiento, fecha_creacion, rol_id, estado_usuario_id
+    FROM usuario
+    ORDER BY id
         OFFSET @offset ROWS
-        FETCH NEXT @limit ROWS ONLY;
-    END
-    ELSE
-    BEGIN
-        SELECT id, email, nombre_completo, NIT, telefono, fecha_nacimiento, fecha_creacion, rol_id, estado_usuario_id
-        FROM usuario
-        ORDER BY id
-        OFFSET @offset ROWS;
-    END
+    FETCH NEXT ISNULL(@limit, 2147483647) ROWS ONLY;
+
 END;
 GO
 
@@ -619,19 +595,19 @@ END;
 GO
 
 CREATE OR ALTER PROCEDURE p_list_direccion_cliente
-    @usuario_id INT = NULL
+    @usuario_id INT = NULL,
+    @limit INT = NULL,
+    @offset INT = 0
 AS
 BEGIN
-    IF @usuario_id IS NOT NULL
-    BEGIN
-        SELECT id, departamento, municipio, direccion, telefono, usuario_id
-        FROM direccion_cliente
-        WHERE usuario_id = @usuario_id;
-        RETURN;
-    END
+    SET NOCOUNT ON;
+
     SELECT id, departamento, municipio, direccion, telefono, usuario_id
-    FROM direccion_cliente;
-    RETURN;
+    FROM direccion_cliente
+    WHERE (@usuario_id IS NULL OR usuario_id = @usuario_id)
+    ORDER BY id
+    OFFSET @offset ROWS
+    FETCH NEXT ISNULL(@limit, 2147483647) ROWS ONLY;
 END;
 
 GO
@@ -694,21 +670,12 @@ CREATE OR ALTER PROCEDURE p_list_categoria_producto
     @offset INT = 0
 AS
 BEGIN
-    IF @limit IS NOT NULL
-    BEGIN
-        SELECT id, nombre, descripcion
-        FROM categoria_producto
-        ORDER BY id
-        OFFSET @offset ROWS
-        FETCH NEXT @limit ROWS ONLY;
-    END
-    ELSE
-    BEGIN
-        SELECT id, nombre, descripcion
-        FROM categoria_producto
-        ORDER BY id
-        OFFSET @offset ROWS;
-    END
+    SET NOCOUNT ON;
+
+    SELECT id, nombre, descripcion
+    FROM categoria_producto
+    ORDER BY id OFFSET @offset ROWS
+    FETCH NEXT ISNULL(@limit, 2147483647) ROWS ONLY;
 END;
 
 GO
@@ -954,27 +921,34 @@ BEGIN
     DECLARE @sql NVARCHAR(MAX);
 
     -- INICIALIZAR LA CONSULTA SQL
-    SET @sql = 'SELECT p.id, p.nombre, p.descripcion, p.precio, p.precio_mayorista, p.stock, p.estado_producto_id, p.categoria_producto_id, e.nombre AS estado_nombre,
-        c.nombre AS categoria_nombre, c.descripcion AS categoria_descripcion 
-        FROM producto AS p INNER JOIN categoria_producto AS c ON p.categoria_producto_id = c.id
-        INNER JOIN estado_producto AS e ON p.estado_producto_id = e.id';
+    SET @sql = 'SELECT p.id, p.nombre, p.descripcion, p.precio, p.precio_mayorista, p.stock, 
+                p.estado_producto_id, p.categoria_producto_id, 
+                e.nombre AS estado_nombre, 
+                c.nombre AS categoria_nombre, c.descripcion AS categoria_descripcion 
+                FROM producto AS p 
+                INNER JOIN categoria_producto AS c ON p.categoria_producto_id = c.id
+                INNER JOIN estado_producto AS e ON p.estado_producto_id = e.id';
 
     -- Agregar filtro por estado_producto_id si es necesario
     IF @status_product_id IS NOT NULL
     BEGIN
-        SET @sql = @sql + ' WHERE estado_producto_id = @status_product_id';
+        SET @sql = @sql + ' WHERE p.estado_producto_id = @status_product_id';
     END
 
-    -- Agregar OFFSET y LIMIT si son necesarios
+    -- Agregar cláusula ORDER BY, OFFSET y FETCH
+    SET @sql = @sql + ' ORDER BY p.id OFFSET @offset ROWS';
+
+    -- Manejar el límite, si se proporciona
     IF @limit IS NOT NULL
     BEGIN
-        SET @sql = @sql + ' ORDER BY id OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY';
+        SET @sql = @sql + ' FETCH NEXT @limit ROWS ONLY';
     END
 
     -- Ejecutar la consulta dinámica
     EXEC sp_executesql @sql, N'@limit INT, @offset INT, @status_product_id INT', @limit, @offset, @status_product_id;
 END;
 GO
+
 
 
 CREATE OR ALTER PROCEDURE p_get_producto

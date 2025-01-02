@@ -11,12 +11,7 @@ const productCategoryController = {
     return await createProductCategory({ nombre, descripcion });
   },
 
-  list: async () => await listProductsCategory(),
-
-  listLimitOffset: async ({ limit, offset = 0 }) => {
-    if (!limit || !offset) throw new Error("Los campos son obligatorios");
-    return await listProductsCategory(limit, offset);
-  },
+  list: async (filters) => await listProductsCategory(filters),
 
   update: async (updates) => {
     if (!updates?.id) throw new Error("El id es un campo obligatorio");

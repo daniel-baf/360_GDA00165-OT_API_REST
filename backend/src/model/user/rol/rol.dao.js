@@ -56,8 +56,9 @@ const updateRol = async (rol_data) => {
  * @param {number} offset - The number of roles to skip
  * @returns {Promise} - Promise object represents the result of the query
  */
-const listRol = async (limit = null, offset = 0) => {
+const listRol = async (filters) => {
   try {
+    const { limit = null, offset = 0 } = filters;
     let result = await sequelize.query("EXEC p_list_rol :limit, :offset", {
       replacements: { limit, offset },
       type: sequelize.QueryTypes.SELECT,

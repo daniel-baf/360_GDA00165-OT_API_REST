@@ -10,7 +10,6 @@ import {
 const productController = {
   create: async (new_product) => await createProduct(new_product),
   list: async (filter) => await listProducts(filter),
-  listLimitOffset: async (filters) => await listProducts(filters),
   search: async (search_params) => await searchProduct(search_params),
   update: async (product) => await updateProduct(product),
   changeStatus: async ({ id, estado_producto_id }) =>

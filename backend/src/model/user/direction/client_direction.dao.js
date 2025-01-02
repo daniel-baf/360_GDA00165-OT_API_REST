@@ -110,11 +110,18 @@ async function deleteDirection(id) {
  * @param {number} [filter.id] - The direction ID
  * @returns {Promise<Array>} The list of directions
  */
-async function listDirections(usuario_id = null) {
+async function listDirections(filters, user) {
+  const { usuario_id = null, limit = null, offset = 0 } = filters
+
+  // check if the user is not an admin
+  if (user.rol_id !== 2 && Number(usuario_id) !== user.id) {
+    throw new Error("No tienes permiso para ver las direcciones de otro usuario");
+  }
+
   const results = await sequelize.query(
-    `EXEC p_list_direccion_cliente :usuario_id`,
+    `EXEC p_list_direccion_cliente :usuario_id, :limit, :offset`,
     {
-      replacements: { usuario_id },
+      replacements: { usuario_id, limit, offset },
       type: sequelize.QueryTypes.SELECT,
     }
   );

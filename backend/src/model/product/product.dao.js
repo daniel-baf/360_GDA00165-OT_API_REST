@@ -168,9 +168,8 @@ async function deleteProduct(id) {
  * @returns {Promise<Array>} A promise that resolves to an array of products.
  * @throws {Error} If there is an error listing the products.
  */
-async function listProducts(filters) {
+async function listProducts({ limit = null, offset = 0, status_id = 1 }) {
   try {
-    const { limit = null, offset = 0, status_id = 1 } = filters;
 
     if (!!limit && limit < 1)
       throw new RangeError("El limite debe ser al menos 1");

@@ -16,18 +16,7 @@ user_status_router.post("/create", async (req, res) => {
  */
 user_status_router.get("/list", async (req, res) => {
   try {
-    res.status(200).json(await controller.list());
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-});
-
-/**
- * List all users status on DB by limit and offset
- */
-user_status_router.get("/list/:limit/:offset", async (req, res) => {
-  try {
-    res.status(200).json(await controller.listLimitOffset(req.params));
+    res.status(200).json(await controller.list(req.query));
   } catch (error) {
     res.status(500).send(error.message);
   }

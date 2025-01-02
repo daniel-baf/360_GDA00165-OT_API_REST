@@ -12,7 +12,7 @@ const sequelize = getConnection();
  */
 async function createProductCategory(productData) {
   let { nombre = null, descripcion = null }
-   = productData;
+    = productData;
 
   try {
     const [result] = await sequelize.query(
@@ -34,9 +34,9 @@ async function createProductCategory(productData) {
  * @returns {Promise<Object>} The product data.
  * @throws Will throw an error if the query fails.
  */
-async function listProductsCategory(limit = null, offset = 0) {
+async function listProductsCategory({ limit = null, offset = 0 }) {
   try {
-    if(!!limit && limit < 1) throw new Error("El limite debe ser mayor a 0");
+    if (!!limit && limit < 1) throw new Error("El limite debe ser mayor a 0");
 
     const result = await sequelize.query(
       "EXEC p_list_categoria_producto :limit, :offset",

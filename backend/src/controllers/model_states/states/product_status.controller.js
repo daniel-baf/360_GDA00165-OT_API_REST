@@ -8,15 +8,9 @@ import {
 const product_status_controller = {
   create: async (new_product_status) =>
     await newProductStatusCtrl(new_product_status),
-
-  list: async () => await listProductStatus(),
-
-  listLImitOffset: async ({ limit, offset }) =>
-    await listProductStatus(limit, offset),
-
+  list: async (filters) => await listProductStatus(filters),
   update: async (id, product_status) =>
     await updateProductStatusCtrl(id, product_status),
-
   delete: async (id) => await deleteProductStatus(id),
 };
 

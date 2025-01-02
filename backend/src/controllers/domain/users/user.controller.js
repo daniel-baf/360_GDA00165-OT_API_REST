@@ -25,19 +25,7 @@ const userController = {
    * Lists all users.
    * @returns {Promise<Array>} An array of user objects.
    */
-  list: async () => await listUsers(),
-
-  /**
-   * Lists users with pagination.
-   * @param {number} limit - The maximum number of users to return.
-   * @param {number} offset - The number of users to skip before starting to collect the result set.
-   * @returns {Promise<Array>} An array of user objects.
-   */
-  listLimitOffset: async (limit, offset) => {
-    limit = parseInt(limit) || null;
-    offset = parseInt(offset) || 0;
-    return await listUsers(limit, offset);
-  },
+  list: async (filters, user) => await listUsers(filters, user),
 
   /**
    * Searches for a user by ID or email.

@@ -11,11 +11,7 @@ const client_direction_controller = {
   create: async (new_direction, logged_user) =>
     await createDirectionController(new_direction, logged_user),
 
-  list: async () => await listDirections(),
-
-  listByUser: async (user_id, logged_user) =>
-    await listByUserController(user_id, logged_user),
-
+  list: async (filters, user) => await listDirections(filters, user),
   update: async (direction, logged_user) =>
     await updateDirectionController(direction, logged_user),
 

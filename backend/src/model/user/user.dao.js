@@ -25,7 +25,7 @@ async function createUser(user) {
   } catch (error) {
     throw new EvalError(
       "No se ha podido encriptar la contraseña para el nuevo usuario" +
-        error.message
+      error.message
     );
   }
 
@@ -193,8 +193,9 @@ async function deleteUser(id) {
  * @param {number} [offset=0] - The number of users to skip before starting to return results.
  * @returns {Promise<Array>} - A promise that resolves to the list of users.
  */
-async function listUsers(limit = null, offset = 0) {
+async function listUsers(filters) {
   try {
+    const { limit = null, offset = 0 } = filters
     const users = await sequelize.query(
       "EXEC p_list_usuario @limit=:limit, @offset=:offset",
       {

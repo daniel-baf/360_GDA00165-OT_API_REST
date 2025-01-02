@@ -36,33 +36,14 @@ client_direction_router.post("/create", async (req, res) => {
  * @param {express.Response} res - Express response object.
  * @returns {Promise<void>} A promise that resolves to sending the list of directions.
  */
-client_direction_router.get("/list", checkAdminPermission, async (req, res) => {
+client_direction_router.get("/list", async (req, res) => {
   try {
-    res.status(200).json(await controller.list());
+    res.status(200).json(await controller.list(req.query, req.user));
   } catch (error) {
     res.status(500).send(error.message);
   }
 });
 
-/**
- * Route to list directions for a specific user.
- * @name GET /list/:usuario_id
- * @function
- * @memberof module:routes/domain/users/directions/client_direction.routes~client_direction_router
- * @inner
- * @param {express.Request} req - Express request object.
- * @param {express.Response} res - Express response object.
- * @returns {Promise<void>} A promise that resolves to sending the list of directions for the specified user.
- */
-client_direction_router.get("/list/:user_id", async (req, res) => {
-  try {
-    return res
-      .status(200)
-      .json(await controller.listByUser(req.params.user_id, req.user));
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-});
 
 /**
  * Route to update a direction.
