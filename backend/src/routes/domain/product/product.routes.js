@@ -38,7 +38,8 @@ product_router.post("/create", checkAdminPermission, async (req, res) => {
 });
 
 /**
- * Route to list all products.
+ * Route to list all products. sned in the query the status_id to filter by status.
+ * Or null to get all products.
  * @name GET /list
  * @function
  * @memberof module:routes/domain/product/product.routes~product_router
@@ -49,7 +50,10 @@ product_router.post("/create", checkAdminPermission, async (req, res) => {
  */
 product_router.get("/list", async (req, res) => {
   try {
-    res.status(200).json(await controller.list());
+    let { status_id } = req.query;
+    res
+      .status(200)
+      .json(await controller.list({ status_id: status_id ? status_id : null }));
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -70,7 +74,10 @@ product_router.get("/list", async (req, res) => {
 product_router.get("/list/:limit/:offset", async (req, res) => {
   try {
     let { limit, offset } = req.params;
-    res.status(200).json(await controller.listLimitOffset(limit, offset));
+    let { status_id = null } = req.query;
+    res
+      .status(200)
+      .json(await controller.listLimitOffset({ limit, offset, status_id }));
   } catch (error) {
     res.status(500).send(error.message);
   }

@@ -1,95 +1,50 @@
-import { useForm, SubmitHandler } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import { InputField, Checkbox, Button } from "../../forms/Form";
+import { SubmitHandler } from "react-hook-form";
+import { SignInForm } from "./signin.form";
+import { signInService, SignInFormData } from "./signin.service";
+import { AuthContext } from "../../../context/auth/signin/Signin.context";
+import { useRedirect } from "../../../helpers/redirec.helper";
+import { useContext } from "react";
+import { NotificationContext } from "../../../context/Notification.context";
 
 interface SignInProps {
-  switchToSignUp: () => void; // Callback to switch to the SignUp view
+  switchToSignUp: () => void;
 }
 
-type SignInFormData = {
-  email: string;
-  password: string;
-  remember?: boolean; // Cambiado a opcional para que coincida con Yup
-};
-
-// Esquema de validación con Yup
-const signInSchema = yup.object().shape({
-  email: yup
-    .string()
-    .email("Formato de correo inválido")
-    .required("El correo es obligatorio"),
-  password: yup
-    .string()
-    .min(6, "La contraseña debe tener al menos 6 caracteres")
-    .required("La contraseña es obligatoria"),
-  remember: yup.boolean(), // Es opcional por defecto
-});
-
 const SignIn: React.FC<SignInProps> = ({ switchToSignUp }) => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<SignInFormData>({
-    resolver: yupResolver(signInSchema), // Conecta Yup con React Hook Form
-  });
+  const { redirectTo } = useRedirect();
+  const context = useContext(AuthContext);
+  const alertManager = useContext(NotificationContext);
+  if (!context)
+    throw new Error("No se puede renderizar el componente fuera del proveedor");
 
-  const onSubmit: SubmitHandler<SignInFormData> = (data) => {
-    console.log("Form Data:", data);
-    // TODO: Enviar datos a la API
+  const { saveToken } = context;
+
+  const onSubmit: SubmitHandler<SignInFormData> = async (data) => {
+    try {
+      const response = await signInService(data);
+      saveToken(response.token);
+      redirectTo(`/dashboard/${response.rol_id === 2 ? "admin" : "client"}`);
+    } catch (error) {
+      alertManager?.showError(`${error}`);
+    }
   };
 
   return (
     <div className="p-6 space-y-6 sm:p-8">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <InputField
-          id="email"
-          name="email"
-          label="Tu correo electrónico"
-          type="email"
-          placeholder="mail@domain.com"
-          registration={register("email")} // Conecta React Hook Form
-          error={errors.email} // Muestra errores de validación
-        />
-        <InputField
-          id="password"
-          name="password"
-          label="Tu contraseña"
-          type="password"
-          placeholder="••••••••"
-          registration={register("password")}
-          error={errors.password}
-        />
-        <div className="flex items-center justify-between">
-          <Checkbox
-            id="remember"
-            label="Recordarme"
-            registration={register("remember")}
-            error={errors.remember}
-          />
-          <a
-            href="#"
-            className="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500"
-          >
-            Olvidé mi contraseña
-          </a>
-        </div>
-        <Button type="submit" label="Iniciar sesión" />
-        <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-          ¿No tienes cuenta?{" "}
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault(); // Evita la navegación por defecto
-              switchToSignUp(); // Cambia a la vista de registro
-            }}
-            className="font-medium text-primary-600 hover:underline dark:text-primary-500"
-          >
-            Crear cuenta
-          </a>
-        </p>
-      </form>
+      <SignInForm onSubmit={onSubmit} />
+      <p className="text-sm font-light text-gray-500 dark:text-gray-400">
+        ¿No tienes cuenta?{" "}
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            switchToSignUp();
+          }}
+          className="font-medium text-primary-600 hover:underline dark:text-primary-500"
+        >
+          Crear cuenta
+        </a>
+      </p>
     </div>
   );
 };

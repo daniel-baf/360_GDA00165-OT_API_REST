@@ -30,7 +30,7 @@ async function validateLogin(email, password_plain) {
     id: db_user.id,
   };
   // return a valid session token
-  return { token: createToken(db_user) };
+  return { token: createToken(db_user), rol_id: db_user.rol_id };
 }
 
 export { validateLogin };

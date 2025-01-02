@@ -17,7 +17,9 @@ GO
 -- Eliminar la base de datos si existe y usuario por defecto
 DROP DATABASE IF EXISTS [GDA00165_GT_DANIEL_BAUTISTA];
 
-IF EXISTS (SELECT * FROM sys.server_principals WHERE name = 'GDA00165_GT')
+IF EXISTS (SELECT *
+FROM sys.server_principals
+WHERE name = 'GDA00165_GT')
 BEGIN
     DROP LOGIN [GDA00165_GT];
 END
@@ -35,7 +37,9 @@ USE [GDA00165_GT_DANIEL_BAUTISTA];
 GO
 
 -- Delete the user if it exists in the current database
-IF EXISTS (SELECT * FROM sys.database_principals WHERE name = 'GDA00165_GT_USER')
+IF EXISTS (SELECT *
+FROM sys.database_principals
+WHERE name = 'GDA00165_GT_USER')
 BEGIN
     DROP USER [GDA00165_GT_USER];
 END
@@ -944,24 +948,35 @@ GO
 
 CREATE OR ALTER PROCEDURE p_list_producto
     @limit INT = NULL,
-    @offset INT = NULL
+    @offset INT = 0,
+    @status_product_id INT = NULL
 AS
 BEGIN
-    IF @limit IS NOT NULL AND @offset IS NOT NULL
+    DECLARE @sql NVARCHAR(MAX);
+
+    -- INICIALIZAR LA CONSULTA SQL
+    SET @sql = 'SELECT p.id, p.nombre, p.descripcion, p.precio, p.precio_mayorista, p.stock, p.estado_producto_id, p.categoria_producto_id, e.nombre AS estado_nombre,
+        c.nombre AS categoria_nombre, c.descripcion AS categoria_descripcion 
+        FROM producto AS p INNER JOIN categoria_producto AS c ON p.categoria_producto_id = c.id
+        INNER JOIN estado_producto AS e ON p.estado_producto_id = e.id';
+
+    -- Agregar filtro por estado_producto_id si es necesario
+    IF @status_product_id IS NOT NULL
     BEGIN
-        SELECT id, nombre, descripcion, precio, precio_mayorista, stock, estado_producto_id, categoria_producto_id
-        FROM producto
-        ORDER BY id
-        OFFSET @offset ROWS
-        FETCH NEXT @limit ROWS ONLY;
+        SET @sql = @sql + ' WHERE estado_producto_id = @status_product_id';
     END
-    ELSE
+
+    -- Agregar OFFSET y LIMIT si son necesarios
+    IF @limit IS NOT NULL
     BEGIN
-        SELECT id, nombre, descripcion, precio, precio_mayorista, stock, estado_producto_id, categoria_producto_id
-        FROM producto;
+        SET @sql = @sql + ' ORDER BY id OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY';
     END
+
+    -- Ejecutar la consulta dinámica
+    EXEC sp_executesql @sql, N'@limit INT, @offset INT, @status_product_id INT', @limit, @offset, @status_product_id;
 END;
 GO
+
 
 CREATE OR ALTER PROCEDURE p_get_producto
     @id INT

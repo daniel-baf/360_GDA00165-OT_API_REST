@@ -58,7 +58,9 @@ async function createProduct(product_form) {
       }).filter(([_, v]) => v !== undefined && v !== null)
     );
   } catch (error) {
-    throw new Error("Es probable que el producto ya exista con este ID: " + error.message);
+    throw new Error(
+      "Es probable que el producto ya exista con este ID: " + error.message
+    );
   }
 }
 
@@ -159,20 +161,24 @@ async function deleteProduct(id) {
  *
  * @async
  * @function listProducts
- * @param {number} limit - The maximum number of products to return.
- * @param {number} offset - The number of products to skip before starting to collect the result set.
+ * @param {Object} filters - The filters to apply to the query.
+ * @param {number} filters.limit - The maximum number of products to return.
+ * @param {number} filters.offset - The number of products to skip.
+ * @param {number} filters.status_id - The status ID of the product, default is 1, send NULL if you want to get all products.
  * @returns {Promise<Array>} A promise that resolves to an array of products.
  * @throws {Error} If there is an error listing the products.
  */
-async function listProducts(limit = null, offset = 0) {
+async function listProducts(filters) {
   try {
+    const { limit = null, offset = 0, status_id = 1 } = filters;
+
     if (!!limit && limit < 1)
       throw new RangeError("El limite debe ser al menos 1");
 
     const productos = await sequelize.query(
-      "EXEC p_list_producto :limit, :offset",
+      "EXEC p_list_producto :limit, :offset, :status_id",
       {
-        replacements: { limit, offset },
+        replacements: { limit, offset, status_id },
         type: sequelize.QueryTypes.SELECT,
       }
     );
