@@ -18,7 +18,7 @@ const ClientDashboard: React.FC = () => {
           }
         />
         <Route path="cart" element={<ClientCart />} />
-        <Route path="orders" element={<ClientOrderGrid/>} />
+        <Route path="orders" element={<ClientOrderGrid />} />
       </Routes>
     </ClientCartProvider>
   );

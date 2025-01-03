@@ -55,7 +55,7 @@ const ClientPorductsGridProvider: React.FC<ClientPorductsGridProviderProps> = ({
       const data = await fetchProducts(token, maxProducts, offset);
       setProducts(data); // Establecer productos en estado
     } catch (error) {
-      console.error("Error al cargar productos:", error);
+      messageManager?.showError(`${error}`);
     }
   };
 

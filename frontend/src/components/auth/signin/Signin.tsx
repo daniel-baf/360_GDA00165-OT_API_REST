@@ -2,19 +2,20 @@ import { SubmitHandler } from "react-hook-form";
 import { SignInForm } from "./signin.form";
 import { signInService, SignInFormData } from "./signin.service";
 import { AuthContext } from "../../../context/auth/signin/Signin.context";
-import { useRedirect } from "../../../helpers/redirec.helper";
 import { useContext } from "react";
 import { NotificationContext } from "../../../context/Notification.context";
 import { getTokenDecoded } from "../../../helpers/auth/auth.service";
+import useRedirectWithMessage from "../../../helpers/auth/redirecter.helper";
 
 interface SignInProps {
   switchToSignUp: () => void;
 }
 
 const SignIn: React.FC<SignInProps> = ({ switchToSignUp }) => {
-  const { redirectTo } = useRedirect();
   const context = useContext(AuthContext);
   const alertManager = useContext(NotificationContext);
+  const redirectTo = useRedirectWithMessage();
+
   if (!context)
     throw new Error("No se puede renderizar el componente fuera del proveedor");
 
@@ -25,7 +26,10 @@ const SignIn: React.FC<SignInProps> = ({ switchToSignUp }) => {
       const response = await signInService(data);
       saveToken(response.token);
       const token_user = getTokenDecoded(response.token);
-      redirectTo(`/dashboard/${token_user?.rol_id === 2 ? "admin" : "client"}`);
+      redirectTo(
+        `/dashboard/${token_user?.rol_id === 2 ? "admin" : "client"}`,
+        `Bienvenido, ${token_user?.nombre_completo}`
+      );
     } catch (error) {
       alertManager?.showError(`${error}`);
     }

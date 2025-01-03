@@ -7,6 +7,6 @@ import { validateLogin as checkLoginService } from "@services/auth/auth.service.
  * @param {string} password
  * @returns the token if the credentials are correct
  */
-export async function validateLogin(email, password) {
-  return await checkLoginService(email, password);
+export async function validateLogin(form) {
+  return await checkLoginService(form);
 }

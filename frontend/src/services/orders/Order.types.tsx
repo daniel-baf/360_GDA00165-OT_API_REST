@@ -1,4 +1,4 @@
-interface OrderDetail {
+export interface OrderDetailTypes {
   id: number;
   cantidad: number;
   precio_venta: number;
@@ -7,7 +7,7 @@ interface OrderDetail {
   producto_nombre: string;
 }
 
-export interface Order {
+export interface OrderTypes {
   id: number;
   fecha_creacion: string;
   fecha_confirmacion: string;
@@ -17,5 +17,6 @@ export interface Order {
   usuario_id: number;
   direccion_entrega_id: number;
   estado_pedido_id: number;
-  details?: OrderDetail[];
+  estado_nombre: string;
+  details?: OrderDetailTypes[];
 }

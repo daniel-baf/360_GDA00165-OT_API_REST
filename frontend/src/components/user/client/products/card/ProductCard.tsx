@@ -82,7 +82,12 @@ const ProductCard: React.FC<ProductCardProps> = (props) => {
         {!props.hide_btn && (
           <button
             onClick={() => addProductToCart(props)}
-            className="bg-blue-500 dark:bg-blue-600 text-white px-4 py-2 rounded sm:col-span-1 mt-2 sm:mt-0 w-full sm:w-auto"
+            className={`${
+              props.stock === 0
+                ? "bg-red-500 cursor-not-allowed"
+                : "bg-blue-500 dark:bg-blue-600"
+            } text-white px-4 py-2 rounded sm:col-span-1 mt-2 sm:mt-0 w-full sm:w-auto`}
+            disabled={props.stock === 0}
           >
             <FaCartPlus className="inline-block" />
           </button>

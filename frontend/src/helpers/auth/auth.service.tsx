@@ -1,10 +1,9 @@
 import { jwtDecode } from "jwt-decode";
 
 interface PublicTokenPayload {
-  db_user: {
+  user: {
     nombre_completo: string;
     rol_id: number;
-    estado_id: number;
     id: number;
   };
 }
@@ -26,11 +25,9 @@ const decode = (token: string): TokenPayload | null => {
 };
 
 // Función para obtener solo la información pública (sin `name`)
-const getTokenDecoded = (
-  token: string
-): PublicTokenPayload["db_user"] | null => {
+const getTokenDecoded = (token: string): PublicTokenPayload["user"] | null => {
   const payload = decode(token);
-  return payload?.db_user || null;
+  return payload?.user || null;
 };
 
 export { getTokenDecoded };

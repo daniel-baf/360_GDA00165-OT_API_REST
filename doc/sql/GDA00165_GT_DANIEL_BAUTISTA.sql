@@ -1178,17 +1178,19 @@ CREATE OR ALTER PROCEDURE p_list_pedido
 AS
 BEGIN
     SELECT
-        id,
-        fecha_creacion,
-        fecha_confirmacion,
-        fecha_entrega,
-        total,
-        usuario_validador_id,
-        usuario_id,
-        direccion_entrega_id,
-        estado_pedido_id
+        p.id,
+        p.fecha_creacion,
+        p.fecha_confirmacion,
+        p.fecha_entrega,
+        p.total,
+        p.usuario_validador_id,
+        p.usuario_id,
+        p.direccion_entrega_id,
+        p.estado_pedido_id,
+        ep.nombre AS estado_nombre
     FROM
-        pedido
+        pedido AS p
+        INNER JOIN estado_pedido AS ep ON ep.id = p.estado_pedido_id
     WHERE 
         (@target_state IS NULL OR estado_pedido_id = @target_state) AND
         (@target_user IS NULL OR usuario_id = @target_user)
@@ -1390,11 +1392,11 @@ BEGIN
     EXEC p_create_categoria_producto 'Higiene Personal', 'productos de higiene personal';
     EXEC p_create_categoria_producto 'Papelería', 'productos de papelería y oficina';
 
-    -- INSERTS PARA productoS
+    -- INSERTS PARA productos
 
     DECLARE @i INT = 1;
     -- Contador para el bucle
-    DECLARE @max_products INT = 10;
+    DECLARE @max_products INT = 30;
     -- Número total de productos que deseas insertar
     DECLARE @nombre NVARCHAR(50);
     DECLARE @descripcion NVARCHAR(245);
@@ -1406,7 +1408,7 @@ BEGIN
     WHILE @i <= @max_products
     BEGIN
         -- Generar valores dinámicos
-        SET @nombre = CONCAT('Producto', @i);
+        SET @nombre = CONCAT('Producto ', @i);
         SET @descripcion = CONCAT('Descripción de ', @nombre);
         SET @precio = ROUND(1.00 + RAND() * 9.00, 2);
         -- Precio aleatorio entre 1.00 y 10.00
@@ -1454,7 +1456,10 @@ BEGIN
     BEGIN
         -- Generar un total aleatorio para el pedido
         SET @total = 0;
-        SET @estado_pedido_id = CASE WHEN @num_no_confirmados < @i THEN 2 ELSE 1 END;
+        SET @estado_pedido_id = CASE 
+            WHEN @num_no_confirmados < @i THEN CASE WHEN RAND() < 0.5 THEN 2 ELSE 4 END 
+            ELSE 1 
+        END;
         SET @usuario_id_tmp = FLOOR(RAND() * 10) + 1;
         SET @fecha_creacion_tmp = DATEADD(DAY, -FLOOR(RAND() * 730), GETDATE());
         SET @fecha_factura_tmp = DATEADD(DAY, FLOOR(RAND() * 4) + 1, @fecha_creacion_tmp);
@@ -1464,8 +1469,8 @@ BEGIN
         VALUES
             (
                 @fecha_creacion_tmp,
-                CASE WHEN @estado_pedido_id = 2 THEN DATEADD(DAY, 1, @fecha_creacion_tmp) ELSE NULL END,
-                CASE WHEN @estado_pedido_id = 2 THEN @fecha_factura_tmp ELSE NULL END,
+                CASE WHEN @estado_pedido_id = 1 THEN NULL ELSE DATEADD(DAY, 1, @fecha_creacion_tmp)  END,
+                CASE WHEN @estado_pedido_id = 1 THEN NULL ELSE @fecha_factura_tmp END,
                 0,
                 @usuario_id_tmp,
                 (SELECT TOP 1
@@ -1504,7 +1509,7 @@ BEGIN
         UPDATE pedido SET total = @total WHERE id = @pedido_id;
 
         -- Insertar una factura si el estado del pedido es 2 (Confirmado)
-        IF @estado_pedido_id = 2
+        IF @estado_pedido_id != 1
         BEGIN
             INSERT INTO factura
                 (fecha_creacion, total, pedido_id, NIT, usuario_vendedor_id)
@@ -1564,7 +1569,7 @@ AS
 GO
 
 -- Invocar el procedimiento almacenado
-EXEC p_config_predefinidos 15, 5;
+EXEC p_config_predefinidos 40, 5;
 
 
 -- Habilita las salidas

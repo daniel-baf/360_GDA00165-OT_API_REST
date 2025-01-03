@@ -195,7 +195,7 @@ async function deleteUser(id) {
  */
 async function listUsers(filters) {
   try {
-    const { limit = null, offset = 0 } = filters
+    const { limit = null, offset = 0 } = filters;
     const users = await sequelize.query(
       "EXEC p_list_usuario @limit=:limit, @offset=:offset",
       {
@@ -216,23 +216,19 @@ async function listUsers(filters) {
  * @param {string} [email] - The email of the user to search for.
  * @returns {Promise<Object>} - A promise that resolves to the user details.
  */
-async function searchUser(id = null, email = null) {
-  try {
-    const [user] = await sequelize.query(
-      "EXEC p_search_usuario @id=:id, @email=:email",
-      {
-        replacements: { id, email },
-        type: sequelize.QueryTypes.SELECT,
-      }
-    );
-
-    if (!user) {
-      throw new Error("Usuario no encontrado");
+async function searchUser({ id = null, email = null }) {
+  const [user] = await sequelize.query(
+    "EXEC p_search_usuario @id=:id, @email=:email",
+    {
+      replacements: { id, email },
+      type: sequelize.QueryTypes.SELECT,
     }
-    return user;
-  } catch (error) {
-    throw new Error("Error al buscar el usuario: " + error.message);
+  );
+
+  if (!user) {
+    throw new Error("Usuario no encontrado");
   }
+  return user;
 }
 
 export {

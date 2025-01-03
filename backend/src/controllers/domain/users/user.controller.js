@@ -35,11 +35,8 @@ const userController = {
    * @throws {Error} If neither ID nor email is provided.
    * @returns {Promise<Object>} The found user object.
    */
-  search: async ({ id, email }) => {
-    if (!id && !email) {
-      throw new Error("Se requiere al menos un parametro para buscar");
-    }
-    return await searchUser(id, email);
+  search: async (filters) => {
+    return await searchUser(filters);
   },
 
   /**
