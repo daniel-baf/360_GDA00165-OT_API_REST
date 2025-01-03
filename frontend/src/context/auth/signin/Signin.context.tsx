@@ -36,7 +36,7 @@ const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
   };
 
   const clearToken = () => {
-    localStorage.removeItem("token");
+    localStorage.clear();
     setToken(null);
   };
 
@@ -47,4 +47,14 @@ const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
   );
 };
 
-export { AuthContextProvider, AuthContext };
+const useAuthContext = () => {
+  const context = React.useContext(AuthContext);
+  if (!context) {
+    throw new Error(
+      "useAuthContext must be used within an AuthContextProvider"
+    );
+  }
+  return context;
+};
+
+export { AuthContextProvider, AuthContext, useAuthContext };

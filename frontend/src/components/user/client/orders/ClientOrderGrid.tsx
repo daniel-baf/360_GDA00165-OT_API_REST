@@ -24,7 +24,7 @@ const ClientOrderGrid: React.FC = () => {
         setOrders(data);
       }
     );
-  }, [authContext, authContext?.token]);
+  }, [authContext?.token]);
 
   return (
     <div className="flex-grow container mx-auto text-stone-200 mb-10">
@@ -41,29 +41,37 @@ const ClientOrderGrid: React.FC = () => {
         </span>
       </p>
 
-      <table className="w-full border-collapse border-2 border-gray-600 mt-10">
-        <thead className="bg-gray-800 ">
-          <tr className=" text-center uppercase">
-            <th className="border border-gray-600 px-4 py-2 w-1/12">
-              No. Orden
-            </th>
-            <th className="border border-gray-600 px-4 py-2 w-2/12">Creado</th>
-            <th className="border border-gray-600 px-4 py-2 w-3/12">Extras</th>
-            <th className="border border-gray-600 px-4 py-2 w-2/12">Estado</th>
-            <th className="border border-gray-600 px-4 py-2 w-2/12">Total</th>
-            <th className="border border-gray-600 px-4 py-2 w-2/12">
-              Acciones
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {orders?.map((order) => (
-            <React.Fragment key={order.id}>
-              <ClientOrderTuple {...order} />
-            </React.Fragment>
-          ))}
-        </tbody>
-      </table>
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse border-2 border-gray-600 mt-10">
+          <thead className="bg-gray-800 ">
+            <tr className=" text-center uppercase">
+              <th className="border border-gray-600 px-4 py-2 w-1/12">
+                No. Orden
+              </th>
+              <th className="border border-gray-600 px-4 py-2 w-2/12">
+                Creado
+              </th>
+              <th className="border border-gray-600 px-4 py-2 w-3/12">
+                Extras
+              </th>
+              <th className="border border-gray-600 px-4 py-2 w-2/12">
+                Estado
+              </th>
+              <th className="border border-gray-600 px-4 py-2 w-2/12">Total</th>
+              <th className="border border-gray-600 px-4 py-2 w-2/12">
+                Acciones
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {orders?.map((order) => (
+              <React.Fragment key={order.id}>
+                <ClientOrderTuple {...order} />
+              </React.Fragment>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

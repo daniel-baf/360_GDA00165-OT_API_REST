@@ -6,7 +6,8 @@
       "@components/*": ["src/components/*"],
       "@context/*": ["src/context/*"],
       "@helpers/*": ["src/helpers/*"],
-      "@services/*": ["src/services/*"]
+      "@services/*": ["src/services/*"],
+      "@hooks/*": ["src/hooks/*"]
     }
   },
   "include": ["src/**/*", "CONFIGURATION.tsx"]

@@ -1,6 +1,12 @@
 import React, { createContext, useCallback } from "react";
 import { toast } from "react-toastify";
 
+export enum NotificationTypes {
+  ERROR = "error",
+  SUCCESS = "success",
+  INFO = "info",
+}
+
 interface NotificationContextType {
   showError: (message: string) => void;
   showSuccess: (message: string) => void;
@@ -31,4 +37,14 @@ const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
-export { NotificationContext, NotificationProvider };
+const useNotification = () => {
+  const context = React.useContext(NotificationContext);
+  if (!context) {
+    throw new Error(
+      "useNotification must be used within a NotificationProvider"
+    );
+  }
+  return context;
+};
+
+export { NotificationContext, NotificationProvider, useNotification };

@@ -4,11 +4,7 @@ import { FaSearch } from "react-icons/fa";
 import { Product } from "./product.types";
 import React, { useEffect } from "react";
 
-interface ClientProductGridProps {
-  test?: string;
-}
-
-const ClientProductGrid: React.FC<ClientProductGridProps> = () => {
+const ClientProductGrid: React.FC = () => {
   // use context of cart
   const context = useClientPorductsGridContext();
 

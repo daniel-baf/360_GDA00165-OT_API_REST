@@ -1,5 +1,12 @@
 import { Product } from "@components/user/client/products/product.types";
-import { ReactNode, useState, createContext, useContext } from "react";
+import {
+  ReactNode,
+  useState,
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+} from "react";
 import { NotificationContext } from "@context/Notification.context";
 import { AuthContext } from "@context/auth/signin/Signin.context";
 
@@ -20,75 +27,135 @@ interface ClientCartProviderProps {
   children: ReactNode;
 }
 
+const CART_STORAGE_KEY = "cart";
+const MESSAGES = {
+  outOfStock: "No hay stock disponible",
+  addedToCart: (name: string) => `${name} agregado al carrito`,
+  removedFromCart: "Producto eliminado del carrito",
+  cartCleared: "Carrito vacío",
+};
+
 const ClientCartContext = createContext<ClientCartType | undefined>(undefined);
 
 const ClientCartProvider: React.FC<ClientCartProviderProps> = ({
   children,
 }) => {
   const [products, setProducts] = useState<CartItem[]>([]);
-
   const authContext = useContext(AuthContext);
   const messageManager = useContext(NotificationContext);
 
   if (!authContext || !messageManager) {
-    return <div>Loading...</div>; // Graceful error handling
+    throw new Error("AuthContext and NotificationContext must be provided.");
   }
 
-  const add = (product: Product) => {
-    const index = products.findIndex((p) => p.product.id === product.id);
-
-    if (index === -1 && product.stock === 0) {
-      messageManager.showInfo("No hay stock disponible");
-      return;
-    }
-
-    if (index === -1) {
-      setProducts([...(products || []), { product, quantity: 1 }]);
-      return;
-    }
-
-    const pre_product = products[index];
-    if (pre_product.quantity >= product.stock) {
-      messageManager.showInfo("No hay stock disponible");
-      return;
-    }
-
-    pre_product.quantity += 1;
-    setProducts([...products]);
-  };
-
-  const remove = (product: Product) => {
-    const newProducts = products.filter((p) => p.product.id !== product.id);
-    messageManager.showInfo("Producto eliminado del carrito");
+  const updateCart = (newProducts: CartItem[]) => {
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(newProducts));
     setProducts(newProducts);
   };
 
-  const decrease = (product: Product) => {
-    const index = products.findIndex((p) => p.product.id === product.id);
+  const findProductIndex = (id: number) =>
+    products.findIndex((item) => item.product.id === id);
+
+  const add = (product: Product) => {
+    const index = findProductIndex(product.id);
+
     if (index === -1) {
+      if (product.stock === 0) {
+        messageManager.showInfo(MESSAGES.outOfStock);
+        return;
+      }
+      updateCart([...products, { product, quantity: 1 }]);
+      messageManager.showSuccess(MESSAGES.addedToCart(product.nombre));
       return;
     }
-    const pre_product = products[index];
-    if (pre_product.quantity === 1) {
+
+    const updatedProducts = [...products];
+    const selectedProduct = updatedProducts[index];
+
+    if (selectedProduct.quantity >= product.stock) {
+      messageManager.showInfo(MESSAGES.outOfStock);
+      return;
+    }
+
+    updatedProducts[index] = {
+      ...selectedProduct,
+      quantity: selectedProduct.quantity + 1,
+    };
+    updateCart(updatedProducts);
+    messageManager.showSuccess(MESSAGES.addedToCart(product.nombre));
+  };
+
+  const remove = (product: Product) => {
+    const updatedProducts = products.filter(
+      (item) => item.product.id !== product.id
+    );
+    updateCart(updatedProducts);
+    messageManager.showInfo(MESSAGES.removedFromCart);
+  };
+
+  const decrease = (product: Product) => {
+    const index = findProductIndex(product.id);
+
+    if (index === -1) return;
+
+    const updatedProducts = [...products];
+    const selectedProduct = updatedProducts[index];
+
+    if (selectedProduct.quantity === 1) {
       remove(product);
       return;
     }
-    pre_product.quantity -= 1;
-    setProducts([...products]);
+
+    updatedProducts[index] = {
+      ...selectedProduct,
+      quantity: selectedProduct.quantity - 1,
+    };
+    updateCart(updatedProducts);
   };
 
   const clear = () => {
-    setProducts([]);
+    updateCart([]);
+    messageManager.showInfo(MESSAGES.cartCleared);
   };
 
+  useEffect(() => {
+    const storedCart = localStorage.getItem(CART_STORAGE_KEY);
+    if (storedCart) {
+      try {
+        const parsedCart: Partial<CartItem[]> = JSON.parse(storedCart);
+        if (Array.isArray(parsedCart)) {
+          setProducts(parsedCart as CartItem[]);
+        }
+      } catch {
+        localStorage.removeItem(CART_STORAGE_KEY);
+      }
+    }
+  }, [authContext.token]);
+
+  const contextValue = useMemo(
+    () => ({
+      products,
+      add,
+      remove,
+      clear,
+      decrease,
+    }),
+    [products]
+  );
+
   return (
-    <ClientCartContext.Provider
-      value={{ products, add, remove, clear, decrease }}
-    >
+    <ClientCartContext.Provider value={contextValue}>
       {children}
     </ClientCartContext.Provider>
   );
 };
 
-// Correctly export the context and provider
-export { ClientCartProvider, ClientCartContext };
+const useClientCart = (): ClientCartType => {
+  const context = useContext(ClientCartContext);
+  if (!context) {
+    throw new Error("useClientCart must be used within a ClientCartProvider");
+  }
+  return context;
+};
+
+export { ClientCartProvider, useClientCart };

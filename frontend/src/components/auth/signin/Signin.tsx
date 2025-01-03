@@ -3,7 +3,10 @@ import { SignInForm } from "./signin.form";
 import { SubmitHandler } from "react-hook-form";
 import { getTokenDecoded } from "@helpers/auth/auth.service";
 import useRedirectWithMessage from "@helpers/auth/redirecter.helper";
-import { NotificationContext } from "@context/Notification.context";
+import {
+  NotificationContext,
+  NotificationTypes,
+} from "@context/Notification.context";
 import { AuthContext } from "@context/auth/signin/Signin.context";
 import { signInService, SignInFormData } from "./signin.service";
 
@@ -28,7 +31,8 @@ const SignIn: React.FC<SignInProps> = ({ switchToSignUp }) => {
       const token_user = getTokenDecoded(response.token);
       redirectTo(
         `/dashboard/${token_user?.rol_id === 2 ? "admin" : "client"}`,
-        `Bienvenido, ${token_user?.nombre_completo}`
+        `Bienvenido, ${token_user?.nombre_completo}`,
+        NotificationTypes.SUCCESS
       );
     } catch (error) {
       alertManager?.showError(`${error}`);

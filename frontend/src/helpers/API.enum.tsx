@@ -22,6 +22,12 @@ type ApiEndpoints = {
         limit: number | undefined
       ) => string;
     };
+    CREATE: string;
+  };
+  USER: {
+    DIRECTIONS: {
+      LIST: (userId?: number, offset?: number, limit?: number) => string;
+    };
   };
 };
 
@@ -47,6 +53,15 @@ export const API_ENDPOINTS: ApiEndpoints = {
       ) =>
         `${API_URL}/order/list?target_user=${userId}${
           detailed ? `&detailed=${detailed}` : ""
+        }${limit ? `&limit=${limit}` : ""}${offset ? `&offset=${offset}` : ""}`,
+    },
+    CREATE: `${API_URL}/order/create/`,
+  },
+  USER: {
+    DIRECTIONS: {
+      LIST: (userId?: number, offset?: number, limit?: number) =>
+        `${API_URL}/user/direction/list?${
+          userId ? `usuario_id=${userId}` : ""
         }${limit ? `&limit=${limit}` : ""}${offset ? `&offset=${offset}` : ""}`,
     },
   },

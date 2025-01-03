@@ -1003,7 +1003,8 @@ BEGIN
         INNER JOIN
         producto p ON dp.producto_id = p.id
     WHERE 
-        dp.pedido_id = @pedido_id;
+        dp.pedido_id = @pedido_id
+    ORDER BY dp.id DESC;
 END;
 
 
@@ -1140,7 +1141,12 @@ BEGIN
         -- VALUES
         --     (@pedido_id, @producto_id, @cantidad, @precio_venta);
         EXEC p_create_detalle_pedido @cantidad, @precio_venta, @pedido_id, @producto_id;
-
+        -- DESCONTAR EL STOCK DEL PRODUCTO
+        DECLARE @new_stock INT;
+        SET @new_stock = (SELECT stock
+        FROM producto
+        WHERE id = @producto_id) - @cantidad;
+        EXEC p_update_producto @producto_id, NULL, NULL, NULL, NULL, @new_stock, NULL, NULL;
 
         FETCH NEXT FROM detalle_cursor INTO @producto_id, @cantidad, @precio_venta;
     END;

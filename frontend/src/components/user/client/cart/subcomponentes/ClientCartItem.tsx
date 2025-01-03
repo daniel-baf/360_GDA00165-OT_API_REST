@@ -1,43 +1,25 @@
-import React, { useContext, useEffect } from "react";
+import React from "react";
 import {
   CartItem,
-  ClientCartContext,
+  useClientCart,
 } from "@context/user/client/ClientCart.context";
-import ProductCard from "../products/card/ProductCard";
+import ProductCard from "../../products/card/ProductCard";
 import { FaMinusCircle, FaPlusCircle, FaTrashAlt } from "react-icons/fa";
 import { Settings } from "CONFIGURATION";
 
 interface ClientCartItemProps {
   product: CartItem;
-  setSubtotal: React.Dispatch<React.SetStateAction<number>>;
-  setDescuento: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const ClientCartItem: React.FC<ClientCartItemProps> = ({
-  product,
-  setSubtotal,
-  setDescuento,
-}) => {
-  const context = useContext(ClientCartContext);
+const ClientCartItem: React.FC<ClientCartItemProps> = ({ product }) => {
+  const context = useClientCart;
+  const { add, remove, decrease } = context();
 
-  // Move the return early check below useEffect to avoid conditional hooks
-  useEffect(() => {
-    if (!context) return;
-
-    const subtotal =
-      product.quantity *
-      (product.quantity >= Settings.NUM_MAYORIST
-        ? product.product.precio_mayorista
-        : product.product.precio);
-
-    setSubtotal(subtotal);
-    setDescuento(product.quantity * product.product.precio - subtotal);
-  }, [product, context]); // Re-run when product, context, or state setters change
-
-  // Add early return if context is not found
-  if (!context) {
-    return null; // Returning null instead of undefined to avoid rendering issues
-  }
+  const subtotal =
+    product.quantity *
+    (product.quantity >= Settings.NUM_MAYORIST
+      ? product.product.precio_mayorista
+      : product.product.precio);
 
   const raw_product = product.product;
 
@@ -70,17 +52,14 @@ const ClientCartItem: React.FC<ClientCartItemProps> = ({
               <strong>PRECIO:</strong> {raw_product.precio.toFixed(2)}
             </div>
             <div>
-              <strong>CANTIDAD:</strong> {product.quantity.toFixed(1)}
+              <strong>CANTIDAD:</strong> {product.quantity.toFixed(0)}
             </div>
             <div>
-              <strong>SUBTOTAL:</strong> {product.quantity * raw_product.precio}
+              <strong>SUBTOTAL:</strong> {subtotal.toFixed(2)}
             </div>
             <div>
               <strong>DESCUENTO:</strong>{" "}
-              {(
-                raw_product.precio * product.quantity -
-                product.quantity * raw_product.precio
-              ).toFixed(2)}
+              {(raw_product.precio * product.quantity - subtotal).toFixed(2)}
             </div>
           </div>
           <div className="flex-none">
@@ -88,7 +67,7 @@ const ClientCartItem: React.FC<ClientCartItemProps> = ({
             <div className="flex justify-end space-x-2">
               <button
                 onClick={() => {
-                  context.add(raw_product);
+                  add(raw_product);
                 }}
                 className="bg-blue-500 text-white px-4 py-2 rounded-md"
               >
@@ -96,7 +75,7 @@ const ClientCartItem: React.FC<ClientCartItemProps> = ({
               </button>
               <button
                 onClick={() => {
-                  context.remove(raw_product);
+                  remove(raw_product);
                 }}
                 className="bg-red-500 text-white px-4 py-2 rounded-md"
               >
@@ -104,7 +83,7 @@ const ClientCartItem: React.FC<ClientCartItemProps> = ({
               </button>
               <button
                 onClick={() => {
-                  context.decrease(raw_product);
+                  decrease(raw_product);
                 }}
                 className="bg-yellow-500 text-white px-4 py-2 rounded-md"
               >
