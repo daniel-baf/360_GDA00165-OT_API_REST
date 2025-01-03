@@ -1,0 +1,52 @@
+{
+  "name": "360_gda00165-ot_api_rest",
+  "version": "0.0.1",
+  "description": "project created as an API REST for 360 dev challenge",
+  "keywords": [
+    "360",
+    "JWT",
+    "mssql"
+  ],
+  "homepage": "https://github.com/daniel-baf/360_GDA00165-OT_API_REST#readme",
+  "bugs": {
+    "url": "https://github.com/daniel-baf/360_GDA00165-OT_API_REST/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/daniel-baf/360_GDA00165-OT_API_REST.git"
+  },
+  "license": "GPL-3.0",
+  "author": "daniel-baf",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "test": "node  --loader esm-module-alias/loader --no-warnings",
+    "dev": "node --watch --loader esm-module-alias/loader --no-warnings server.js",
+    "devn": "node --loader esm-module-alias/loader --no-warnings server.js"
+
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "esm-module-alias": "^2.2.1",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "path": "^0.12.7",
+    "process": "^0.11.10",
+    "sequelize": "^6.37.5",
+    "tedious": "^18.6.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "morgan": "^1.10.0"
+  },
+  "aliases": {
+    "@services": "./src/services",
+    "@models": "./src/model",
+    "@ORM": "./src/model/database/",
+    "@helpers": "./src/helpers",
+    "@middlewares": "./src/middlewares",
+    "@controllers": "./src/controllers"
+  }
+}
