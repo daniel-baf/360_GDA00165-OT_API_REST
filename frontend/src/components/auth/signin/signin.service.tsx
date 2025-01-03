@@ -1,4 +1,4 @@
-import { API_ENDPOINTS } from "../../../helpers/API.enum";
+import { API_ENDPOINTS } from "@helpers/API.enum";
 
 // src/services/auth/signin.service.ts
 export interface SignInFormData {

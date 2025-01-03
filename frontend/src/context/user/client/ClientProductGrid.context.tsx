@@ -1,9 +1,9 @@
+import { Product } from "@components/user/client/products/product.types";
 import { createContext, ReactNode, useState, useContext } from "react";
-import { Product } from "../../../components/user/client/products/product.types";
-import { AuthContext } from "../../auth/signin/Signin.context";
-import { fetchProducts } from "../../../services/products/product.service";
-import { NotificationContext } from "../../Notification.context";
-import { Settings } from "../../../helpers/CONFIGURATION.enum";
+import { NotificationContext } from "@context/Notification.context";
+import { fetchProducts } from "@services/products/product.service";
+import { AuthContext } from "@context/auth/signin/Signin.context";
+import { Settings } from "CONFIGURATION";
 
 // Context type definitions
 interface ClientPorductsGridType {

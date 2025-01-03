@@ -2,10 +2,10 @@ import React, { useContext, useEffect } from "react";
 import {
   CartItem,
   ClientCartContext,
-} from "../../../../context/user/client/ClientCart.context";
+} from "@context/user/client/ClientCart.context";
 import ProductCard from "../products/card/ProductCard";
 import { FaMinusCircle, FaPlusCircle, FaTrashAlt } from "react-icons/fa";
-import { Settings } from "../../../../helpers/CONFIGURATION.enum";
+import { Settings } from "CONFIGURATION";
 
 interface ClientCartItemProps {
   product: CartItem;

@@ -2,7 +2,7 @@ import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { signUpSchema } from "./signup.validatons";
-import { SignUpFormData, SignUpProps } from "./signup.types";
+import { SignUpFormData, SignUpProps } from "@services/users/signup.types";
 import SignUpForm from "./signup.form";
 
 const SignUp: React.FC<SignUpProps> = ({ switchToSignIn }) => {

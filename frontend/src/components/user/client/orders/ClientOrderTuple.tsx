@@ -8,9 +8,9 @@ import {
 } from "react-icons/fa";
 import ClientOrderDetail from "./ClientOrderDetail";
 
-import { OrderTypes } from "../../../../services/orders/Order.types";
+import { OrderTypes } from "@services/orders/Order.types";
 import { FaCarRear } from "react-icons/fa6";
-import { Settings } from "../../../../helpers/CONFIGURATION.enum";
+import { Settings } from "CONFIGURATION";
 
 const ClientOrderTuple: React.FC<OrderTypes> = ({
   id,

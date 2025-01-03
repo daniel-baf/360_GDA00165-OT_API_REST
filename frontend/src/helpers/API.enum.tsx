@@ -1,4 +1,6 @@
-const API_URL = "http://localhost:4000/api";
+import { Settings } from "CONFIGURATION";
+
+const API_URL = Settings.API_URL;
 
 type ApiEndpoints = {
   AUTH: {

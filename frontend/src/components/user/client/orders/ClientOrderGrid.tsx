@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useState } from "react";
-import { OrderTypes } from "../../../../services/orders/Order.types";
-import { fetchOrders } from "../../../../services/orders/orders.service";
-import { AuthContext } from "../../../../context/auth/signin/Signin.context";
-import { getTokenDecoded } from "../../../../helpers/auth/auth.service";
+import { OrderTypes } from "@services/orders/Order.types";
+import { fetchOrders } from "@services/orders/orders.service";
+import { AuthContext } from "@context/auth/signin/Signin.context";
+import { getTokenDecoded } from "@helpers/auth/auth.service";
 import ClientOrderTuple from "./ClientOrderTuple";
 
-const ClientOrderGrid: React.FC<undefined> = () => {
+const ClientOrderGrid: React.FC = () => {
   const authContext = useContext(AuthContext);
   const [orders, setOrders] = useState<OrderTypes[]>();
 
@@ -44,12 +44,16 @@ const ClientOrderGrid: React.FC<undefined> = () => {
       <table className="w-full border-collapse border-2 border-gray-600 mt-10">
         <thead className="bg-gray-800 ">
           <tr className=" text-center uppercase">
-            <th className="border border-gray-600 px-4 py-2 w-1/12">No. Orden</th>
+            <th className="border border-gray-600 px-4 py-2 w-1/12">
+              No. Orden
+            </th>
             <th className="border border-gray-600 px-4 py-2 w-2/12">Creado</th>
             <th className="border border-gray-600 px-4 py-2 w-3/12">Extras</th>
             <th className="border border-gray-600 px-4 py-2 w-2/12">Estado</th>
             <th className="border border-gray-600 px-4 py-2 w-2/12">Total</th>
-            <th className="border border-gray-600 px-4 py-2 w-2/12">Acciones</th>
+            <th className="border border-gray-600 px-4 py-2 w-2/12">
+              Acciones
+            </th>
           </tr>
         </thead>
         <tbody>

@@ -2,10 +2,10 @@ import React, { useContext } from "react";
 import {
   CartItem,
   ClientCartContext,
-} from "../../../../context/user/client/ClientCart.context";
+} from "@context/user/client/ClientCart.context";
 import ClientCartItem from "./ClientCartItem";
 import { FaShoppingCart } from "react-icons/fa";
-import { Settings } from "../../../../helpers/CONFIGURATION.enum";
+import { Settings } from "CONFIGURATION";
 
 const ClientCart: React.FC = () => {
   const context = useContext(ClientCartContext);

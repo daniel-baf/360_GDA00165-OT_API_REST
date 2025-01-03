@@ -1,9 +1,7 @@
-// ClientCart.context.tsx
-
+import { Product } from "@components/user/client/products/product.types";
 import { ReactNode, useState, createContext, useContext } from "react";
-import { Product } from "../../../components/user/client/products/product.types";
-import { AuthContext } from "../../auth/signin/Signin.context";
-import { NotificationContext } from "../../Notification.context";
+import { NotificationContext } from "@context/Notification.context";
+import { AuthContext } from "@context/auth/signin/Signin.context";
 
 export interface CartItem {
   product: Product;

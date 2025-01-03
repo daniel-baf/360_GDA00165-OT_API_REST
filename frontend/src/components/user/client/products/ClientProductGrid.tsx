@@ -1,7 +1,8 @@
-import React, { useEffect } from "react";
+import { useClientPorductsGridContext } from "@context/user/client/ClientProductGrid.context";
 import ProductCard from "./card/ProductCard";
-import { useClientPorductsGridContext } from "../../../../context/user/client/ClientProductGrid.context";
 import { FaSearch } from "react-icons/fa";
+import { Product } from "./product.types";
+import React, { useEffect } from "react";
 
 interface ClientProductGridProps {
   test?: string;
@@ -33,7 +34,7 @@ const ClientProductGrid: React.FC<ClientProductGridProps> = () => {
         <div>
           {products && products.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-              {products.map((product) => (
+              {products.map((product: Product) => (
                 <ProductCard
                   key={`product-${product.id}`}
                   id={product.id}

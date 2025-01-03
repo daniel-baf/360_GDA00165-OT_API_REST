@@ -1,7 +1,7 @@
 import React from "react";
 import { UseFormRegister, FormState, SubmitHandler } from "react-hook-form";
 import { InputField, Checkbox, Button } from "../../forms/Form";
-import { SignUpFormData, SignUpProps } from "./signup.types";
+import { SignUpFormData, SignUpProps } from "@services/users/signup.types";
 
 interface SignUpFormProps {
   register: UseFormRegister<SignUpFormData>;

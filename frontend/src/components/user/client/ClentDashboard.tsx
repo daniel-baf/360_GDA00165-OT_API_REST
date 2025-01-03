@@ -1,9 +1,9 @@
+import { ClientPorductsGridProvider } from "@context/user/client/ClientProductGrid.context";
+import { ClientCartProvider } from "@context/user/client/ClientCart.context";
 import { ClientProductGrid } from "./products/ClientProductGrid";
-import { ClientPorductsGridProvider } from "../../../context/user/client/ClientProductGrid.context";
-import ClientCart from "./cart/ClientCart";
-import { ClientCartProvider } from "../../../context/user/client/ClientCart.context";
-import { Route, Routes } from "react-router-dom";
 import ClientOrderGrid from "./orders/ClientOrderGrid";
+import { Route, Routes } from "react-router-dom";
+import ClientCart from "./cart/ClientCart";
 
 const ClientDashboard: React.FC = () => {
   return (

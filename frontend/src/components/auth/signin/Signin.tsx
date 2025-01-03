@@ -1,11 +1,11 @@
-import { SubmitHandler } from "react-hook-form";
-import { SignInForm } from "./signin.form";
-import { signInService, SignInFormData } from "./signin.service";
-import { AuthContext } from "../../../context/auth/signin/Signin.context";
 import { useContext } from "react";
-import { NotificationContext } from "../../../context/Notification.context";
-import { getTokenDecoded } from "../../../helpers/auth/auth.service";
-import useRedirectWithMessage from "../../../helpers/auth/redirecter.helper";
+import { SignInForm } from "./signin.form";
+import { SubmitHandler } from "react-hook-form";
+import { getTokenDecoded } from "@helpers/auth/auth.service";
+import useRedirectWithMessage from "@helpers/auth/redirecter.helper";
+import { NotificationContext } from "@context/Notification.context";
+import { AuthContext } from "@context/auth/signin/Signin.context";
+import { signInService, SignInFormData } from "./signin.service";
 
 interface SignInProps {
   switchToSignUp: () => void;

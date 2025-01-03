@@ -1,6 +1,6 @@
 import React from "react";
-import { OrderDetailTypes } from "../../../../services/orders/Order.types";
-import { Settings } from "../../../../helpers/CONFIGURATION.enum";
+import { OrderDetailTypes } from "@services/orders/Order.types";
+import { Settings } from "CONFIGURATION";
 
 interface ClientOrderDetailProps {
   order_details: OrderDetailTypes[];

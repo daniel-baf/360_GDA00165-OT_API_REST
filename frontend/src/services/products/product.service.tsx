@@ -1,5 +1,5 @@
-import { API_ENDPOINTS } from "../../helpers/API.enum";
-import { Product } from "../../components/user/client/products/product.types";
+import { API_ENDPOINTS } from "@helpers/API.enum";
+import { Product } from "@components/user/client/products/product.types";
 
 /**
  * Fetches a list of products from the API.

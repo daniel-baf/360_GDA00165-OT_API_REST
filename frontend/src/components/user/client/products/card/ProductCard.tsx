@@ -1,8 +1,8 @@
 import React, { useContext } from "react";
 import { Product } from "../product.types";
 import { FaCartPlus } from "react-icons/fa";
-import { ClientCartContext } from "../../../../../context/user/client/ClientCart.context";
-import { NotificationContext } from "../../../../../context/Notification.context";
+import { ClientCartContext } from "@context/user/client/ClientCart.context";
+import { NotificationContext } from "@context/Notification.context";
 
 interface ProductCardProps extends Product {
   hide_btn?: boolean;
