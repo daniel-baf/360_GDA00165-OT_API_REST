@@ -23,7 +23,6 @@
     "test": "node  --loader esm-module-alias/loader --no-warnings",
     "dev": "node --watch --loader esm-module-alias/loader --no-warnings server.js",
     "devn": "node --loader esm-module-alias/loader --no-warnings server.js"
-
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -32,6 +31,7 @@
     "esm-module-alias": "^2.2.1",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^6.9.16",
     "path": "^0.12.7",
     "process": "^0.11.10",
     "sequelize": "^6.37.5",

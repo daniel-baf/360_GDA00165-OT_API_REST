@@ -14,7 +14,7 @@ const sequelize = getConnection();
 
 /**
  * Function to create a new user in the database.
- * This function calls the stored procedure `p_create_usuario` to insert a new user.
+ * This function calls the stored procedure p_create_usuario to insert a new user.
  * @param {Object} user - The user object containing user details.
  * @returns {Promise<Object>} - A promise that resolves to the result of the insertion.
  */
@@ -25,7 +25,7 @@ async function createUser(user) {
   } catch (error) {
     throw new EvalError(
       "No se ha podido encriptar la contraseña para el nuevo usuario" +
-      error.message
+        error.message
     );
   }
 
@@ -39,6 +39,20 @@ async function createUser(user) {
     rol_id,
     estado_usuario_id,
   } = user;
+
+  let db_user = null;
+
+  try {
+    // verify if  user exists
+    db_user = await searchUser({ email });
+  } catch (error) {
+    // CONTINUE -> user does not exist
+  }
+
+  if (db_user) {
+    throw new Error("El usuario ya existe");
+  }
+
   try {
     let [result] = await sequelize.query(
       "EXEC p_create_usuario @email=:email, @nombre_completo=:nombre_completo, @NIT=:NIT, @password=:password, @telefono=:telefono, @fecha_nacimiento=:fecha_nacimiento, @rol_id=:rol_id, @estado_usuario_id=:estado_usuario_id",
@@ -56,9 +70,10 @@ async function createUser(user) {
         type: sequelize.QueryTypes.CREATE,
       }
     );
+
     return { id: result[0].id, ...user };
   } catch (error) {
-    throw new Error("Error al crear el usuario: " + error.message);
+    throw new Error(error.message);
   }
 }
 

@@ -29,6 +29,7 @@ type ApiEndpoints = {
     DIRECTIONS: {
       LIST: (userId?: number, offset?: number, limit?: number) => string;
     };
+    CREATE: string;
   };
 };
 
@@ -66,5 +67,6 @@ export const API_ENDPOINTS: ApiEndpoints = {
           userId ? `usuario_id=${userId}` : ""
         }${limit ? `&limit=${limit}` : ""}${offset ? `&offset=${offset}` : ""}`,
     },
+    CREATE: `${API_URL}/user/create/`,
   },
 };

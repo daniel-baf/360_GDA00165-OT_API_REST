@@ -13,7 +13,7 @@ bundled_router.get("/", (req, res) => {
 
 bundled_router.use("/auth", auth_router);
 // all this api routes must be protected by the operarios/admin role
-bundled_router.use("/states", verifyTokenTimeout, checkAdminPermission, model_status_router);
-bundled_router.use(verifyTokenTimeout, domain_router);
+bundled_router.use("/states", checkAdminPermission, verifyTokenTimeout, model_status_router);
+bundled_router.use(domain_router);
 
 export default bundled_router;

@@ -14,11 +14,11 @@ createRoot(document.getElementById("root")!).render(
         <Router>
           <App />
         </Router>
-        <ToastContainer 
-          position="top-center" 
-          autoClose={3000} 
-          limit={5} 
-          newestOnTop 
+        <ToastContainer
+          position="top-center"
+          autoClose={3000}
+          limit={5}
+          newestOnTop
         />
       </NotificationProvider>
     </div>

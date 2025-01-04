@@ -1,3 +1,4 @@
+import { checkToken } from "@helpers/auth.helper.js";
 import {
   listUsers,
   createUser,
@@ -19,7 +20,7 @@ const userController = {
    * @param {Object} new_user - The user object to create.
    * @returns {Promise<Object>} The created user object.
    */
-  create: async (new_user) => await createUser(new_user),
+  create: async (new_user, token) => await verifyCreation(new_user, token),
 
   /**
    * Lists all users.
@@ -130,6 +131,27 @@ async function unlockUserAccessController(id) {
     throw new Error("Se requiere al menos un parametro para desbloquear");
   }
   return await grantUserAccess(id);
+}
+
+async function verifyCreation(new_user, token) {
+  if (!new_user) {
+    throw new Error("Se requiere un objeto de usuario para crear un usuario");
+  }
+  let logged_user = null;
+
+  // try to recover the token, 'cause only admins can create admins
+  if (token) {
+    // Verificar el token
+    const decoded = await checkToken(token);
+    logged_user = decoded.payload.user;
+  }
+
+  if (logged_user?.rol_id !== 2 && new_user.rol_id === 2) {
+    throw new Error(
+      "No tienes permisos para crear un usuario con rol de administrador"
+    );
+  }
+  return await createUser(new_user);
 }
 
 export { userController };
