@@ -184,8 +184,6 @@ user_router.post("/create", async (req, res) => {
     // req.user can be null if not logged in
     return res.status(201).json(await controller.create(req.body, token));
   } catch (error) {
-    console.log(error);
-
     res.status(500).send(error.message);
   }
 });

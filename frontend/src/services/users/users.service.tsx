@@ -7,7 +7,7 @@ import { SignUpFormData } from "./signup.types";
  * @param {SignUpFormData} user - The data of the user to be signed up.
  * @returns {void}
  */
-const fetchPutNewUser = async (user: SignUpFormData): Promise<void> => {
+const fetchPutNewUser = async (user: SignUpFormData): Promise<string> => {
   const response = await fetch(API_ENDPOINTS.USER.CREATE, {
     method: "POST",
     headers: {
@@ -17,10 +17,11 @@ const fetchPutNewUser = async (user: SignUpFormData): Promise<void> => {
   });
 
   if (!response.ok) {
-    throw new Error(response.statusText);
+    throw new Error(await response.text());
   }
 
   // now must create a link to validate via onclick emial
+  return "Usuario creado, puedes verificarlo en tu correo electronico";
 };
 
 export { fetchPutNewUser };

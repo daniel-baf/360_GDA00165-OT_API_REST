@@ -36,8 +36,8 @@ async function createUser(user) {
     password,
     telefono = null,
     fecha_nacimiento,
-    rol_id,
-    estado_usuario_id,
+    rol_id = 1,
+    estado_usuario_id = 1,
   } = user;
 
   let db_user = null;
@@ -53,28 +53,24 @@ async function createUser(user) {
     throw new Error("El usuario ya existe");
   }
 
-  try {
-    let [result] = await sequelize.query(
-      "EXEC p_create_usuario @email=:email, @nombre_completo=:nombre_completo, @NIT=:NIT, @password=:password, @telefono=:telefono, @fecha_nacimiento=:fecha_nacimiento, @rol_id=:rol_id, @estado_usuario_id=:estado_usuario_id",
-      {
-        replacements: {
-          email,
-          nombre_completo,
-          NIT,
-          password,
-          telefono,
-          fecha_nacimiento,
-          rol_id,
-          estado_usuario_id,
-        },
-        type: sequelize.QueryTypes.CREATE,
-      }
-    );
+  let [result] = await sequelize.query(
+    "EXEC p_create_usuario @email=:email, @nombre_completo=:nombre_completo, @NIT=:NIT, @password=:password, @telefono=:telefono, @fecha_nacimiento=:fecha_nacimiento, @rol_id=:rol_id, @estado_usuario_id=:estado_usuario_id",
+    {
+      replacements: {
+        email,
+        nombre_completo,
+        NIT,
+        password,
+        telefono,
+        fecha_nacimiento,
+        rol_id,
+        estado_usuario_id,
+      },
+      type: sequelize.QueryTypes.CREATE,
+    }
+  );
 
-    return { id: result[0].id, ...user };
-  } catch (error) {
-    throw new Error(error.message);
-  }
+  return { id: result[0].id, ...user };
 }
 
 /**

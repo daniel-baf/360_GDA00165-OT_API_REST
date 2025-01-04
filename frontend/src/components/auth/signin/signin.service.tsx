@@ -28,7 +28,7 @@ export const signInService = async (
   if (!response.ok) {
     // Lanza una excepción si el servidor responde con un error
     throw new Error(
-      "No se ha podido iniciar sesión, verifique sus credenciales"
+      await response.text() // Analiza la respuesta como texto
     );
   }
 

@@ -19,13 +19,11 @@ const SignUp: React.FC<SignUpProps> = ({ switchToSignIn }) => {
 
   const onSubmit: SubmitHandler<SignUpFormData> = (data) => {
     fetchPutNewUser(data)
-      .then(() => {
-        notifContext.showSuccess(
-          "Usuario creado exitosamente, debes verificar tu usuario"
-        );
+      .then((message) => {
+        notifContext.showSuccess(message);
       })
-      .catch((err: string) => {
-        notifContext.showError(`El servidor no pudo crear un usuario: ${err}`);
+      .catch((err) => {
+        notifContext.showError(`${err.message}`);
       });
   };
 
