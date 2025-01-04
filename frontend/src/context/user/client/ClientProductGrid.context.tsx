@@ -62,11 +62,6 @@ const ClientPorductsGridProvider: React.FC<ClientPorductsGridProviderProps> = ({
   // Función para cargar más productos (scroll infinito)
   const loadMoreProducts = async () => {
     const newOffset = currentOffset + CURRENT_LIMIT; // Calcular el nuevo offset
-    console.log(
-      `Cargando más productos desde ${newOffset} hasta ${
-        newOffset + CURRENT_LIMIT
-      }`
-    );
 
     try {
       // Cargar más productos y agregarlos al estado actual

@@ -1,15 +1,18 @@
-import React, { useState } from "react";
-import { FaShoppingCart } from "react-icons/fa";
-import ClientDirectionSelector from "../../../direction/ClientDirectionSelector";
 import { UserDirectionTypes } from "@services/users/direction/user.direction.types";
+import ClientDirectionSelector from "../../../direction/ClientDirectionSelector";
+import { useAuthContext } from "@context/auth/signin/Signin.context";
+import { useNotification } from "@context/Notification.context";
+import { getTokenDecoded } from "@helpers/auth/auth.service";
+import {
+  NewOrderType,
+  putNewOrder,
+} from "@services/orders/orders.service";
+import { FaShoppingCart } from "react-icons/fa";
+import React, { useState } from "react";
 import {
   CartItem,
   useClientCart,
 } from "@context/user/client/ClientCart.context";
-import { NewOrderType, putNewOrder } from "./order.service";
-import { useAuthContext } from "@context/auth/signin/Signin.context";
-import { getTokenDecoded } from "@helpers/auth/auth.service";
-import { useNotification } from "@context/Notification.context";
 
 interface ClientCartFormProps {
   products: CartItem[];

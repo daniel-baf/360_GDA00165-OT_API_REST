@@ -27,16 +27,16 @@ const verifyTokenTimeout = async (req, res, next) => {
 };
 
 /**
- * Master verifyTokenTImeout middleware check valid session, just call this 
+ * Master verifyTokenTImeout middleware check valid session, just call this
  * middleware to check if the user.role saved by the middleware is admin
- * 
+ *
  * veirfyTokenTimeout middleware will save the user.role in req.user.role
- * 
- * 
- * @param {*} req 
- * @param {*} res 
- * @param {*} next 
- * @returns 
+ *
+ *
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ * @returns
  */
 const checkAdminPermission = (req, res, next) => {
   if (req.user.rol_id !== 2) {

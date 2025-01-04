@@ -3,17 +3,33 @@
 # Setup Script for SQL Server
 # -------------------------------------------
 # Usage:
-#   bash setup.sh           --> Executes both GDA00165_GT_DANIEL_BAUTISTA.sql and USER_CONFIG.sql.
+#   bash setup.sh <sql_password> [sql_user]
+# Example:
+#   bash setup.sh mypassword         # Uses 'sa' as the default user
+#   bash setup.sh mypassword otheruser # Uses 'otheruser' as the user
 # -------------------------------------------
 # Ensure 'sqlcmd' is installed and configured correctly before running this script.
-# -p flag is used to prompt for password. Remove it if you want to hardcode the password.
 
 # Functions to execute scripts
 run_main_script() {
+    local sql_user=${2:-sa}  # Use 'sa' if the second parameter is not provided
+    local sql_password=$1
+
     echo "Running GDA00165_GT_DANIEL_BAUTISTA.sql..."
-    sqlcmd -S localhost -U sa -p -i GDA00165_GT_DANIEL_BAUTISTA.sql
-    echo "GDA00165_GT_DANIEL_BAUTISTA.sql COMPLETE"
+    sqlcmd -S localhost -U "$sql_user" -P "$sql_password" -i GDA00165_GT_DANIEL_BAUTISTA.sql
+    if [ $? -eq 0 ]; then
+        echo "GDA00165_GT_DANIEL_BAUTISTA.sql COMPLETE"
+    else
+        echo "Failed to execute GDA00165_GT_DANIEL_BAUTISTA.sql"
+        exit 1
+    fi
 }
 
+# Check for at least 1 argument (password)
+if [ -z "$1" ]; then
+    echo "Usage: bash setup.sh <sql_password> [sql_user]"
+    exit 1
+fi
 
-run_main_script
+# Run the main script with provided arguments
+run_main_script "$1" "$2"

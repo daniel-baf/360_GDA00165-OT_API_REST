@@ -13,7 +13,7 @@ const orderController = {
 
   create: async (form_data) => await createOrder(form_data),
 
-  delete: async (id) => await deleteOrder(id),
+  delete: async (params) => await deleteOrder(params),
 };
 
 /**

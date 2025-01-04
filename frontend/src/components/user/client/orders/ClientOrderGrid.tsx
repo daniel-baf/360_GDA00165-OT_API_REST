@@ -1,15 +1,17 @@
-import React, { useContext, useEffect, useState } from "react";
-import { OrderTypes } from "@services/orders/Order.types";
-import { fetchOrders } from "@services/orders/orders.service";
+import { deleteOrder, fetchOrders } from "@services/orders/orders.service";
 import { AuthContext } from "@context/auth/signin/Signin.context";
 import { getTokenDecoded } from "@helpers/auth/auth.service";
+import { NotificationContext } from "@context/Notification.context";
+import React, { useCallback, useContext, useEffect, useState } from "react";
+import { OrderTypes } from "@services/orders/Order.types";
 import ClientOrderTuple from "./ClientOrderTuple";
 
 const ClientOrderGrid: React.FC = () => {
   const authContext = useContext(AuthContext);
+  const notificationContext = useContext(NotificationContext);
   const [orders, setOrders] = useState<OrderTypes[]>();
 
-  useEffect(() => {
+  const reloadProducts = useCallback(() => {
     if (!authContext || !authContext?.token) {
       return;
     }
@@ -24,7 +26,23 @@ const ClientOrderGrid: React.FC = () => {
         setOrders(data);
       }
     );
-  }, [authContext?.token]);
+  }, [authContext]);
+
+  useEffect(() => {
+    reloadProducts();
+  }, [authContext, reloadProducts]);
+
+  const handleDeleteOrder = (id: number) => {
+    deleteOrder(`${authContext?.token}`, id)
+      .then((message) => {
+        notificationContext?.showSuccess(message);
+        // reload orders
+        reloadProducts();
+      })
+      .catch((error) => {
+        notificationContext?.showError(`${error}`);
+      });
+  };
 
   return (
     <div className="flex-grow container mx-auto text-stone-200 mb-10">
@@ -66,7 +84,10 @@ const ClientOrderGrid: React.FC = () => {
           <tbody>
             {orders?.map((order) => (
               <React.Fragment key={order.id}>
-                <ClientOrderTuple {...order} />
+                <ClientOrderTuple
+                  {...order}
+                  handleDeleteOrder={handleDeleteOrder}
+                />
               </React.Fragment>
             ))}
           </tbody>

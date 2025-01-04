@@ -23,6 +23,7 @@ type ApiEndpoints = {
       ) => string;
     };
     CREATE: string;
+    DELETE: (orderId: number) => string;
   };
   USER: {
     DIRECTIONS: {
@@ -56,6 +57,7 @@ export const API_ENDPOINTS: ApiEndpoints = {
         }${limit ? `&limit=${limit}` : ""}${offset ? `&offset=${offset}` : ""}`,
     },
     CREATE: `${API_URL}/order/create/`,
+    DELETE: (orderId: number) => `${API_URL}/order/delete/${orderId}`,
   },
   USER: {
     DIRECTIONS: {

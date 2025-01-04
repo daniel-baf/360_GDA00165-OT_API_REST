@@ -1,5 +1,4 @@
 import express from "express";
-import { checkAdminPermission } from "@middlewares/auth/auth.middleware.js";
 import orderController from "@controllers/domain/orders/order.controller.js";
 
 const order_router = express.Router();
@@ -55,12 +54,13 @@ order_router.post("/create", async (req, res) => {
 /**
  * Endpoint to delete an order. the path is /api/orders/delete/:id, and is accessed by an admin user.
  */
-order_router.delete("/delete/:id", checkAdminPermission, async (req, res) => {
+order_router.delete("/delete/:id", async (req, res) => {
   try {
-    let id = parseInt(req.params.id);
-    return res.status(200).json(await orderController.delete(id));
+    return res
+      .status(200)
+      .json(await orderController.delete({ ...req.params, user: req.user }));
   } catch (error) {
-    res.status(500).send(`Unable to delete the order: ${error}`);
+    res.status(500).send(`${error}`);
   }
 });
 

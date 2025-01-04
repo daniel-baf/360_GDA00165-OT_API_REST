@@ -2,7 +2,7 @@
 -- CLAVE DE usuario: GDA00165-OT
 -- DANIEL EDUARDO BAUTISTA FUENTES
 --                      ** IMPORTANTE LEER ANTES DE EJECUTAR **
--- SE HA COLOCADO USE master; SOLAMENTE PARA PODER EJECUTAR EL DROP DE LA BD, 
+-- SE HA COLOCADO USE master; SOLAMENTE PARA PODER EJECUTAR EL DROP DE LA BD,
 -- HE TRABAJADO EN LINUX, Y MI MSSQL ESTA CONFIGURADO CASE_SENSITIVE
 -- LAS VISTAS NO ORDENAN LOS DATOS, UNA VISTA SOLO SIRVE PARA CONSUMIR DATOS, NO FILTRARLOS
 -- https://dba.stackexchange.com/questions/4007/what-are-the-alternatives-for-an-order-by-clause-in-a-view
@@ -22,12 +22,13 @@ FROM sys.server_principals
 WHERE name = 'GDA00165_GT')
 BEGIN
     DROP LOGIN [GDA00165_GT];
-END
+
+END;
+
 GO
 -- Create the login with a password
 CREATE LOGIN [GDA00165_GT] WITH PASSWORD = 'Contrase@nalg_dag123as511';
 GO
-
 
 -- Crear la base de datos dinámicamente
 CREATE DATABASE [GDA00165_GT_DANIEL_BAUTISTA];
@@ -42,7 +43,8 @@ FROM sys.database_principals
 WHERE name = 'GDA00165_GT_USER')
 BEGIN
     DROP USER [GDA00165_GT_USER];
-END
+
+END;
 GO
 
 -- Create the user for the login in the current database
@@ -53,12 +55,10 @@ GO
 ALTER ROLE db_owner ADD MEMBER [GDA00165_GT_USER];
 GO
 
-
-
 -- TABLA USADA PARA ALMACENAR LOS ROLES DE LOS usuarioS Y DAR ACCESO A DISTINTAS VISTAS
 DROP TABLE IF EXISTS rol;
-CREATE TABLE rol
-(
+
+CREATE TABLE rol (
     id INT PRIMARY KEY IDENTITY,
     nombre VARCHAR(50) NOT NULL UNIQUE,
     descripcion VARCHAR(245),
@@ -66,8 +66,8 @@ CREATE TABLE rol
 
 -- ESTA TABLA SIRVE PARA INHABILITAR usuarioS Y NO DARLE ACCESO... A FUTURO PODRIA USARSE PARA MAS TIPOS DE ESTADOS
 DROP TABLE IF EXISTS estado_usuario;
-CREATE TABLE estado_usuario
-(
+
+CREATE TABLE estado_usuario (
     id INT PRIMARY KEY IDENTITY,
     nombre VARCHAR(50) NOT NULL UNIQUE,
     descripcion VARCHAR(245),
@@ -75,8 +75,8 @@ CREATE TABLE estado_usuario
 
 -- TABLA USADA PARA ALMACENAR LOS ESTADOS DE LOS pedidoS, ENTREGADA...
 DROP TABLE IF EXISTS estado_pedido;
-CREATE TABLE estado_pedido
-(
+
+CREATE TABLE estado_pedido (
     id INT PRIMARY KEY IDENTITY,
     nombre VARCHAR(50) NOT NULL UNIQUE,
     descripcion VARCHAR(245),
@@ -84,8 +84,8 @@ CREATE TABLE estado_pedido
 
 -- ALMACENA A TODOS LOS usuarioS DLE SISTEMA, TANTO OPERARIOS COMO CONSUMIDORES
 DROP TABLE IF EXISTS usuario;
-CREATE TABLE usuario
-(
+
+CREATE TABLE usuario (
     id INT PRIMARY KEY IDENTITY,
     email VARCHAR(50) NOT NULL UNIQUE,
     nombre_completo VARCHAR(50) NOT NULL,
@@ -93,29 +93,29 @@ CREATE TABLE usuario
     password VARCHAR(75) NOT NULL,
     telefono VARCHAR(10),
     fecha_nacimiento DATE NOT NULL,
-    fecha_creacion DATE NOT NULL DEFAULT GETDATE(),
-    rol_id INT FOREIGN KEY REFERENCES Rol(id),
-    estado_usuario_id INT FOREIGN KEY REFERENCES estado_usuario(id),
+    fecha_creacion DATE NOT NULL DEFAULT GETDATE (),
+    rol_id INT FOREIGN KEY REFERENCES Rol (id),
+    estado_usuario_id INT FOREIGN KEY REFERENCES estado_usuario (id),
 );
 
 -- UNA PERSONA PUEDE TENER VARIAS DIRECCIONES DE ENTREGA O NINGUNA, POR ESTO ES RELACION 1:0...*
 -- SE DEBE VALIDAR QUE LAS DIRECCIONES DE ENTREGA SE ALMACENEN UNICAMENTE PARA LOS DEL ROL CLIENTE
 DROP TABLE IF EXISTS direccion_cliente;
-CREATE TABLE direccion_cliente
-(
+
+CREATE TABLE direccion_cliente (
     id INT PRIMARY KEY IDENTITY,
     departamento VARCHAR(50) NOT NULL,
     municipio VARCHAR(50) NOT NULL,
     direccion VARCHAR(100) NOT NULL,
     telefono VARCHAR(10),
     usuario_id INT NOT NULL,
-    FOREIGN KEY (usuario_id) REFERENCES usuario(id)
+    FOREIGN KEY (usuario_id) REFERENCES usuario (id)
 );
 
 -- TABLA USADA PARA CATEGORIZAR LOS productoS Y FACILITAR LA BUSQUEDA
 DROP TABLE IF EXISTS categoria_producto;
-CREATE TABLE categoria_producto
-(
+
+CREATE TABLE categoria_producto (
     id INT PRIMARY KEY IDENTITY,
     nombre VARCHAR(50) NOT NULL UNIQUE,
     descripcion VARCHAR(245),
@@ -123,8 +123,8 @@ CREATE TABLE categoria_producto
 
 -- TABLA DE ESTADOS DE productoS, HABILITADO O DESHABILITADO...
 DROP TABLE IF EXISTS estado_producto;
-CREATE TABLE estado_producto
-(
+
+CREATE TABLE estado_producto (
     id INT PRIMARY KEY IDENTITY,
     nombre VARCHAR(50) NOT NULL UNIQUE,
     descripcion VARCHAR(245),
@@ -132,71 +132,68 @@ CREATE TABLE estado_producto
 
 -- TABLA USADA PARA ALMACENAR LOS productoS QUE SE VENDEN
 DROP TABLE IF EXISTS producto;
-CREATE TABLE producto
-(
+
+CREATE TABLE producto (
     id INT PRIMARY KEY IDENTITY,
     nombre VARCHAR(50) NOT NULL UNIQUE,
     descripcion VARCHAR(245),
     precio DECIMAL(10, 2) NOT NULL,
     precio_mayorista DECIMAL(10, 2),
     stock INT NOT NULL,
-    estado_producto_id INT FOREIGN KEY REFERENCES estado_producto(id) NOT NULL DEFAULT 1,
+    estado_producto_id INT FOREIGN KEY REFERENCES estado_producto (id) NOT NULL DEFAULT 1,
     -- por defecto el producto nuevo se habilitara
-    categoria_producto_id INT FOREIGN KEY REFERENCES categoria_producto(id),
+    categoria_producto_id INT FOREIGN KEY REFERENCES categoria_producto (id),
 );
 
 -- TABLA USADA PARA SERVIR COMO CONTENIDO DE UN pedido Y factura
 DROP TABLE IF EXISTS detalle_pedido;
+
 DROP TABLE IF EXISTS pedido;
 
-CREATE TABLE pedido
-(
+CREATE TABLE pedido (
     id INT PRIMARY KEY IDENTITY,
-    fecha_creacion DATE NOT NULL DEFAULT GETDATE(),
+    fecha_creacion DATE NOT NULL DEFAULT GETDATE (),
     fecha_confirmacion DATE DEFAULT NULL,
     fecha_entrega DATE DEFAULT NULL,
     total DECIMAL(10, 2) NOT NULL,
-    usuario_validador_id INT FOREIGN KEY REFERENCES usuario(id) DEFAULT NULL,
+    usuario_validador_id INT FOREIGN KEY REFERENCES usuario (id) DEFAULT NULL,
     -- PERSONA QUE DIO COMO VALIDO EL pedido
-    usuario_id INT FOREIGN KEY REFERENCES usuario(id) NOT NULL,
-    direccion_entrega_id INT FOREIGN KEY REFERENCES direccion_cliente(id) NOT NULL,
-    estado_pedido_id INT FOREIGN KEY REFERENCES estado_pedido(id) NOT NULL DEFAULT 1,
+    usuario_id INT FOREIGN KEY REFERENCES usuario (id) NOT NULL,
+    direccion_entrega_id INT FOREIGN KEY REFERENCES direccion_cliente (id) NOT NULL,
+    estado_pedido_id INT FOREIGN KEY REFERENCES estado_pedido (id) NOT NULL DEFAULT 1,
 );
 
 -- TABLA USADA PARA ALMACENAR EL CONTENIDO DE UN pedido
-CREATE TABLE detalle_pedido
-(
+CREATE TABLE detalle_pedido (
     id INT PRIMARY KEY IDENTITY,
     cantidad INT NOT NULL,
     precio_venta DECIMAL(10, 2) NOT NULL,
     -- EL SUBTOTAL NO LO ALMACENO PORQUE SE PUEDE CALCULAR CON CANTIDAD * PRECIO_VENTA, ES UN ATRIBUTO DERIVADO
-    pedido_id INT FOREIGN KEY REFERENCES pedido(id) NOT NULL,
-    producto_id INT FOREIGN KEY REFERENCES producto(id) NOT NULL,
+    pedido_id INT FOREIGN KEY REFERENCES pedido (id) NOT NULL,
+    producto_id INT FOREIGN KEY REFERENCES producto (id) NOT NULL,
 );
 
 -- TABLA USADA PARA ALMACENAR LAS facturaS GENERADAS POR LOS pedidoS
 DROP TABLE IF EXISTS factura;
-CREATE TABLE factura
-(
+
+CREATE TABLE factura (
     id INT PRIMARY KEY IDENTITY,
-    fecha_creacion DATE NOT NULL DEFAULT GETDATE(),
+    fecha_creacion DATE NOT NULL DEFAULT GETDATE (),
     total DECIMAL(10, 2) NOT NULL,
     NIT VARCHAR(15) NOT NULL DEFAULT 'CF',
-    pedido_id INT FOREIGN KEY REFERENCES pedido(id) NOT NULL,
-    usuario_vendedor_id INT FOREIGN KEY REFERENCES usuario(id) NOT NULL,
+    pedido_id INT FOREIGN KEY REFERENCES pedido (id) NOT NULL,
+    usuario_vendedor_id INT FOREIGN KEY REFERENCES usuario (id) NOT NULL,
 );
 
 -- TABLA DE configuracionES PARA REUTILIZAR EL SOFTWARE EN CASO DE SER NECESARIO
 DROP TABLE IF EXISTS configuracion;
-CREATE TABLE configuracion
-(
+
+CREATE TABLE configuracion (
     id INT PRIMARY KEY IDENTITY,
     nombre VARCHAR(50) NOT NULL,
     valor VARCHAR(245) NOT NULL,
 );
 
-
-GO
 DROP PROCEDURE IF EXISTS p_create_rol;
 DROP PROCEDURE IF EXISTS p_list_rol;
 DROP PROCEDURE IF EXISTS p_update_rol;
@@ -233,8 +230,6 @@ BEGIN
 END;
 GO
 
-
-
 -- Procedimiento para actualizar un rol existente
 CREATE OR ALTER PROCEDURE p_update_rol
     @id INT,
@@ -257,7 +252,6 @@ BEGIN
     WHERE id = @id;
 END;
 GO
-
 
 CREATE OR ALTER PROCEDURE p_list_rol
     @limit INT = NULL,
@@ -282,7 +276,6 @@ BEGIN
 END;
 GO
 
-
 CREATE OR ALTER PROCEDURE p_delete_rol
     @id INT = NULL
 AS
@@ -292,8 +285,11 @@ END;
 
 GO
 DROP PROCEDURE IF EXISTS p_create_estado_usuario;
+
 DROP PROCEDURE IF EXISTS p_list_estado_usuario;
+
 DROP PROCEDURE IF EXISTS p_update_estado_usuario;
+
 DROP PROCEDURE IF EXISTS p_delete_estado_usuario;
 GO
 
@@ -356,8 +352,11 @@ END;
 
 GO
 DROP PROCEDURE IF EXISTS p_create_estado_pedido;
+
 DROP PROCEDURE IF EXISTS p_list_estado_pedido;
+
 DROP PROCEDURE IF EXISTS p_update_estado_pedido;
+
 DROP PROCEDURE IF EXISTS p_delete_estado_pedido;
 GO
 
@@ -422,11 +421,13 @@ END;
 
 GO
 DROP PROCEDURE IF EXISTS p_create_usuario;
+
 DROP PROCEDURE IF EXISTS p_listar_usuarios;
+
 DROP PROCEDURE IF EXISTS p_update_usuario;
+
 DROP PROCEDURE IF EXISTS p_delete_usuario;
 GO
-
 
 -- PROCEDIMIENTO ALMACENADO PARA INSERTAR usuarioS EN LA BASE DE DATOS
 CREATE OR ALTER PROCEDURE p_create_usuario
@@ -544,9 +545,13 @@ END;
 
 GO
 DROP PROCEDURE IF EXISTS p_create_direccion_cliente;
+
 DROP PROCEDURE IF EXISTS p_list_direccion_cliente;
+
 DROP PROCEDURE IF EXISTS p_update_direccion_cliente;
+
 DROP PROCEDURE IF EXISTS p_delete_direccion_cliente;
+
 DROP PROCEDURE IF EXISTS p_search_direccion_cliente;
 GO
 
@@ -623,8 +628,11 @@ END;
 
 GO
 DROP PROCEDURE IF EXISTS p_create_categoria_producto;
+
 DROP PROCEDURE IF EXISTS p_list_categoria_producto;
+
 DROP PROCEDURE IF EXISTS p_update_categoria_producto;
+
 DROP PROCEDURE IF EXISTS p_delete_categoria_producto;
 GO
 
@@ -702,8 +710,11 @@ END;
 
 GO
 DROP PROCEDURE IF EXISTS p_create_estado_producto;
+
 DROP PROCEDURE IF EXISTS p_list_estado_producto;
+
 DROP PROCEDURE IF EXISTS p_update_estado_producto;
+
 DROP PROCEDURE IF EXISTS p_delete_estado_producto;
 GO
 
@@ -792,9 +803,13 @@ END;
 
 GO
 DROP PROCEDURE IF EXISTS p_create_producto;
+
 DROP PROCEDURE IF EXISTS p_list_producto;
+
 DROP PROCEDURE IF EXISTS p_update_producto;
+
 DROP PROCEDURE IF EXISTS p_delete_producto;
+
 DROP PROCEDURE IF EXISTS p_get_producto;
 GO
 
@@ -822,7 +837,6 @@ BEGIN
     SELECT SCOPE_IDENTITY() AS id;
 END;
 GO
-
 
 CREATE OR ALTER PROCEDURE p_update_producto
     @id INT,
@@ -882,34 +896,32 @@ CREATE OR ALTER PROCEDURE p_delete_producto
     @id INT
 AS
 BEGIN
-    DECLARE @disable_status INT;
-
+    BEGIN TRANSACTION;
     BEGIN TRY
+        -- Intentar eliminar los detalles relacionados con el producto
+        DELETE FROM detalle_pedido
+        WHERE producto_id = @id;
+
         -- Intentar eliminar el producto
         DELETE FROM producto
         WHERE id = @id;
-        SELECT 'El producto se ha eliminado exitosamente.' AS mensaje;
-        RETURN;
+        -- Confirmar la transacción si todo salió bien
+        COMMIT TRANSACTION;
+       -- Retornar mensaje de éxito al eliminar
+        SELECT 'El producto se ha eliminado correctamente.' AS mensaje;
     END TRY
     BEGIN CATCH
-        -- Si el error es de restricción de clave externa (Error 547)
-        IF ERROR_NUMBER() != 547 -- Error de restricción de clave externa
-        BEGIN
-        RAISERROR('No se pudo borrar el producto', 16, 1);
-    END;
-        
-        -- Si hubo un error, actualizar el estado del producto a "Deshabilitado"
-        -- Esto se ejecuta solo si la eliminación falla
-    UPDATE producto
-    SET estado_producto_id = (SELECT id
-    FROM estado_producto
-    WHERE UPPER(nombre) = UPPER('Deshabilitado'))
+        -- Revertir la transacción si ocurrió un error
+        ROLLBACK TRANSACTION;
+        -- Actualizar el estado del producto a deshabilitado
+        UPDATE producto
+        SET estado_producto_id = 2
         WHERE id = @id;
+            -- Retornar mensaje de deshabilitación
+        SELECT 'El producto no se pudo eliminar, pero ha sido deshabilitado.' AS mensaje;
     END CATCH;
-
-    -- RETORNAMOS EL MENSAJE DE QUE SE HA ACTUALIZADO
-    SELECT 'El producto se ha deshabilitado exitosamente.' AS mensaje;
 END;
+
 GO
 
 CREATE OR ALTER PROCEDURE p_list_producto
@@ -949,8 +961,6 @@ BEGIN
 END;
 GO
 
-
-
 CREATE OR ALTER PROCEDURE p_get_producto
     @id INT
 AS
@@ -960,15 +970,21 @@ BEGIN
     WHERE id = @id;
 END;
 
-
 GO
 DROP PROCEDURE IF EXISTS p_create_detalle_pedido;
+
 DROP PROCEDURE IF EXISTS p_list_detalles_pedido;
+
 DROP PROCEDURE IF EXISTS p_update_detalle_pedido;
+
 DROP PROCEDURE IF EXISTS p_delete_detalle_pedido;
+
 DROP PROCEDURE IF EXISTS p_create_pedido;
+
 DROP PROCEDURE IF EXISTS p_list_pedido;
+
 DROP PROCEDURE IF EXISTS p_search_pedido;
+
 DROP PROCEDURE IF EXISTS p_delete_pedido;
 GO
 
@@ -1006,7 +1022,6 @@ BEGIN
         dp.pedido_id = @pedido_id
     ORDER BY dp.id DESC;
 END;
-
 
 GO
 
@@ -1201,7 +1216,7 @@ BEGIN
         (@target_state IS NULL OR estado_pedido_id = @target_state) AND
         (@target_user IS NULL OR usuario_id = @target_user)
     ORDER BY 
-        id
+        estado_pedido_id ASC, id DESC
     OFFSET 
         ISNULL(@offset, 0) ROWS
     FETCH NEXT 
@@ -1226,45 +1241,51 @@ BEGIN
         RETURN;
     END
 
-    -- se puede borrar o invalidar el pedido
+    -- Se puede borrar o invalidar el pedido
     BEGIN TRANSACTION;
     BEGIN TRY
-        -- Obtener todos los detalles de este pedido
-        DECLARE @detalle_id INT;
+        -- Obtener todos los detalles del pedido
+        DECLARE @detalle_id INT, @producto_id INT, @cantidad INT;
 
         DECLARE detalle_cursor CURSOR FOR
-                SELECT id
+        SELECT id, producto_id, cantidad
     FROM detalle_pedido
     WHERE pedido_id = @id;
 
         OPEN detalle_cursor;
-        FETCH NEXT FROM detalle_cursor INTO @detalle_id;
+        FETCH NEXT FROM detalle_cursor INTO @detalle_id, @producto_id, @cantidad;
 
-        -- Iterar sobre cada detalle del pedido
+        -- Restaurar el stock de los productos del pedido
         WHILE @@FETCH_STATUS = 0
-            BEGIN
-        -- Llamar al procedimiento para borrar el detalle
-        EXEC p_delete_detalle_pedido @detalle_id;
+        BEGIN
+        -- Actualizar el stock del producto
+        UPDATE producto
+            SET stock = stock + @cantidad
+            WHERE id = @producto_id;
 
-        FETCH NEXT FROM detalle_cursor INTO @detalle_id;
+        -- Eliminar el detalle del pedido
+        DELETE FROM detalle_pedido
+            WHERE id = @detalle_id;
+
+        FETCH NEXT FROM detalle_cursor INTO @detalle_id, @producto_id, @cantidad;
     END
 
         CLOSE detalle_cursor;
         DEALLOCATE detalle_cursor;
 
-        -- Eliminar el pedido si todo salió bien
-        DELETE FROM pedido WHERE id = @id;
+        -- Eliminar el pedido
+        DELETE FROM pedido
+        WHERE id = @id;
 
-        -- Si todo se ha ejecutado correctamente, hacer commit
+        -- Confirmar la transacción
         COMMIT TRANSACTION;
 
         -- Retornar un mensaje de éxito
-        SELECT 'El pedido se ha eliminado exitosamente.' AS mensaje;
+        SELECT 'El pedido se ha eliminado exitosamente y el stock ha sido restaurado.' AS mensaje;
     END TRY
     BEGIN CATCH
-        -- En caso de error, hacer rollback
+        -- En caso de error, revertir la transacción
         ROLLBACK TRANSACTION;
-        -- Opcionalmente, puedes manejar el error o lanzar una excepción
         RAISERROR ('Se ha producido un error y la transacción ha sido revertida', 16, 1);
         RETURN;
     END CATCH
@@ -1284,10 +1305,11 @@ END;
 
 GO
 DROP TRIGGER IF EXISTS t_validar_direccion_usuario;
+
 DROP PROCEDURE IF EXISTS p_cambiar_estado_producto;
+
 DROP PROCEDURE IF EXISTS p_config_predefinidos;
 GO
-
 
 -- VERIFICAMOS QUE AL MOMENTO DE GUARDAR UNA DIRECCION, ESTA SEA PARA UN usuario QUE SEA CLIENTE
 CREATE OR ALTER TRIGGER t_validar_direccion_usuario
@@ -1319,7 +1341,6 @@ BEGIN
     FROM inserted;
 END;
 GO
-
 
 -- PROCEDIMIENTO SOLICITADO TAREA, CAMBIAR ESTADO DE UN producto
 CREATE OR ALTER PROCEDURE p_cambiar_estado_producto
@@ -1532,51 +1553,50 @@ Go
 
 DROP VIEW IF EXISTS v_productos_activos_stock_m0;
 GO
-CREATE VIEW v_productos_activos_stock_m0
-AS
-    SELECT *
-    FROM producto
-    WHERE estado_producto_id = 1 AND stock > 0;
+CREATE VIEW v_productos_activos_stock_m0 AS
+SELECT *
+FROM producto
+WHERE
+    estado_producto_id = 1
+    AND stock > 0;
 GO
-
 
 DROP VIEW IF EXISTS v_total_ingresos_agosto_pedidos;
 GO
 -- Crear la vista con un alias para la columna
-CREATE VIEW v_total_ingresos_agosto_pedidos
-AS
-    SELECT SUM(total) AS total_ingresos
-    FROM pedido;
+CREATE VIEW v_total_ingresos_agosto_pedidos AS
+SELECT SUM(total) AS total_ingresos
+FROM pedido;
 GO
 
 DROP VIEW IF EXISTS v_mayores_clientes;
 GO
-CREATE VIEW v_mayores_clientes
-AS
-    SELECT u.id AS id_usuario, u.email, SUM(p.total) AS gasto_total
-    FROM pedido AS p
-        LEFT JOIN usuario AS u
-        ON u.id = p.usuario_id
-    WHERE p.fecha_confirmacion IS NOT NULL
-    GROUP BY u.email, u.id;
+CREATE VIEW v_mayores_clientes AS
+SELECT u.id AS id_usuario, u.email, SUM(p.total) AS gasto_total
+FROM pedido AS p
+    LEFT JOIN usuario AS u ON u.id = p.usuario_id
+WHERE
+    p.fecha_confirmacion IS NOT NULL
+GROUP BY
+    u.email,
+    u.id;
 GO
-
 
 DROP VIEW IF EXISTS v_productos_mas_vendidos;
 
 GO
-CREATE VIEW v_productos_mas_vendidos
-AS
-    SELECT dp.producto_id, p.nombre, SUM(dp.cantidad) AS cantidad_vendida
-    FROM detalle_pedido AS dp
-        LEFT JOIN producto AS p
-        ON p.id = dp.producto_id
-    GROUP BY dp.producto_id, p.nombre;
+CREATE VIEW v_productos_mas_vendidos AS
+SELECT dp.producto_id, p.nombre, SUM(dp.cantidad) AS cantidad_vendida
+FROM
+    detalle_pedido AS dp
+    LEFT JOIN producto AS p ON p.id = dp.producto_id
+GROUP BY
+    dp.producto_id,
+    p.nombre;
 GO
 
 -- Invocar el procedimiento almacenado
 EXEC p_config_predefinidos 40, 5;
-
 
 -- Habilita las salidas
 
@@ -1593,7 +1613,6 @@ EXEC p_config_predefinidos 40, 5;
 -- WHERE type IN ('S', 'U', 'G')  -- 'S' = SQL login, 'U' = Windows login, 'G' = Windows group
 --   AND name NOT LIKE '##%'       -- Excluye logins internos del sistema
 -- ORDER BY name;
-
 
 -- SELECT *
 -- FROM sys.database_principals

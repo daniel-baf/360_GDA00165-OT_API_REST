@@ -46,7 +46,13 @@ async function createOrder(order_insert) {
 }
 
 async function listOrders(filters, user) {
-  let { limit = null, offset = 0, detailed = false, target_user = null, target_state = null } = filters;
+  let {
+    limit = null,
+    offset = 0,
+    detailed = false,
+    target_user = null,
+    target_state = null,
+  } = filters;
 
   if (!!limit && limit < 1)
     throw new Error("El limite debe ser de al menos 1 o null");
@@ -57,15 +63,19 @@ async function listOrders(filters, user) {
   try {
     // verify the one requesting non filtered orders is an admin
     if (!target_user && user.rol_id !== 2 && user.id !== target_user) {
-      throw new Error("No tienes permisos para acceder a estos datos, solo puedes acceder a tus propios datos");
+      throw new Error(
+        "No tienes permisos para acceder a estos datos, solo puedes acceder a tus propios datos"
+      );
     }
 
-
     // recover the orders
-    let orders = await connection.query(`EXEC p_list_pedido :limit, :offset, :target_state, :target_user`, {
-      replacements: { limit, offset, target_user, target_state },
-      type: connection.QueryTypes.SELECT,
-    });
+    let orders = await connection.query(
+      `EXEC p_list_pedido :limit, :offset, :target_state, :target_user`,
+      {
+        replacements: { limit, offset, target_user, target_state },
+        type: connection.QueryTypes.SELECT,
+      }
+    );
 
     // if detailed false, end the function
     if (!detailed) return orders;
@@ -127,9 +137,14 @@ async function searchOrder(id, detailed = false) {
   }
 }
 
-async function deleteOrder(id) {
+async function deleteOrder({ id, user }) {
   try {
     if (!id) throw new Error("El id es obligatorio");
+
+    let order_db = await searchOrder(id);
+
+    if (user.rol_id !== 2 && user.id !== order_db.usuario_id)
+      throw new Error("No tienes permisos para realizar esta acción");
 
     let [result] = await connection.query(`EXEC p_delete_pedido :id`, {
       replacements: { id },

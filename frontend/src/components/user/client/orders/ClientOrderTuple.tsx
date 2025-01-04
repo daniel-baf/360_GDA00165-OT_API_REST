@@ -12,7 +12,11 @@ import { OrderTypes } from "@services/orders/Order.types";
 import { FaCarRear } from "react-icons/fa6";
 import { Settings } from "CONFIGURATION";
 
-const ClientOrderTuple: React.FC<OrderTypes> = ({
+interface ClientOrderTupleProps extends OrderTypes {
+  handleDeleteOrder: (id: number) => void;
+}
+
+const ClientOrderTuple: React.FC<ClientOrderTupleProps> = ({
   id,
   fecha_creacion,
   fecha_confirmacion,
@@ -21,6 +25,7 @@ const ClientOrderTuple: React.FC<OrderTypes> = ({
   estado_nombre,
   details,
   total,
+  handleDeleteOrder,
 }) => {
   const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
   const toggleExpand = (orderId: number) => {
@@ -98,7 +103,10 @@ const ClientOrderTuple: React.FC<OrderTypes> = ({
             </button>
             {/* DELETE ORDER */}
             {estado_pedido_id === 1 && (
-              <button className="bg-red-500 text-white px-3 py-3 rounded-md shadow-md hover:bg-red-600 transition-all duration-200">
+              <button
+                className="bg-red-500 text-white px-3 py-3 rounded-md shadow-md hover:bg-red-600 transition-all duration-200"
+                onClick={() => handleDeleteOrder(id)}
+              >
                 <FaTrashAlt />
               </button>
             )}
