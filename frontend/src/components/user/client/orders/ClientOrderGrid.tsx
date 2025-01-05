@@ -1,36 +1,50 @@
 import { deleteOrder, fetchOrders } from "@services/orders/orders.service";
-import { AuthContext } from "@context/auth/signin/Signin.context";
-import { getTokenDecoded } from "@helpers/auth/auth.service";
+import { useAuthContext } from "@context/auth/signin/Signin.context";
+import {
+  getTokenDecoded,
+  PublicTokenPayload,
+} from "@helpers/auth/auth.service";
 import { NotificationContext } from "@context/Notification.context";
-import React, { useCallback, useContext, useEffect, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { OrderTypes } from "@services/orders/Order.types";
-import ClientOrderTuple from "./ClientOrderTuple";
+import ClientOrderTuple from "./Tuple/ClientOrderTuple";
 
 const ClientOrderGrid: React.FC = () => {
-  const authContext = useContext(AuthContext);
+  const authContext = useAuthContext();
   const notificationContext = useContext(NotificationContext);
   const [orders, setOrders] = useState<OrderTypes[]>();
 
+  // Memoize token_decoded to prevent it from being recomputed on every render
+  const token_decoded: PublicTokenPayload["user"] | null = useMemo(() => {
+    if (!authContext.token) {
+      return null;
+    }
+    return getTokenDecoded(authContext.token); // Ensure this returns the decoded token
+  }, [authContext?.token]);
+
+  // Define reloadProducts as a stable callback
   const reloadProducts = useCallback(() => {
-    if (!authContext || !authContext?.token) {
+    if (!authContext || !token_decoded) {
       return;
     }
 
-    const token_decoded = getTokenDecoded(`${authContext?.token}`);
-    if (!token_decoded) {
-      return;
-    }
-
-    fetchOrders(`${authContext?.token}`, token_decoded?.id, true, 0).then(
+    fetchOrders(`${authContext?.token}`, token_decoded, true, 0).then(
       (data) => {
         setOrders(data);
       }
     );
-  }, [authContext]);
+  }, [authContext, token_decoded]);
 
+  // Trigger reloadProducts when authContext changes
   useEffect(() => {
     reloadProducts();
-  }, [authContext, reloadProducts]);
+  }, [reloadProducts]);
 
   const handleDeleteOrder = (id: number) => {
     deleteOrder(`${authContext?.token}`, id)
@@ -59,10 +73,16 @@ const ClientOrderGrid: React.FC = () => {
         </span>
       </p>
 
+      {!!token_decoded && token_decoded.rol_id === 2 && (
+        <p className="bg-green-200 text-black px-2 py-1 rounded-full text-center my-4">
+          Como administrador, puedes aprobar pedidos.
+        </p>
+      )}
+
       <div className="overflow-x-auto">
         <table className="w-full border-collapse border-2 border-gray-600 mt-10">
-          <thead className="bg-gray-800 ">
-            <tr className=" text-center uppercase">
+          <thead className="bg-gray-800">
+            <tr className="text-center uppercase">
               <th className="border border-gray-600 px-4 py-2 w-1/12">
                 No. Orden
               </th>
@@ -87,6 +107,7 @@ const ClientOrderGrid: React.FC = () => {
                 <ClientOrderTuple
                   {...order}
                   handleDeleteOrder={handleDeleteOrder}
+                  is_admin_logged={token_decoded?.rol_id == 2}
                 />
               </React.Fragment>
             ))}

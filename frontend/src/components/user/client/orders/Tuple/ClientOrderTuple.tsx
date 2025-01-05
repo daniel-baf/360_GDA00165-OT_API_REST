@@ -4,16 +4,16 @@ import {
   FaBoxOpen,
   FaCheckCircle,
   FaExpandAlt,
-  FaTrashAlt,
 } from "react-icons/fa";
-import ClientOrderDetail from "./ClientOrderDetail";
-
+import ClientOrderDetail from "../ClientOrderDetail";
 import { OrderTypes } from "@services/orders/Order.types";
 import { FaCarRear } from "react-icons/fa6";
 import { Settings } from "CONFIGURATION";
+import ClientOrderTupleActions from "./ClientOrderTupleActions";
 
 interface ClientOrderTupleProps extends OrderTypes {
   handleDeleteOrder: (id: number) => void;
+  is_admin_logged: boolean;
 }
 
 const ClientOrderTuple: React.FC<ClientOrderTupleProps> = ({
@@ -26,8 +26,11 @@ const ClientOrderTuple: React.FC<ClientOrderTupleProps> = ({
   details,
   total,
   handleDeleteOrder,
+  is_admin_logged,
 }) => {
   const [expandedOrderId, setExpandedOrderId] = useState<number | null>(null);
+  const [orderStatus, setOrderStatus] = useState(estado_pedido_id); // Correctly connect state to local order status
+
   const toggleExpand = (orderId: number) => {
     setExpandedOrderId((prev) => (prev === orderId ? null : orderId));
   };
@@ -57,7 +60,7 @@ const ClientOrderTuple: React.FC<ClientOrderTupleProps> = ({
         </td>
         <td className="border border-gray-600 px-4 py-2 text-center text-sm">
           {(() => {
-            switch (estado_pedido_id) {
+            switch (orderStatus) {
               case 2:
                 return (
                   <div className="flex flex-col items-center">
@@ -93,23 +96,22 @@ const ClientOrderTuple: React.FC<ClientOrderTupleProps> = ({
           {Settings.CURRENCY_SYMBOL} {total}
         </td>
         <td className="border border-gray-600 px-4 py-2">
-          <div className="flex justify-evenly">
+          <div className="flex flex-col sm:flex-row justify-evenly space-y-2 sm:space-y-0 sm:space-x-2">
             {/* EXPAND CONTENT */}
             <button
-              className="bg-slate-200 text-black px-3 py-3 rounded-md shadow-md hover:bg-slate-300 transition-all duration-200"
+              className="bg-slate-200 text-black px-3 py-3 sm:px-4 sm:py-4 rounded-md shadow-md hover:bg-slate-300 transition-all duration-200 w-full sm:w-auto"
               onClick={() => toggleExpand(id)}
             >
               {expandedOrderId === id ? <FaArrowUp /> : <FaExpandAlt />}
             </button>
-            {/* DELETE ORDER */}
-            {estado_pedido_id === 1 && (
-              <button
-                className="bg-red-500 text-white px-3 py-3 rounded-md shadow-md hover:bg-red-600 transition-all duration-200"
-                onClick={() => handleDeleteOrder(id)}
-              >
-                <FaTrashAlt />
-              </button>
-            )}
+
+            <ClientOrderTupleActions
+              id={id}
+              estado_pedido_id={orderStatus} // Pass the updated state
+              is_admin_logged={is_admin_logged}
+              handleDeleteOrder={handleDeleteOrder}
+              setOrderStatus={setOrderStatus} // Pass state updater function
+            />
           </div>
         </td>
       </tr>

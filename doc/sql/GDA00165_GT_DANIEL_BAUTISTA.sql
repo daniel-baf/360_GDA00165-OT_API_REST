@@ -195,8 +195,11 @@ CREATE TABLE configuracion (
 );
 
 DROP PROCEDURE IF EXISTS p_create_rol;
+
 DROP PROCEDURE IF EXISTS p_list_rol;
+
 DROP PROCEDURE IF EXISTS p_update_rol;
+
 DROP PROCEDURE IF EXISTS p_delete_rol;
 GO
 
@@ -965,9 +968,12 @@ CREATE OR ALTER PROCEDURE p_get_producto
     @id INT
 AS
 BEGIN
-    SELECT id, nombre, descripcion, precio, precio_mayorista, stock, estado_producto_id, categoria_producto_id
-    FROM producto
-    WHERE id = @id;
+    SELECT p.id, p.nombre, p.descripcion, p.precio, p.precio_mayorista, p.stock, p.estado_producto_id, p.categoria_producto_id,
+    cp.nombre AS categoria_nombre, cp.descripcion AS categoria_descripcion
+    FROM producto AS p
+    INNER JOIN categoria_producto AS cp 
+    ON p.categoria_producto_id = cp.id
+    WHERE p.id = @id;
 END;
 
 GO
@@ -1304,6 +1310,29 @@ BEGIN
 END;
 
 GO
+
+CREATE OR ALTER PROCEDURE p_cambiar_estado_pedido
+    @pedido_id INT,
+    @nuevo_estado_id INT
+AS
+BEGIN
+    -- Verificar si el pedido existe
+    IF NOT EXISTS (SELECT 1 FROM pedido WHERE id = @pedido_id)
+    BEGIN
+        RAISERROR ('El pedido no existe.', 16, 1);
+        RETURN;
+    END
+
+    -- Actualizar el estado del pedido
+    UPDATE pedido
+    SET estado_pedido_id = @nuevo_estado_id,
+        fecha_confirmacion = CASE WHEN @nuevo_estado_id = 2 THEN GETDATE() ELSE fecha_confirmacion END,
+        fecha_entrega = CASE WHEN @nuevo_estado_id = 4 THEN GETDATE() ELSE fecha_entrega END
+    WHERE id = @pedido_id;
+END;
+
+GO
+
 DROP TRIGGER IF EXISTS t_validar_direccion_usuario;
 
 DROP PROCEDURE IF EXISTS p_cambiar_estado_producto;

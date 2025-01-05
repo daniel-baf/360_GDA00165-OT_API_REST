@@ -1,5 +1,6 @@
 import express from "express";
 import orderController from "@controllers/domain/orders/order.controller.js";
+import { checkAdminPermission } from "@middlewares/auth/auth.middleware.js";
 
 const order_router = express.Router();
 
@@ -60,7 +61,20 @@ order_router.delete("/delete/:id", async (req, res) => {
       .status(200)
       .json(await orderController.delete({ ...req.params, user: req.user }));
   } catch (error) {
+    console.log(error);
     res.status(500).send(`${error}`);
+  }
+});
+
+/**
+ *
+ * params must be id and status
+ *  */
+order_router.put("/swapState", checkAdminPermission, async (req, res) => {
+  try {
+    return res.status(200).json(await orderController.swapState(req.query));
+  } catch (error) {
+    res.status(500).send(error.message);
   }
 });
 

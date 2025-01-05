@@ -14,6 +14,9 @@ type ApiEndpoints = {
     };
   };
   ORDERS: {
+    CREATE: string;
+    DELETE: (orderId: number) => string;
+    SEARCH: (orderId: number) => string;
     LIST: {
       BY_USER: (
         userId: number,
@@ -21,9 +24,13 @@ type ApiEndpoints = {
         offset: number,
         limit: number | undefined
       ) => string;
+      ALL: {
+        LIMIT_OFFSET: (offset: number, limit: number | undefined) => string;
+      };
     };
-    CREATE: string;
-    DELETE: (orderId: number) => string;
+    STATUS: {
+      UPDATE: (orderId: number, statusId: number) => string;
+    };
   };
   USER: {
     DIRECTIONS: {
@@ -46,6 +53,9 @@ export const API_ENDPOINTS: ApiEndpoints = {
     },
   },
   ORDERS: {
+    CREATE: `${API_URL}/order/create/`,
+    DELETE: (orderId: number) => `${API_URL}/order/delete/${orderId}`,
+    SEARCH: (orderId: number) => `${API_URL}/order/search/${orderId}?detailed=true`,
     LIST: {
       BY_USER: (
         userId: number,
@@ -56,9 +66,18 @@ export const API_ENDPOINTS: ApiEndpoints = {
         `${API_URL}/order/list?target_user=${userId}${
           detailed ? `&detailed=${detailed}` : ""
         }${limit ? `&limit=${limit}` : ""}${offset ? `&offset=${offset}` : ""}`,
+      ALL: {
+        LIMIT_OFFSET: (offset: number = 0, limit: number | undefined) =>
+          `${API_URL}/order/list?detailed=true&${
+            limit ? `&limit=${limit}` : ""
+          }${offset ? `&offset=${offset}` : ""}`,
+      },
     },
-    CREATE: `${API_URL}/order/create/`,
-    DELETE: (orderId: number) => `${API_URL}/order/delete/${orderId}`,
+
+    STATUS: {
+      UPDATE: (orderId: number, statusId: number) =>
+        `${API_URL}/order/swapState/?id=${orderId}&status=${statusId}`,
+    },
   },
   USER: {
     DIRECTIONS: {

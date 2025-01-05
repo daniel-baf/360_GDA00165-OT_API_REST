@@ -19,7 +19,7 @@ const ClientProductGrid: React.FC = () => {
   // load the products when the component is mounted
   useEffect(() => {
     loadProducts();
-  }, [token]);
+  }, [loadProducts, token]); // Only depend on token
 
   return (
     <div className="flex-grow pb-10">

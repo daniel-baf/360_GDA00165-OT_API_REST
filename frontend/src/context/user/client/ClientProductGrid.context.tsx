@@ -1,5 +1,11 @@
 import { Product } from "@components/user/client/products/product.types";
-import { createContext, ReactNode, useState, useContext } from "react";
+import {
+  createContext,
+  ReactNode,
+  useState,
+  useContext,
+  useCallback,
+} from "react";
 import { NotificationContext } from "@context/Notification.context";
 import { fetchProducts } from "@services/products/product.service";
 import { AuthContext } from "@context/auth/signin/Signin.context";
@@ -43,24 +49,24 @@ const ClientPorductsGridProvider: React.FC<ClientPorductsGridProviderProps> = ({
   const { token } = authContext;
 
   // Función para cargar productos
-  const loadProducts = async (
-    maxProducts: number = CURRENT_LIMIT,
-    offset: number = 0
-  ) => {
-    if (!token) {
-      return;
-    }
+  const loadProducts = useCallback(
+    async (maxProducts: number = CURRENT_LIMIT, offset: number = 0) => {
+      if (!token) {
+        return;
+      }
 
-    try {
-      const data = await fetchProducts(token, maxProducts, offset);
-      setProducts(data); // Establecer productos en estado
-    } catch (error) {
-      messageManager?.showError(`${error}`);
-    }
-  };
+      try {
+        const data = await fetchProducts(token, maxProducts, offset);
+        setProducts(data); // Establecer productos en estado
+      } catch (error) {
+        messageManager?.showError(`${error}`);
+      }
+    },
+    [token, messageManager, CURRENT_LIMIT] // Depend on token and messageManager
+  );
 
   // Función para cargar más productos (scroll infinito)
-  const loadMoreProducts = async () => {
+  const loadMoreProducts = useCallback(async () => {
     const newOffset = currentOffset + CURRENT_LIMIT; // Calcular el nuevo offset
 
     try {
@@ -75,7 +81,7 @@ const ClientPorductsGridProvider: React.FC<ClientPorductsGridProviderProps> = ({
     } catch (error) {
       console.error("Error al cargar más productos:", error);
     }
-  };
+  }, [currentOffset, token, messageManager, CURRENT_LIMIT]); // Depend on currentOffset, token, and messageManager
 
   return (
     <ClientPorductsGridContext.Provider

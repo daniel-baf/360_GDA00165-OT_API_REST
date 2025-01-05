@@ -170,7 +170,6 @@ async function deleteProduct(id) {
  */
 async function listProducts({ limit = null, offset = 0, status_id = 1 }) {
   try {
-
     if (!!limit && limit < 1)
       throw new RangeError("El limite debe ser al menos 1");
 
