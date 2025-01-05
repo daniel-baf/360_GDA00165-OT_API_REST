@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useCallback,
 } from "react";
 import { NotificationContext } from "@context/Notification.context";
 import { AuthContext } from "@context/auth/signin/Signin.context";
@@ -21,10 +22,13 @@ interface ClientCartType {
   remove: (product: Product) => void;
   clear: () => void;
   decrease: (product: Product) => void;
+  setProducts: (products: CartItem[]) => void;
+  is_edit_id?: number;
 }
 
 interface ClientCartProviderProps {
   children: ReactNode;
+  is_edit_id?: number;
 }
 
 const CART_STORAGE_KEY = "cart";
@@ -39,6 +43,7 @@ const ClientCartContext = createContext<ClientCartType | undefined>(undefined);
 
 const ClientCartProvider: React.FC<ClientCartProviderProps> = ({
   children,
+  is_edit_id,
 }) => {
   const [products, setProducts] = useState<CartItem[]>([]);
   const authContext = useContext(AuthContext);
@@ -48,10 +53,10 @@ const ClientCartProvider: React.FC<ClientCartProviderProps> = ({
     throw new Error("AuthContext and NotificationContext must be provided.");
   }
 
-  const updateCart = (newProducts: CartItem[]) => {
+  const updateCart = useCallback((newProducts: CartItem[]) => {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(newProducts));
     setProducts(newProducts);
-  };
+  }, []);
 
   const findProductIndex = (id: number) =>
     products.findIndex((item) => item.product.id === id);
@@ -139,6 +144,8 @@ const ClientCartProvider: React.FC<ClientCartProviderProps> = ({
       remove,
       clear,
       decrease,
+      setProducts: updateCart, // Añade esto
+      is_edit_id,
     }),
     [products]
   );

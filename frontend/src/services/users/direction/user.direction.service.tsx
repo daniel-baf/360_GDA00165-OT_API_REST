@@ -14,7 +14,7 @@ const fetchUserDirections = async (
   });
 
   if (!response.ok) {
-    throw new Error("No ha sido posible obtener las direcciones del usuario");
+    throw new Error(await response.text());
   }
 
   const data = await response.json();

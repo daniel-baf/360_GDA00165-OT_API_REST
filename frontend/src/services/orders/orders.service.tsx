@@ -150,7 +150,9 @@ const fetchApproveOrder = async (
   }
 
   const data = await response.json();
-  return `${data.message}, con id ${data.pedido_id}`;
+  console.log(data);
+
+  return `${data.message}`;
 };
 
 /**
@@ -177,10 +179,37 @@ const fetchSearchOrder = async (
   return await response.json();
 };
 
+const fetchPutUpdateOrder = async (
+  token: string,
+  order_id: number,
+  products: CartItem[]
+): Promise<[string, number]> => {
+  const response = await fetch(API_ENDPOINTS.ORDERS.UPDATE(order_id), {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(products),
+  });
+
+  if (response.status === 404) {
+    throw new Error("Order not found (404)");
+  }
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+
+  const data = await response.json();
+
+  return [data.message, data.id];
+};
+
 export {
   fetchOrders,
   deleteOrder,
   putNewOrder,
   fetchApproveOrder,
   fetchSearchOrder,
+  fetchPutUpdateOrder,
 };

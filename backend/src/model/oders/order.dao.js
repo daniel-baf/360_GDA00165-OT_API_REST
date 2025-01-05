@@ -210,7 +210,7 @@ async function changeOrderState(pedido_id, nuevo_estado_id) {
     throw new Error("todos los campos son obligatorios");
 
   try {
-    let result = await connection.query(
+    await connection.query(
       `EXEC p_cambiar_estado_pedido :pedido_id, :nuevo_estado_id`,
       {
         replacements: { pedido_id, nuevo_estado_id },
@@ -228,4 +228,43 @@ async function changeOrderState(pedido_id, nuevo_estado_id) {
   }
 }
 
-export { createOrder, listOrders, searchOrder, deleteOrder, changeOrderState };
+async function updateOrder(id, products) {
+  try {
+    let [result] = await connection.query(
+      `EXEC p_update_pedido :id, :json_detalles`,
+      {
+        replacements: {
+          id,
+          json_detalles: JSON.stringify(products),
+        },
+        type: connection.QueryTypes.UPDATE, // Change to RAW for stored procedure call
+      }
+    );
+
+    // Extract the new ID from the result
+    const newId = result?.[1]?.id;
+
+    // If newId is found, return it in the response
+    if (newId) {
+      return {
+        id: newId,
+        message: `La orden se ha regenerado, el nuevo id es ${newId}`,
+      };
+    } else {
+      return {
+        message: "No se pudo obtener el nuevo ID del pedido.",
+      };
+    }
+  } catch (error) {
+    throw error;
+  }
+}
+
+export {
+  createOrder,
+  listOrders,
+  searchOrder,
+  deleteOrder,
+  changeOrderState,
+  updateOrder,
+};

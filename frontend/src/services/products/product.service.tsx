@@ -32,7 +32,7 @@ async function fetchProducts(
   );
 
   if (!response.ok) {
-    throw new Error("No estas autenticado");
+    throw new Error(await response.text());
   }
 
   const products: Product[] = await response.json();

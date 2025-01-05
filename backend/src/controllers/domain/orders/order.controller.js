@@ -6,19 +6,22 @@ import {
   createOrder,
   deleteOrder,
   changeOrderState,
+  updateOrder,
 } from "@models/oders/order.dao.js";
 
 const orderController = {
   listAll: async (filters, user) => await listOrders(filters, user),
 
   search: async (id, detailed = false, user) =>
-    await checkOrderOwner(user, { id, detailed }),
+    await searchOrderByOwner(user, { id, detailed }),
 
   create: async (form_data) => await createOrder(form_data),
 
   swapState: async ({ id, status }) => await changeOrderState(id, status),
 
   delete: async (params) => await deleteOrder(params),
+
+  update: async (form_data) => await updateOrderAndValidate(form_data),
 };
 
 /**
@@ -28,7 +31,7 @@ const orderController = {
  * @param {object} filter_parameters id, detailed
  * @returns
  */
-async function checkOrderOwner(user, filter_parameters) {
+async function searchOrderByOwner(user, filter_parameters) {
   // disable detailed information 'cause the conversion reutnrs always a detailed one
   // search the order
   const order_db = await searchOrder(filter_parameters);
@@ -56,6 +59,28 @@ async function checkOrderOwner(user, filter_parameters) {
   }
 
   return frontend_order;
+}
+
+async function updateOrderAndValidate({ id, products }) {
+  if (!id || products.length === 0) {
+    throw new Error(
+      "No puedes actualizar el producto y dejarlo vacio, borralo en su lugar"
+    );
+  }
+
+  console.log(products);
+
+  // cast data to valid function format
+  const casted_products = products.map((product) => ({
+    cantidad: product.quantity,
+    producto_id: product.product.id,
+    precio_venta:
+      product.quantity >= 12
+        ? product.product.precio_mayorista
+        : product.product.precio,
+  }));
+
+  return await updateOrder(id, casted_products);
 }
 
 export default orderController;

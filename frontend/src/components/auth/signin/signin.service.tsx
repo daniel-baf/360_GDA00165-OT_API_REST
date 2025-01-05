@@ -33,5 +33,7 @@ export const signInService = async (
   }
 
   const result: SignInResponse = await response.json(); // Analiza la respuesta como JSON
+  // clear storage
+  localStorage.clear();
   return result; // Devuelve la respuesta parseada
 };

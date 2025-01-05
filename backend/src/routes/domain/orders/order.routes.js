@@ -61,7 +61,6 @@ order_router.delete("/delete/:id", async (req, res) => {
       .status(200)
       .json(await orderController.delete({ ...req.params, user: req.user }));
   } catch (error) {
-    console.log(error);
     res.status(500).send(`${error}`);
   }
 });
@@ -73,6 +72,19 @@ order_router.delete("/delete/:id", async (req, res) => {
 order_router.put("/swapState", checkAdminPermission, async (req, res) => {
   try {
     return res.status(200).json(await orderController.swapState(req.query));
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+order_router.put("/update/:id", checkAdminPermission, async (req, res) => {
+  try {
+    return res.status(200).json(
+      await orderController.update({
+        ...req.params,
+        products: req.body,
+      })
+    );
   } catch (error) {
     res.status(500).send(error.message);
   }

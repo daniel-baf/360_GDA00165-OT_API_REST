@@ -992,6 +992,9 @@ DROP PROCEDURE IF EXISTS p_list_pedido;
 DROP PROCEDURE IF EXISTS p_search_pedido;
 
 DROP PROCEDURE IF EXISTS p_delete_pedido;
+
+DROP PROCEDURE IF EXISTS p_update_pedido;
+
 GO
 
 CREATE OR ALTER PROCEDURE p_list_detalles_pedido
@@ -1333,6 +1336,57 @@ END;
 
 GO
 
+CREATE OR ALTER PROCEDURE p_update_pedido
+    @id INT,
+    @json_detalles NVARCHAR(MAX)
+AS
+BEGIN
+    -- Variables para almacenar datos del pedido
+    DECLARE @direccion_id INT;
+    DECLARE @estado_id INT;
+    DECLARE @usuario_id INT;
+
+    -- Validar estado del pedido
+    SELECT @estado_id = estado_pedido_id FROM pedido WHERE id = @id;
+
+    IF @estado_id != 1
+    BEGIN
+        RAISERROR ('No se puede modificar el pedido, ya ha sido validado.', 16, 1);
+        RETURN;
+    END
+
+
+     -- Recuperar dirección y usuario actuales del pedido
+    SELECT @direccion_id = direccion_entrega_id, 
+           @usuario_id = usuario_id  
+    FROM pedido 
+    WHERE id = @id;
+
+
+    -- Iniciar transacción
+    BEGIN TRANSACTION;
+
+
+
+    BEGIN TRY
+        -- Eliminar los detalles actuales del pedido
+        EXEC p_delete_pedido @id;
+
+        -- Crear nuevos detalles para el pedido
+        EXEC p_create_pedido @usuario_id, @direccion_id, 1, @json_detalles;
+
+       -- Confirmar la transacción
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+    --     -- Si ocurre un error, revertir la transacción
+        ROLLBACK TRANSACTION;
+        THROW;
+    END CATCH
+END;
+
+GO
+
 DROP TRIGGER IF EXISTS t_validar_direccion_usuario;
 
 DROP PROCEDURE IF EXISTS p_cambiar_estado_producto;
@@ -1342,9 +1396,9 @@ GO
 
 -- VERIFICAMOS QUE AL MOMENTO DE GUARDAR UNA DIRECCION, ESTA SEA PARA UN usuario QUE SEA CLIENTE
 CREATE OR ALTER TRIGGER t_validar_direccion_usuario
-ON direccion_cliente
-INSTEAD OF INSERT
-AS 
+    ON direccion_cliente
+    INSTEAD OF INSERT
+    AS 
 BEGIN
     DECLARE @rol_id INT;
 

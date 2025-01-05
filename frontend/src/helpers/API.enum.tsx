@@ -17,6 +17,7 @@ type ApiEndpoints = {
     CREATE: string;
     DELETE: (orderId: number) => string;
     SEARCH: (orderId: number) => string;
+    UPDATE: (orderId: number) => string;
     LIST: {
       BY_USER: (
         userId: number,
@@ -55,7 +56,9 @@ export const API_ENDPOINTS: ApiEndpoints = {
   ORDERS: {
     CREATE: `${API_URL}/order/create/`,
     DELETE: (orderId: number) => `${API_URL}/order/delete/${orderId}`,
-    SEARCH: (orderId: number) => `${API_URL}/order/search/${orderId}?detailed=true`,
+    SEARCH: (orderId: number) =>
+      `${API_URL}/order/search/${orderId}?detailed=true`,
+    UPDATE: (orderId: number) => `${API_URL}/order/update/${orderId}`,
     LIST: {
       BY_USER: (
         userId: number,
