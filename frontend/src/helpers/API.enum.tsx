@@ -12,6 +12,14 @@ type ApiEndpoints = {
       ALL: string;
       LIM_OFFSET: (limit: number, offset: number) => string;
     };
+    SEARCH: (filters: {
+      category?: string;
+      name?: string;
+      id?: number;
+    }) => string;
+    CATEGORY: {
+      LIST_ALL: string;
+    };
   };
   ORDERS: {
     CREATE: string;
@@ -51,6 +59,16 @@ export const API_ENDPOINTS: ApiEndpoints = {
       ALL: `${API_URL}/products`,
       LIM_OFFSET: (limit: number = 50, offset: number = 0) =>
         `${API_URL}/product/list?limit=${limit}&offset=${offset}`,
+    },
+    CATEGORY: {
+      LIST_ALL: `${API_URL}/product/category/list`,
+    },
+    SEARCH: ({ category = "", name = "", id }) => {
+      const params = new URLSearchParams();
+      if (category) params.append("category", category);
+      if (name) params.append("name", name);
+      if (id !== undefined) params.append("id", id.toString());
+      return `${API_URL}/product/search?${params.toString()}`;
     },
   },
   ORDERS: {

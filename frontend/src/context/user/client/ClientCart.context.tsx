@@ -165,4 +165,4 @@ const useClientCart = (): ClientCartType => {
   return context;
 };
 
-export { ClientCartProvider, useClientCart };
+export { ClientCartProvider, useClientCart, ClientCartContext };

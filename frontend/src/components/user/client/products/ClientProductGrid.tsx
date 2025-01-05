@@ -3,6 +3,7 @@ import ProductCard from "./card/ProductCard";
 import { FaSearch } from "react-icons/fa";
 import { Product } from "./product.types";
 import React, { useEffect } from "react";
+import ClientProductFormSearch from "./form/ClientProductFormSearch";
 
 const ClientProductGrid: React.FC = () => {
   // use context of cart
@@ -14,6 +15,7 @@ const ClientProductGrid: React.FC = () => {
     loadProducts,
     loadMoreProducts,
     max_products_shown,
+    token_decoded,
   } = context;
 
   // load the products when the component is mounted
@@ -25,14 +27,29 @@ const ClientProductGrid: React.FC = () => {
     <div className="flex-grow pb-10">
       <div className="container mx-auto">
         <div className="text-center text-pretty text-4xl pb-4 font-light text-white dark:text-opacity-95">
-          Productos
+          <h1 className="text-5xl">Productos</h1>
+          <p className="text-lg mt-2">
+            Aquí se muestran los productos y puede buscar productos.
+          </p>
+          {token_decoded?.rol_id === 2 && (
+            <p className="mt-4 text-sm text-green-500">
+              <span className="bg-green-100 text-green-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded">
+                Admin
+              </span>
+              Estás viendo la vista como administrador y puedes editar los
+              productos.
+            </p>
+          )}
         </div>
+        {/* SEARCH PRODUCTS FORM */}
+        <ClientProductFormSearch token={token} />
+        {/* SEARCH PRODUCTS FORM */}
         <div>
           {products && products.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-              {products.map((product: Product) => (
+              {products.map((product: Product, index: number) => (
                 <ProductCard
-                  key={`product-${product.id}`}
+                  key={`product-${product.id}-${index}`}
                   id={product.id}
                   nombre={product.nombre}
                   descripcion={product.descripcion}
@@ -45,6 +62,7 @@ const ClientProductGrid: React.FC = () => {
                   estado_nombre={product.estado_nombre}
                   categoria_descripcion={product.categoria_descripcion}
                   hide_btn={false}
+                  tokenDecoded={token_decoded}
                 />
               ))}
             </div>

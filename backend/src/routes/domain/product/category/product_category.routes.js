@@ -45,7 +45,6 @@ product_category_router.get("/list", async (req, res) => {
   }
 });
 
-
 /**
  * Route to update a product category.
  * @name PUT /update/:id

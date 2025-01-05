@@ -39,4 +39,32 @@ async function fetchProducts(
   return products;
 }
 
-export { fetchProducts };
+async function fetchFilterProduct(
+  token: string,
+  category?: string,
+  name?: string,
+  id?: number
+): Promise<Product[]> {
+  if (!token) {
+    throw new Error("Token invalido");
+  }
+
+  const response = await fetch(
+    API_ENDPOINTS.PRODUCTS.SEARCH({ category, name, id }),
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+
+  return await response.json();
+}
+
+export { fetchProducts, fetchFilterProduct };

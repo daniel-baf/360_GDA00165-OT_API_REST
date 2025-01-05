@@ -5,11 +5,16 @@ import {
   useState,
   useContext,
   useCallback,
+  useMemo,
 } from "react";
 import { NotificationContext } from "@context/Notification.context";
 import { fetchProducts } from "@services/products/product.service";
 import { AuthContext } from "@context/auth/signin/Signin.context";
 import { Settings } from "CONFIGURATION";
+import {
+  getTokenDecoded,
+  PublicTokenPayload,
+} from "@helpers/auth/auth.service";
 
 // Context type definitions
 interface ClientPorductsGridType {
@@ -17,7 +22,9 @@ interface ClientPorductsGridType {
   loadProducts: (maxProducts?: number, offset?: number) => Promise<void>;
   loadMoreProducts: () => Promise<void>;
   token: string | null;
+  token_decoded: PublicTokenPayload["user"] | null;
   max_products_shown: boolean;
+  handleSearchProducts: (arg0: Product[]) => void;
 }
 
 // Provider props
@@ -41,12 +48,20 @@ const ClientPorductsGridProvider: React.FC<ClientPorductsGridProviderProps> = ({
 
   const authContext = useContext(AuthContext);
   const messageManager = useContext(NotificationContext);
+  const token = useMemo(() => authContext?.token ?? null, [authContext?.token]);
+  const token_decoded = useMemo(() => {
+    return token ? getTokenDecoded(token) : null;
+  }, [token]);
 
-  if (!authContext) {
-    throw new Error("El contexto de autenticación no está definido");
-  }
-
-  const { token } = authContext;
+  // Función para reiniciar productos y establecer un valor específico
+  const handleSearchProducts = useCallback(
+    async (newProducts: Product[]) => {
+      setProducts(newProducts);
+      setCurrentOffset(0);
+      setMaxProductsShown(newProducts.length < CURRENT_LIMIT);
+    },
+    [CURRENT_LIMIT]
+  );
 
   // Función para cargar productos
   const loadProducts = useCallback(
@@ -91,6 +106,8 @@ const ClientPorductsGridProvider: React.FC<ClientPorductsGridProviderProps> = ({
         loadMoreProducts,
         token,
         max_products_shown,
+        token_decoded,
+        handleSearchProducts,
       }}
     >
       {children}

@@ -965,16 +965,41 @@ END;
 GO
 
 CREATE OR ALTER PROCEDURE p_get_producto
-    @id INT
+    @id INT = NULL,
+    @category_id INT = NULL,
+    @name VARCHAR(50) = NULL
 AS
 BEGIN
-    SELECT p.id, p.nombre, p.descripcion, p.precio, p.precio_mayorista, p.stock, p.estado_producto_id, p.categoria_producto_id,
-    cp.nombre AS categoria_nombre, cp.descripcion AS categoria_descripcion
-    FROM producto AS p
-    INNER JOIN categoria_producto AS cp 
-    ON p.categoria_producto_id = cp.id
-    WHERE p.id = @id;
+    -- Validar que al menos un parámetro no sea NULL
+    IF @id IS NULL AND @category_id IS NULL AND @name IS NULL
+    BEGIN
+        RAISERROR ('Debe proporcionar al menos un parámetro: id, category_id o name.', 16, 1);
+        RETURN;
+    END;
+
+    -- Consulta con condiciones dinámicas
+    SELECT 
+        p.id, 
+        p.nombre, 
+        p.descripcion, 
+        p.precio, 
+        p.precio_mayorista, 
+        p.stock, 
+        p.estado_producto_id, 
+        p.categoria_producto_id,
+        cp.nombre AS categoria_nombre, 
+        cp.descripcion AS categoria_descripcion
+    FROM 
+        producto AS p
+    INNER JOIN 
+        categoria_producto AS cp 
+        ON p.categoria_producto_id = cp.id
+    WHERE 
+        (@id IS NULL OR p.id = @id) AND
+        (@category_id IS NULL OR p.categoria_producto_id = @category_id) AND
+        (@name IS NULL OR p.nombre LIKE '%' + @name + '%');
 END;
+
 
 GO
 DROP PROCEDURE IF EXISTS p_create_detalle_pedido;
