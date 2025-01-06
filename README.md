@@ -1,3 +1,4 @@
+
 # Proyecto API-REST con Node.js, Express y SQL Server
 
 <p align="center">
@@ -38,6 +39,7 @@ El proyecto incluye:
 
 1. Clonar el repositorio:
 
+
    ```bash
    git clone <URL_DEL_REPOSITORIO>
    cd <NOMBRE_DEL_REPOSITORIO>
@@ -45,13 +47,29 @@ El proyecto incluye:
 
 2. Instalar las dependencias del proyecto:
 
+
    ```bash
    npm install
    ```
 
 3. Configurar las variables de entorno en un archivo `.env`:
 
+
    ```env
+      SERVER_PORT=4000
+
+      DB_HOST=localhost
+      DB_PORT=1434
+      DB_NAME=GDA00165_GT_DANIEL_BAUTISTA
+      DB_USER=GDA00165_GT
+      DB_PASS=Contrase@nalg_dag123as511
+
+      JWT_SECRET=lkasjksggaj.asdgakak1241?sk5122la
+   ```
+
+   Se que lo correcto es no poner estos datos publicos en el respositorio pero para falicitar la calificacion los he colocado aca para que copien y peguen en el .env.
+   el **DB_NAME** y **DB_USER** asi como **DB_PASS** son creados por el script de SQL, si hay alugn error, deberan crearlos manualmente, pueden cambiar la contraseña,
+   pero el script hardcodea usuarios aletaoriamente y usa esa contraseña para encriptar las contraseñas, deberan a posteriori actualizar esos usuarios.
       SERVER_PORT=4000
 
       DB_HOST=localhost
@@ -69,6 +87,7 @@ El proyecto incluye:
 
 4. Ejecutar el servidor:
 
+
    ```bash
       npm run dev   # invoca al loader de alias
       npm run dev   # invoca al loader de alias
@@ -76,7 +95,10 @@ El proyecto incluye:
 
    Para facilitar los imports, solamente esta usado para produccion, se debe compilar luego para que funcione en produccio
 
+   Para facilitar los imports, solamente esta usado para produccion, se debe compilar luego para que funcione en produccio
+
 5. Probar los endpoints utilizando Postman.
+
 
 
 ---
@@ -96,13 +118,18 @@ El proyecto utiliza las siguientes dependencias principales:
 - **process**: Para gestionar procesos y variables de entorno.
 - **sequelize**: ORM para interactuar con bases de datos SQL.
 - **tedious**: Conector para interactuar con SQL Server.
+- **esm-module-alias**: Para facilitar la importación de módulos.
+- **path**: Para trabajar con rutas de archivos y directorios.
+- **process**: Para gestionar procesos y variables de entorno.
+- **sequelize**: ORM para interactuar con bases de datos SQL.
+- **tedious**: Conector para interactuar con SQL Server.
 
 Instalar todas las dependencias usando:
 
+
 ```bash
 npm install
-
-
+npm install
 ```
 
 ---
@@ -113,26 +140,33 @@ npm install
 
 1. **Productos**
 
+
    - Crear, actualizar, eliminar y listar productos.
 
 2. **Categorías de Productos**
+
 
    - CRUD completo para las categorías.
 
 3. **Estados**
 
+
    - Gestión de estados de productos o pedidos.
 
 4. **Usuarios**
+
 
    - CRUD con encriptación de contraseñas.
 
 5. **Orden y Detalles**
 
+
    - CRUD maestro-detalle para la gestión de órdenes y sus detalles.
 
 6. **Clientes**
    - Gestión completa de los datos de clientes.
+
+... verificar el archivo **360_project.postman_collection.json** para conocer todos los endpoints
 
 ... verificar el archivo **360_project.postman_collection.json** para conocer todos los endpoints
 
@@ -142,11 +176,13 @@ npm install
 
 1. **Autenticación con JWT**
 
+
    - Generación de tokens al iniciar sesión.
    - Validación de cada solicitud con un token válido.
    - Expiración de tokens en 24 horas.
 
 2. **Gestión de Sesiones**
+   - Control de inicio y cierre de sesión para los usuarios. : NO IMPLEMENTADO AUN
    - Control de inicio y cierre de sesión para los usuarios. : NO IMPLEMENTADO AUN
 
 ---
@@ -156,6 +192,9 @@ npm install
 - Utilizar **Postman** para probar cada uno de los endpoints.
 - Validar que las operaciones CRUD y la autenticación funcionen correctamente.
 - Verificar el manejo de errores y las respuestas del servidor.
+- Crear un **enviroment** en postman, puest dosas las solicitudes wardan el token en una variable de entorno
+- Se uso autenticacion por baerier en los testeos de postman, sin embargo si devuelve el token el API
+- NO se han implementado roles, por tiempo, pero si se esta pensado, todo esta como controladores, solo es de implementar un middleware para validarlo
 - Crear un **enviroment** en postman, puest dosas las solicitudes wardan el token en una variable de entorno
 - Se uso autenticacion por baerier en los testeos de postman, sin embargo si devuelve el token el API
 - NO se han implementado roles, por tiempo, pero si se esta pensado, todo esta como controladores, solo es de implementar un middleware para validarlo
@@ -195,6 +234,7 @@ Luego puedes llamar a los endpoints, el token se cargara automaticamente
 </p>
 
 ## Distribucion proyecto
+
 ```
 D:\
 ├── .env
@@ -268,4 +308,5 @@ D:\
 │       ├── auth
 │       │   └── auth.service.js
 │       └── hashing
-
+            └── crypter.service.js
+│
