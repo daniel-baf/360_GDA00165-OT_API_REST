@@ -6,11 +6,11 @@ import { AiOutlineEdit } from "react-icons/ai";
 import {
   AdminCategoryCreateProps,
   schema,
-  FormData,
+  FormDataCategoryCreate,
 } from "./AdminCategoryCreate.validations";
 
 const AdminCategoryCreate: React.FC<AdminCategoryCreateProps> = ({
-  codigo = "",
+  id = undefined,
   nombre = "",
   descripcion = "",
   onSubmit,
@@ -19,10 +19,10 @@ const AdminCategoryCreate: React.FC<AdminCategoryCreateProps> = ({
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>({
+  } = useForm<FormDataCategoryCreate>({
     resolver: yupResolver(schema),
     defaultValues: {
-      codigo,
+      id,
       nombre,
       descripcion,
     },
@@ -40,12 +40,12 @@ const AdminCategoryCreate: React.FC<AdminCategoryCreateProps> = ({
         <input
           type="text"
           placeholder="ID automatico"
-          {...register("codigo")}
+          {...register("id")}
           disabled
           className="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-300"
         />
-        {errors.codigo && (
-          <p className="text-red-500 text-sm">{errors.codigo.message}</p>
+        {errors.id && (
+          <p className="text-red-500 text-sm">{errors.id.message}</p>
         )}
       </div>
       <div className="mb-4">
@@ -76,12 +76,8 @@ const AdminCategoryCreate: React.FC<AdminCategoryCreateProps> = ({
         type="submit"
         className="flex items-center justify-center px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
       >
-        {codigo ? (
-          <AiOutlineEdit className="mr-2" />
-        ) : (
-          <FaSave className="mr-2" />
-        )}
-        {codigo ? "Actualizar" : "Crear"}
+        {id ? <AiOutlineEdit className="mr-2" /> : <FaSave className="mr-2" />}
+        {id ? "Actualizar" : "Crear"}
       </button>
     </form>
   );

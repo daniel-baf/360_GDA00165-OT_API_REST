@@ -6,14 +6,14 @@ interface FormDataCategoryCreate extends Omit<ProductCategory, "id"> {
 }
 
 interface AdminCategoryCreateProps {
-  codigo?: string;
+  id?: number;
   nombre?: string;
   descripcion?: string;
   onSubmit: (data: FormDataCategoryCreate) => void;
 }
 
 const schema = yup.object().shape({
-  codigo: yup.string().optional(),
+  id: yup.number().optional(),
   nombre: yup.string().required("Nombre es requerido"),
   descripcion: yup.string().required("Descripción es requerida"),
 });

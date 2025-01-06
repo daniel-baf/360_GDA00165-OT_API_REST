@@ -5,6 +5,7 @@ interface ModalProps {
   description?: string;
   content: React.ReactNode;
   triggerButton: React.ReactNode;
+  width?: string; // Tamaño configurable (e.g., "400px", "50%", "30rem")
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -12,6 +13,7 @@ const Modal: React.FC<ModalProps> = ({
   description,
   content,
   triggerButton,
+  width = "400px", // Valor por defecto si no se pasa el prop
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -28,7 +30,10 @@ const Modal: React.FC<ModalProps> = ({
       {/* Modal */}
       {isOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-gray-800 text-white rounded-lg shadow-lg p-6 w-auto max-w-full">
+          <div
+            className="bg-gray-800 text-white rounded-lg shadow-lg p-6"
+            style={{ width, maxWidth: "100%" }} // Aplica el ancho configurable y asegura responsividad
+          >
             {/* Botón para cerrar el modal */}
             <div className="flex justify-end">
               <button

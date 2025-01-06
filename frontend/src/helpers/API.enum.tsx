@@ -22,6 +22,7 @@ type ApiEndpoints = {
     CATEGORY: {
       LIST_ALL: string;
     };
+    UPDATE: (id: number) => string;
   };
   ORDERS: {
     CREATE: string;
@@ -64,6 +65,7 @@ export const API_ENDPOINTS: ApiEndpoints = {
     },
     CREATE: `${API_URL}/product/category/create/`,
     DELETE: (id: number) => `${API_URL}/product/category/delete/${id}`,
+    UPDATE: (id: number) => `${API_URL}/product/category/update/${id}`,
     CATEGORY: {
       LIST_ALL: `${API_URL}/product/category/list`,
     },

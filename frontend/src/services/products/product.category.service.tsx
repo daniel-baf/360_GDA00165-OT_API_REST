@@ -1,3 +1,4 @@
+import { FormDataCategoryCreate } from "@components/user/admin/products/categories/form/AdminCategoryCreate.validations";
 import { ProductCategory } from "@components/user/client/products/product.types";
 import { API_ENDPOINTS } from "@helpers/API.enum";
 
@@ -83,4 +84,40 @@ async function fetchDeleteProductCategory(
 
   return await response.json();
 }
-export { fetchProductsCategory, fetchCreateProductCategory, fetchDeleteProductCategory };
+
+/**
+ * Updates a product category with new content.
+ *
+ * @param {string} token - The authorization token.
+ * @param {number} id - The ID of the category to update.
+ * @param {FormDataCategoryCreate} new_content - The new content for the category.
+ * @returns {Promise<any>} The updated category data.
+ * @throws {Error} If the update request fails.
+ */
+async function fetchUpdateCategory(
+  token: string,
+  id: number,
+  new_content: FormDataCategoryCreate
+): Promise<ProductCategory> {
+  const response = await fetch(API_ENDPOINTS.PRODUCTS.UPDATE(id), {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    method: "PUT",
+    body: JSON.stringify(new_content),
+  });
+
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+
+  return await response.json();
+}
+
+export {
+  fetchProductsCategory,
+  fetchCreateProductCategory,
+  fetchDeleteProductCategory,
+  fetchUpdateCategory,
+};
