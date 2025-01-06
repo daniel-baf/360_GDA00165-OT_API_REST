@@ -17,6 +17,8 @@ type ApiEndpoints = {
       name?: string;
       id?: number;
     }) => string;
+    CREATE: string;
+    DELETE: (id: number) => string;
     CATEGORY: {
       LIST_ALL: string;
     };
@@ -60,6 +62,8 @@ export const API_ENDPOINTS: ApiEndpoints = {
       LIM_OFFSET: (limit: number = 50, offset: number = 0) =>
         `${API_URL}/product/list?limit=${limit}&offset=${offset}`,
     },
+    CREATE: `${API_URL}/product/category/create/`,
+    DELETE: (id: number) => `${API_URL}/product/category/delete/${id}`,
     CATEGORY: {
       LIST_ALL: `${API_URL}/product/category/list`,
     },

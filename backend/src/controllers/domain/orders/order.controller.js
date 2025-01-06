@@ -36,20 +36,15 @@ async function searchOrderByOwner(user, filter_parameters) {
   // search the order
   const order_db = await searchOrder(filter_parameters);
 
-  // // cast to a valid frontend object
-  const frontend_order = {
-    direccion: await searchDirection(order_db.direccion_entrega_id),
-    productos: filter_parameters.detailed
-      ? await Promise.all(
-          order_db.details?.map(async (product) => ({
-            quantity: product.cantidad,
-            product: {
-              ...(await searchProduct(product.producto_id)),
-            },
-          }))
-        )
-      : [],
-  };
+  const productos = filter_parameters.detailed
+    ? await Promise.all(
+        order_db.details?.map(async (product) => {
+          const product_db = await searchProduct({ id: product.id });
+          return { product: product_db[0], quantity: product.cantidad };
+        })
+      )
+    : [];
+  const direccion = await searchDirection(order_db.direccion_entrega_id);
 
   // check if the user is the owner of the order
   if (user.rol_id != 2 && user.id !== order_db.usuario_id) {
@@ -58,7 +53,7 @@ async function searchOrderByOwner(user, filter_parameters) {
     );
   }
 
-  return frontend_order;
+  return { direccion, productos };
 }
 
 async function updateOrderAndValidate({ id, products }) {
@@ -67,8 +62,6 @@ async function updateOrderAndValidate({ id, products }) {
       "No puedes actualizar el producto y dejarlo vacio, borralo en su lugar"
     );
   }
-
-  console.log(products);
 
   // cast data to valid function format
   const casted_products = products.map((product) => ({

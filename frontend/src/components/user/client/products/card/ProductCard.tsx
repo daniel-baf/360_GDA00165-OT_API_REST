@@ -4,6 +4,7 @@ import { FaCartPlus, FaEdit } from "react-icons/fa";
 import { Product } from "../product.types";
 import React, { useContext } from "react";
 import { PublicTokenPayload } from "@helpers/auth/auth.service";
+import { Link } from "react-router-dom";
 
 interface ProductCard extends Product {
   hide_btn?: boolean;
@@ -21,6 +22,7 @@ const ProductCard: React.FC<ProductCard> = ({
   hide_btn,
   tokenDecoded,
   estado_nombre,
+  id,
 }) => {
   const cartContext = useContext(ClientCartContext);
 
@@ -80,9 +82,12 @@ const ProductCard: React.FC<ProductCard> = ({
         {!hide_btn && (
           <>
             {tokenDecoded?.rol_id === 2 && (
-              <button className="bg-yellow-500 dark:bg-yellow-600 text-white px-4 py-2 rounded sm:col-span-1 mt-2 sm:mt-0 w-full sm:w-auto">
-                <FaEdit className="inline-block" />
-              </button>
+                <Link
+                to={`/dashboard/admin/products/edit?id=${id}`}
+                className="bg-yellow-500 dark:bg-yellow-600 text-white px-4 py-2 rounded flex justify-center items-center"
+                >
+                <FaEdit className="inline-block text-lg" />
+                </Link>
             )}{" "}
             {tokenDecoded?.rol_id !== 2 && (
               <button

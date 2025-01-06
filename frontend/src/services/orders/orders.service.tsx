@@ -176,7 +176,9 @@ const fetchSearchOrder = async (
   if (!response.ok) {
     throw new Error(`${await response.text()}`);
   }
-  return await response.json();
+  const data = await response.json();
+  console.log(data); 
+  return data;
 };
 
 const fetchPutUpdateOrder = async (

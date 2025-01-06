@@ -647,7 +647,7 @@ BEGIN
     INSERT INTO categoria_producto
         (nombre, descripcion)
     VALUES
-        (@nombre, @descripcion);
+        (UPPER(@nombre), UPPER(@descripcion));
 
     -- Retorna el nuevo ID generado
     SELECT SCOPE_IDENTITY() AS id;

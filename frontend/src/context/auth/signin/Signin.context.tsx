@@ -1,10 +1,20 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, ReactNode, useState, useEffect } from "react";
+import {
+  getTokenDecoded,
+  PublicTokenPayload,
+} from "@helpers/auth/auth.service";
+import React, {
+  createContext,
+  ReactNode,
+  useState,
+  useEffect,
+} from "react";
 
 // Context type definitions
 interface AuthContextType {
   saveToken: (newToken: string) => void;
   clearToken: () => void;
+  getDecodedToken: () => PublicTokenPayload["user"] | null;
 }
 
 // Provider props
@@ -40,10 +50,22 @@ const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
     setToken(null);
   };
 
+  const getDecodedToken = (): PublicTokenPayload["user"] | null => {
+    if (!token) {
+      return null;
+    }
+    return getTokenDecoded(token);
+  };
+
+  const contextTypes = {
+    saveToken,
+    clearToken,
+    token,
+    getDecodedToken,
+  };
+
   return (
-    <AuthContext.Provider value={{ saveToken, clearToken, token }}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={contextTypes}>{children}</AuthContext.Provider>
   );
 };
 

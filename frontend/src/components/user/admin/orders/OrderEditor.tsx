@@ -23,11 +23,7 @@ const OrderEditorChild: React.FC<{ order_id: number }> = ({ order_id }) => {
         setProducts(productos); // Actualiza el contexto
       })
       .catch((err) => {
-        redirectTo(
-          "/dashboard/admin/",
-          err.message,
-          NotificationTypes.ERROR
-        );
+        redirectTo("/dashboard/admin/", err.message, NotificationTypes.ERROR);
       });
   }, [authContex.token, order_id, setProducts]); // Asegúrate de que las dependencias no cambien innecesariamente
 
