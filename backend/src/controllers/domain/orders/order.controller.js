@@ -36,15 +36,18 @@ async function searchOrderByOwner(user, filter_parameters) {
   // search the order
   const order_db = await searchOrder(filter_parameters);
 
+  if (!order_db) throw new Error("El pedido no existe");
+
+  const direccion = await searchDirection(order_db.direccion_entrega_id);
+
   const productos = filter_parameters.detailed
     ? await Promise.all(
-        order_db.details?.map(async (product) => {
-          const product_db = await searchProduct({ id: product.id });
-          return { product: product_db[0], quantity: product.cantidad };
+        order_db.details?.map(async (detail) => {
+          const product_db = await searchProduct({ id: detail.producto_id });
+          return { product: product_db[0], quantity: detail.cantidad };
         })
       )
     : [];
-  const direccion = await searchDirection(order_db.direccion_entrega_id);
 
   // check if the user is the owner of the order
   if (user.rol_id != 2 && user.id !== order_db.usuario_id) {
@@ -53,7 +56,8 @@ async function searchOrderByOwner(user, filter_parameters) {
     );
   }
 
-  return { direccion, productos };
+  const response = { direccion, productos };
+  return response;
 }
 
 async function updateOrderAndValidate({ id, products }) {

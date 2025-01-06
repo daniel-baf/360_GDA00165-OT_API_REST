@@ -5,7 +5,6 @@ import {
   createContext,
   useContext,
   useEffect,
-  useMemo,
   useCallback,
 } from "react";
 import { NotificationContext } from "@context/Notification.context";
@@ -137,18 +136,15 @@ const ClientCartProvider: React.FC<ClientCartProviderProps> = ({
     }
   }, [authContext.token]);
 
-  const contextValue = useMemo(
-    () => ({
-      products,
-      add,
-      remove,
-      clear,
-      decrease,
-      setProducts: updateCart, // Añade esto
-      is_edit_id,
-    }),
-    [products]
-  );
+  const contextValue = {
+    products,
+    add,
+    remove,
+    clear,
+    decrease,
+    setProducts: updateCart, // Añade esto
+    is_edit_id,
+  };
 
   return (
     <ClientCartContext.Provider value={contextValue}>

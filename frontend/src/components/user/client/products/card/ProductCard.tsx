@@ -23,6 +23,8 @@ const ProductCard: React.FC<ProductCard> = ({
   tokenDecoded,
   estado_nombre,
   id,
+  categoria_producto_id,
+  categoria_descripcion,
 }) => {
   const cartContext = useContext(ClientCartContext);
 
@@ -38,7 +40,20 @@ const ProductCard: React.FC<ProductCard> = ({
   const opacityClass = estado_producto_id === 1 ? "" : "opacity-50";
 
   // function to add a product to the cart, it will show an error if the cart context is not available
-  const addProductToCart = (new_product: Product) => {
+  const addProductToCart = () => {
+    const new_product: Product = {
+      id,
+      nombre,
+      descripcion,
+      precio,
+      precio_mayorista,
+      stock,
+      estado_producto_id,
+      categoria_nombre,
+      estado_nombre,
+      categoria_producto_id,
+      categoria_descripcion,
+    };
     cartContext?.add(new_product);
   };
 
@@ -82,26 +97,24 @@ const ProductCard: React.FC<ProductCard> = ({
         {!hide_btn && (
           <>
             {tokenDecoded?.rol_id === 2 && (
-                <Link
+              <Link
                 to={`/dashboard/admin/products/edit?id=${id}`}
                 className="bg-yellow-500 dark:bg-yellow-600 text-white px-4 py-2 rounded flex justify-center items-center"
-                >
-                <FaEdit className="inline-block text-lg" />
-                </Link>
-            )}{" "}
-            {tokenDecoded?.rol_id !== 2 && (
-              <button
-                onClick={() => addProductToCart}
-                className={`${
-                  stock === 0
-                    ? "bg-red-500 cursor-not-allowed"
-                    : "bg-blue-500 dark:bg-blue-600"
-                } text-white px-4 py-2 rounded sm:col-span-1 mt-2 sm:mt-0 w-full sm:w-auto`}
-                disabled={stock === 0}
               >
-                <FaCartPlus className="inline-block" />
-              </button>
-            )}
+                <FaEdit className="inline-block text-lg" />
+              </Link>
+            )}{" "}
+            <button
+              onClick={() => addProductToCart()}
+              className={`${
+                stock === 0
+                  ? "bg-red-500 cursor-not-allowed"
+                  : "bg-blue-500 dark:bg-blue-600"
+              } text-white px-4 py-2 rounded sm:col-span-1 mt-2 sm:mt-0 w-full sm:w-auto`}
+              disabled={stock === 0}
+            >
+              <FaCartPlus className="inline-block" />
+            </button>
           </>
         )}
       </div>
