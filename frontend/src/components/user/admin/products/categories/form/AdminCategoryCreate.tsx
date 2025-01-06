@@ -10,7 +10,7 @@ import {
 } from "./AdminCategoryCreate.validations";
 
 const AdminCategoryCreate: React.FC<AdminCategoryCreateProps> = ({
-  id = undefined,
+  id,
   nombre = "",
   descripcion = "",
   onSubmit,
@@ -40,7 +40,7 @@ const AdminCategoryCreate: React.FC<AdminCategoryCreateProps> = ({
         <input
           type="text"
           placeholder="ID automatico"
-          {...register("id")}
+          {...(id ? register("id") : {})}
           disabled
           className="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-300"
         />
