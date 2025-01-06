@@ -39,6 +39,7 @@
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
+    "@types/nodemailer": "^6.4.17",
     "morgan": "^1.10.0"
   },
   "aliases": {

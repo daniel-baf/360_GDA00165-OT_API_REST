@@ -188,15 +188,6 @@ user_router.post("/create", async (req, res) => {
   }
 });
 
-// TODO Implmente this
-user_router.put("/verify", async (req, res) => {
-  try {
-    return res.status(200).json(await controller.verify(req.id));
-  } catch (error) {
-    res.status(500).send(error.message);
-  }
-});
-
 // custom filters
 user_router.use(verifyTokenTimeout, private_router_user);
 

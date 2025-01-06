@@ -1,4 +1,4 @@
-import { checkToken } from "@helpers/auth.helper.js";
+import { checkToken, createToken } from "@helpers/auth.helper.js";
 import {
   listUsers,
   createUser,
@@ -8,6 +8,7 @@ import {
   blockUserAccess,
   grantUserAccess,
 } from "@models/user/user.dao.js";
+import { sendVerificationEmail } from "@services/mail/mailer.service.js";
 
 /**
  * User Controller
@@ -69,6 +70,8 @@ const userController = {
    * @returns {Promise<void>}
    */
   delete: async (id) => await deleteUser(id),
+
+  verify: async (token) => await verify(token),
 };
 
 /**
@@ -151,7 +154,28 @@ async function verifyCreation(new_user, token) {
       "No tienes permisos para crear un usuario con rol de administrador"
     );
   }
-  return await createUser(new_user);
+
+  let status = await createUser(new_user);
+  if (!status) {
+    throw new Error("Error al crear el usuario");
+  }
+  sendEmail(status); // send email to user
+
+  return status;
+}
+
+function sendEmail(new_user) {
+  const token = createToken(new_user);
+  sendVerificationEmail(token, new_user.email);
+}
+
+async function verify(token) {
+  const decoded = checkToken(token);
+  const user = decoded.payload.user;
+  if (!user) {
+    throw new Error("Usuario no encontrado");
+  }
+  return await unlockUserAccessController(user.id);
 }
 
 export { userController };
