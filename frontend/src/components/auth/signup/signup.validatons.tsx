@@ -40,6 +40,7 @@ export const signUpSchema = yup.object().shape({
     )
     .required("La fecha de nacimiento es obligatoria")
     .typeError("Debes proporcionar una fecha válida"),
+  rol_id: yup.number().optional(),
   terms: yup
     .boolean()
     .oneOf([true], "Debes aceptar los términos y condiciones")

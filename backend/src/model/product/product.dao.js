@@ -196,16 +196,20 @@ async function listProducts({ limit = null, offset = 0, status_id = 1 }) {
  * @returns {Promise<Object>} The product object if found.
  * @throws {Error} If there is an error while retrieving the product.
  */
-async function searchProduct(id) {
+async function searchProduct(filters) {
+  const { id = null, category = null, name = null } = filters;
   try {
-    const producto = await sequelize.query("EXEC p_get_producto :id", {
-      replacements: { id },
-      type: sequelize.QueryTypes.SELECT,
-    });
+    const producto = await sequelize.query(
+      "EXEC p_get_producto @id=:id, @category_id=:category, @name=:name",
+      {
+        replacements: { id, category, name },
+        type: sequelize.QueryTypes.SELECT,
+      }
+    );
 
-    return producto[0];
+    return producto;
   } catch (error) {
-    throw new Error("Error getting product: " + error.message);
+    throw new Error(error.message);
   }
 }
 

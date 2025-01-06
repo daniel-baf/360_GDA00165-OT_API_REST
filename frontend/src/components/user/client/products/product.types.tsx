@@ -11,3 +11,9 @@ export interface Product {
   estado_nombre: string;
   categoria_descripcion: string;
 }
+
+export interface ProductCategory {
+  id: number;
+  nombre: string;
+  descripcion: string;
+}

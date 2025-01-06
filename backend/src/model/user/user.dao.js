@@ -14,7 +14,7 @@ const sequelize = getConnection();
 
 /**
  * Function to create a new user in the database.
- * This function calls the stored procedure `p_create_usuario` to insert a new user.
+ * This function calls the stored procedure p_create_usuario to insert a new user.
  * @param {Object} user - The user object containing user details.
  * @returns {Promise<Object>} - A promise that resolves to the result of the insertion.
  */
@@ -36,30 +36,41 @@ async function createUser(user) {
     password,
     telefono = null,
     fecha_nacimiento,
-    rol_id,
-    estado_usuario_id,
+    rol_id = 1,
+    estado_usuario_id = 2,
   } = user;
+
+  let db_user = null;
+
   try {
-    let [result] = await sequelize.query(
-      "EXEC p_create_usuario @email=:email, @nombre_completo=:nombre_completo, @NIT=:NIT, @password=:password, @telefono=:telefono, @fecha_nacimiento=:fecha_nacimiento, @rol_id=:rol_id, @estado_usuario_id=:estado_usuario_id",
-      {
-        replacements: {
-          email,
-          nombre_completo,
-          NIT,
-          password,
-          telefono,
-          fecha_nacimiento,
-          rol_id,
-          estado_usuario_id,
-        },
-        type: sequelize.QueryTypes.CREATE,
-      }
-    );
-    return { id: result[0].id, ...user };
+    // verify if  user exists
+    db_user = await searchUser({ email });
   } catch (error) {
-    throw new Error("Error al crear el usuario: " + error.message);
+    // CONTINUE -> user does not exist
   }
+
+  if (db_user) {
+    throw new Error("El usuario ya existe");
+  }
+
+  let [result] = await sequelize.query(
+    "EXEC p_create_usuario @email=:email, @nombre_completo=:nombre_completo, @NIT=:NIT, @password=:password, @telefono=:telefono, @fecha_nacimiento=:fecha_nacimiento, @rol_id=:rol_id, @estado_usuario_id=:estado_usuario_id",
+    {
+      replacements: {
+        email,
+        nombre_completo,
+        NIT,
+        password,
+        telefono,
+        fecha_nacimiento,
+        rol_id,
+        estado_usuario_id,
+      },
+      type: sequelize.QueryTypes.CREATE,
+    }
+  );
+
+  return { id: result[0].id, ...user };
 }
 
 /**
@@ -124,7 +135,7 @@ async function updateUser(id, user) {
  * @throws {Error} - Throws an error if the 'inhabilitado' status is not found or if there is an error during the process.
  */
 async function blockUserAccess(id) {
-  return await changeUserAccess(id, "inhabilitado");
+  return await changeUserAccess(id, 1);
 }
 
 /**
@@ -136,7 +147,7 @@ async function blockUserAccess(id) {
  * @throws {Error} - Throws an error if the 'habilitado' status is not found or if there is an error during the process.
  */
 async function grantUserAccess(id) {
-  return await changeUserAccess(id, "activado");
+  return await changeUserAccess(id, 3);
 }
 
 /**
@@ -144,18 +155,18 @@ async function grantUserAccess(id) {
  * This function retrieves the list of user statuses and finds the specified status.
  * If the status is found, it updates the user's status to the specified status.
  * @param {number} id - The ID of the user to change access.
- * @param {string} statusName - The name of the status to set for the user.
+ * @param {number} status_id - The name of the status to set for the user.
  * @returns {Promise<Object>} - A promise that resolves to the result of the update.
  * @throws {Error} - Throws an error if the specified status is not found or if there is an error during the process.
  */
-async function changeUserAccess(id, statusName) {
+async function changeUserAccess(id, status_id) {
   try {
-    let statuses = await listUserStatuses();
-    let status = statuses.find(
-      (status) => status.nombre === statusName.toUpperCase()
-    );
+
+    let statuses = await listUserStatuses({});
+
+    let status = statuses.find((status) => status.id === status_id);
     if (!status) {
-      throw new Error(`Estado de usuario '${statusName}' no encontrado`);
+      throw new Error("Estado no encontrado");
     }
     return await updateUser(id, { estado_usuario_id: status.id });
   } catch (error) {

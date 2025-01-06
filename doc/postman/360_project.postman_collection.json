@@ -55,7 +55,7 @@
 							"response": []
 						},
 						{
-							"name": "ALL",
+							"name": "LIST",
 							"request": {
 								"auth": {
 									"type": "bearer",
@@ -70,7 +70,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:4000/api/states/user/list",
+									"raw": "http://localhost:4000/api/states/user/list?limit=1&offset=1",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -81,40 +81,16 @@
 										"states",
 										"user",
 										"list"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "ALL- LIMIT OFFSET",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{jwt_token}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "http://localhost:4000/api/states/user/list/1/1",
-									"protocol": "http",
-									"host": [
-										"localhost"
 									],
-									"port": "4000",
-									"path": [
-										"api",
-										"states",
-										"user",
-										"list",
-										"1",
-										"1"
+									"query": [
+										{
+											"key": "limit",
+											"value": "1"
+										},
+										{
+											"key": "offset",
+											"value": "1"
+										}
 									]
 								}
 							},
@@ -252,7 +228,7 @@
 							"response": []
 						},
 						{
-							"name": "ALL",
+							"name": "LIST",
 							"request": {
 								"auth": {
 									"type": "bearer",
@@ -278,40 +254,18 @@
 										"states",
 										"order",
 										"list"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "ALL- LIMIT OFFSET",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{jwt_token}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "http://localhost:4000/api/states/order/list/1/1",
-									"protocol": "http",
-									"host": [
-										"localhost"
 									],
-									"port": "4000",
-									"path": [
-										"api",
-										"states",
-										"order",
-										"list",
-										"1",
-										"1"
+									"query": [
+										{
+											"key": "limit",
+											"value": "1",
+											"disabled": true
+										},
+										{
+											"key": "offset",
+											"value": "1",
+											"disabled": true
+										}
 									]
 								}
 							},
@@ -449,7 +403,7 @@
 							"response": []
 						},
 						{
-							"name": "ALL",
+							"name": "LIST",
 							"request": {
 								"auth": {
 									"type": "bearer",
@@ -464,7 +418,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:4000/api/states/product/list",
+									"raw": "http://localhost:4000/api/states/product/list?limit=1&offset=1",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -475,40 +429,16 @@
 										"states",
 										"product",
 										"list"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "ALL- LIMIT OFFSET",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{jwt_token}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "http://localhost:4000/api/states/product/list/1/2",
-									"protocol": "http",
-									"host": [
-										"localhost"
 									],
-									"port": "4000",
-									"path": [
-										"api",
-										"states",
-										"product",
-										"list",
-										"1",
-										"2"
+									"query": [
+										{
+											"key": "limit",
+											"value": "1"
+										},
+										{
+											"key": "offset",
+											"value": "1"
+										}
 									]
 								}
 							},
@@ -652,7 +582,7 @@
 							"response": []
 						},
 						{
-							"name": "LIST ROLES",
+							"name": "LIST",
 							"request": {
 								"auth": {
 									"type": "bearer",
@@ -678,40 +608,18 @@
 										"user",
 										"rol",
 										"list"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "LIST ROLES - LIMIT OFFSET",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{jwt_token}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "http://localhost:4000/api/user/rol/list/1/1",
-									"protocol": "http",
-									"host": [
-										"localhost"
 									],
-									"port": "4000",
-									"path": [
-										"api",
-										"user",
-										"rol",
-										"list",
-										"1",
-										"1"
+									"query": [
+										{
+											"key": "limit",
+											"value": "1",
+											"disabled": true
+										},
+										{
+											"key": "offset",
+											"value": "1",
+											"disabled": true
+										}
 									]
 								}
 							},
@@ -826,7 +734,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\r\n    \"departamento\": \"DEP NEW\"\r\n    ,\"municipio\": \"MUN NEW\"\r\n    ,\"direccion\": \"DIR NEW\"\r\n    // ,\"telefono\": \"41234123\"\r\n    ,\"usuario_id\": 10\r\n}\r\n",
+											"raw": "{\r\n    \"departamento\": \"DEP NEW\"\r\n    ,\"municipio\": \"MUN NEW\"\r\n    ,\"direccion\": \"DIR NEW\"\r\n    // ,\"telefono\": \"41234123\"\r\n    // ,\"usuario_id\": 10 // only admins are allowed to send the usuario_id, otherwise take the logged user id\r\n}\r\n",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -878,39 +786,23 @@
 												"user",
 												"direction",
 												"list"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "LIST FILTER",
-									"request": {
-										"auth": {
-											"type": "bearer",
-											"bearer": [
-												{
-													"key": "token",
-													"value": "{{jwt_token}}",
-													"type": "string"
-												}
-											]
-										},
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "http://localhost:4000/api/user/direction/list/10",
-											"protocol": "http",
-											"host": [
-												"localhost"
 											],
-											"port": "4000",
-											"path": [
-												"api",
-												"user",
-												"direction",
-												"list",
-												"10"
+											"query": [
+												{
+													"key": "limit",
+													"value": "1",
+													"disabled": true
+												},
+												{
+													"key": "offset",
+													"value": "1",
+													"disabled": true
+												},
+												{
+													"key": "usuario_id",
+													"value": "1",
+													"disabled": true
+												}
 											]
 										}
 									},
@@ -941,7 +833,7 @@
 											}
 										},
 										"url": {
-											"raw": "http://localhost:4000/api/user/direction/update/10",
+											"raw": "http://localhost:4000/api/user/direction/update/1",
 											"protocol": "http",
 											"host": [
 												"localhost"
@@ -952,7 +844,7 @@
 												"user",
 												"direction",
 												"update",
-												"10"
+												"1"
 											]
 										}
 									},
@@ -983,7 +875,7 @@
 											}
 										},
 										"url": {
-											"raw": "http://localhost:4000/api/user/direction/delete/13",
+											"raw": "http://localhost:4000/api/user/direction/delete/12",
 											"protocol": "http",
 											"host": [
 												"localhost"
@@ -994,7 +886,7 @@
 												"user",
 												"direction",
 												"delete",
-												"13"
+												"12"
 											]
 										}
 									},
@@ -1069,39 +961,18 @@
 										"api",
 										"user",
 										"list"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "LIST - LIMIT OFFSET",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{jwt_token}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "http://localhost:4000/api/user/list/2/12",
-									"protocol": "http",
-									"host": [
-										"localhost"
 									],
-									"port": "4000",
-									"path": [
-										"api",
-										"user",
-										"list",
-										"2",
-										"12"
+									"query": [
+										{
+											"key": "limit",
+											"value": "3",
+											"disabled": true
+										},
+										{
+											"key": "offset",
+											"value": "3",
+											"disabled": true
+										}
 									]
 								}
 							},
@@ -1123,7 +994,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:4000/api/user/search?id=13",
+									"raw": "http://localhost:4000/api/user/search?id=5&email=cliente6@example.com",
 									"protocol": "http",
 									"host": [
 										"localhost"
@@ -1137,12 +1008,11 @@
 									"query": [
 										{
 											"key": "id",
-											"value": "13"
+											"value": "5"
 										},
 										{
-											"key": "mail",
-											"value": "cliente6@example.com",
-											"disabled": true
+											"key": "email",
+											"value": "cliente6@example.com"
 										}
 									]
 								}
@@ -1374,40 +1244,18 @@
 										"product",
 										"category",
 										"list"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "LIST FILTER",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{jwt_token}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "http://localhost:4000/api/product/category/list/1/2",
-									"protocol": "http",
-									"host": [
-										"localhost"
 									],
-									"port": "4000",
-									"path": [
-										"api",
-										"product",
-										"category",
-										"list",
-										"1",
-										"2"
+									"query": [
+										{
+											"key": "limit",
+											"value": "1",
+											"disabled": true
+										},
+										{
+											"key": "offset",
+											"value": "2",
+											"disabled": true
+										}
 									]
 								}
 							},
@@ -1556,7 +1404,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:4000/api/product/list",
+							"raw": "http://localhost:4000/api/product/list?offset=5",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1566,39 +1414,22 @@
 								"api",
 								"product",
 								"list"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "LIST FILTER",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{jwt_token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:4000/api/product/list/5/2",
-							"protocol": "http",
-							"host": [
-								"localhost"
 							],
-							"port": "4000",
-							"path": [
-								"api",
-								"product",
-								"list",
-								"5",
-								"2"
+							"query": [
+								{
+									"key": "status_id",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "limit",
+									"value": "2",
+									"disabled": true
+								},
+								{
+									"key": "offset",
+									"value": "5"
+								}
 							]
 						}
 					},
@@ -1702,7 +1533,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:4000/api/product/status/change?id=11&estado_producto_id=3",
+							"raw": "http://localhost:4000/api/product/status/change?id=1&estado_producto_id=3",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1717,7 +1548,7 @@
 							"query": [
 								{
 									"key": "id",
-									"value": "11"
+									"value": "1"
 								},
 								{
 									"key": "estado_producto_id",
@@ -1831,7 +1662,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:4000/api/order/list?detailed=true",
+							"raw": "http://localhost:4000/api/order/list?target_user=1",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1846,46 +1677,22 @@
 								{
 									"key": "detailed",
 									"value": "true",
-									"description": "request a detailed json, each detail is appended to the request if exitst\n"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "LIST FILTER",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
+									"description": "request a detailed json, each detail is appended to the request if exitst\n",
+									"disabled": true
+								},
 								{
-									"key": "token",
-									"value": "{{jwt_token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:4000/api/order/list/5/14?detailed=true",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "4000",
-							"path": [
-								"api",
-								"order",
-								"list",
-								"5",
-								"14"
-							],
-							"query": [
+									"key": "limit",
+									"value": "1",
+									"disabled": true
+								},
 								{
-									"key": "detailed",
-									"value": "true"
+									"key": "offset",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "target_user",
+									"value": "1"
 								}
 							]
 						}
@@ -1908,7 +1715,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:4000/api/order/search/16?detailed=true",
+							"raw": "http://localhost:4000/api/order/search/5?detailed=true",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1918,7 +1725,7 @@
 								"api",
 								"order",
 								"search",
-								"16"
+								"5"
 							],
 							"query": [
 								{
@@ -1955,7 +1762,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:4000/api/order/delete/16",
+							"raw": "http://localhost:4000/api/order/delete/13",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1965,7 +1772,7 @@
 								"api",
 								"order",
 								"delete",
-								"16"
+								"13"
 							]
 						}
 					},
@@ -2013,7 +1820,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"email\": \"cliente1@example.com\",\r\n    \"password\": \"password\"\r\n}",
+					"raw": "{\r\n    // \"email\": \"operativo1@example.com\",\r\n    \"email\": \"cliente1@example.com\",\r\n    \"password\": \"password\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"

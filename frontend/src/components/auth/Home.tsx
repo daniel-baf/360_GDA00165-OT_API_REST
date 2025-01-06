@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import SignIn from "./signin/Signin";
 import SignUp from "./signup/Signup";
+import { Settings } from "CONFIGURATION";
 
 const Home: React.FC = () => {
   const [isSigningIn, setIsSigningIn] = useState(true);
@@ -8,7 +9,7 @@ const Home: React.FC = () => {
   const title = isSigningIn ? "Inicio de sesión" : "Registro";
 
   return (
-    <section className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
+    <section className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:min-h-screen lg:py-0">
       <a
         href="#"
         className="flex items-center mb-6 text-2xl font-semibold text-gray-200 dark:text-white"
@@ -18,7 +19,7 @@ const Home: React.FC = () => {
           alt="logo"
           className="w-8 h-8 mr-2"
         />
-        MiTiendita
+        {Settings.TITLE}
       </a>
       <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
         <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white text-center p-4">

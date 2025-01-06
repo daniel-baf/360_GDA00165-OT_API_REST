@@ -22,13 +22,13 @@ const HeaderClient: React.FC = () => {
   return (
     <header className="shadow-lg mb-10 text-white bg-slate-950">
       <nav className="container mx-auto flex items-center justify-between p-4">
-        <ul className="flex justify-between w-full">
+        <ul className="flex justify-between w-full text-lg">
           {/* LEFT */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-6">
             <li>
               <button
                 onClick={signOut}
-                className="flex items-center hover:text-blue-300 transition"
+                className="flex items-center hover:text-blue-300 transition text-xl"
               >
                 <FaSignOutAlt />
               </button>
@@ -36,7 +36,7 @@ const HeaderClient: React.FC = () => {
             <li>
               <Link
                 to="/dashboard/client/orders"
-                className="flex items-center hover:text-blue-300 transition"
+                className="flex items-center hover:text-blue-300 transition text-xl"
               >
                 <FaClipboardList />
               </Link>
@@ -44,7 +44,7 @@ const HeaderClient: React.FC = () => {
             <li>
               <Link
                 to="/dashboard/client"
-                className="flex items-center hover:text-blue-300 transition"
+                className="flex items-center hover:text-blue-300 transition text-xl"
               >
                 <FaHome />
               </Link>
@@ -52,11 +52,11 @@ const HeaderClient: React.FC = () => {
           </div>
 
           {/* RIGHT */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-6">
             <li>
               <Link
                 to="/profile"
-                className="flex items-center hover:text-blue-300 transition"
+                className="flex items-center hover:text-blue-300 transition text-xl"
               >
                 <FaUser />
               </Link>
@@ -64,7 +64,7 @@ const HeaderClient: React.FC = () => {
             <li>
               <Link
                 to="/dashboard/client/cart"
-                className="flex items-center hover:text-blue-300 transition"
+                className="flex items-center hover:text-blue-300 transition text-xl"
               >
                 <FaCartShopping />
               </Link>

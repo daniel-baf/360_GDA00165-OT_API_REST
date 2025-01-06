@@ -1,3 +1,4 @@
+import { checkToken, createToken } from "@helpers/auth.helper.js";
 import {
   listUsers,
   createUser,
@@ -7,6 +8,7 @@ import {
   blockUserAccess,
   grantUserAccess,
 } from "@models/user/user.dao.js";
+import { sendVerificationEmail } from "@services/mail/mailer.service.js";
 
 /**
  * User Controller
@@ -19,7 +21,7 @@ const userController = {
    * @param {Object} new_user - The user object to create.
    * @returns {Promise<Object>} The created user object.
    */
-  create: async (new_user) => await createUser(new_user),
+  create: async (new_user, token) => await verifyCreation(new_user, token),
 
   /**
    * Lists all users.
@@ -68,6 +70,8 @@ const userController = {
    * @returns {Promise<void>}
    */
   delete: async (id) => await deleteUser(id),
+
+  verify: async (token) => await verify(token),
 };
 
 /**
@@ -130,6 +134,48 @@ async function unlockUserAccessController(id) {
     throw new Error("Se requiere al menos un parametro para desbloquear");
   }
   return await grantUserAccess(id);
+}
+
+async function verifyCreation(new_user, token) {
+  if (!new_user) {
+    throw new Error("Se requiere un objeto de usuario para crear un usuario");
+  }
+
+  // Verificar el token
+  let user_log = undefined;
+
+  if (token) {
+    const decoded = checkToken(token);
+    user_log = decoded.payload.user;
+  }
+
+  if (user_log?.rol_id !== 2 && new_user.rol_id === 2) {
+    throw new Error(
+      "No tienes permisos para crear un usuario con rol de administrador"
+    );
+  }
+
+  let status = await createUser(new_user);
+  if (!status) {
+    throw new Error("Error al crear el usuario");
+  }
+  sendEmail(status); // send email to user
+
+  return status;
+}
+
+function sendEmail(new_user) {
+  const token = createToken(new_user);
+  sendVerificationEmail(token, new_user.email);
+}
+
+async function verify(token) {
+  const decoded = checkToken(token);
+  const user = decoded.payload.user;
+  if (!user) {
+    throw new Error("Usuario no encontrado");
+  }
+  return await unlockUserAccessController(user.id);
 }
 
 export { userController };

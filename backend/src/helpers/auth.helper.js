@@ -8,8 +8,8 @@ dotenv.config();
  * @param {Object} user - The user object for which the token is being created.
  * @returns {string} The generated JWT.
  */
-function createToken(user) {
-  return jwt.sign({ _id: Math.random(), user }, process.env.JWT_SECRET, {
+function createToken(data) {
+  return jwt.sign({ _id: Math.random(), user: data }, process.env.JWT_SECRET, {
     expiresIn: "1d",
   });
 }

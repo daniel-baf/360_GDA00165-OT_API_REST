@@ -6,9 +6,12 @@ import ClientCartForm from "./form/ClientCartForm";
 
 interface ClientCartSummaryProps {
   products: CartItem[];
+  custom_params?: { [key: string]: string };
 }
 
-const ClientCartSummary: React.FC<ClientCartSummaryProps> = ({ products }) => {
+const ClientCartSummary: React.FC<ClientCartSummaryProps> = ({
+  products,
+}) => {
   // subtotal = ammount of all products by divs, is calculated if the product's quantity changes
   const [total, subtotal] = products.reduce(
     (acc, product) => {
@@ -27,7 +30,7 @@ const ClientCartSummary: React.FC<ClientCartSummaryProps> = ({ products }) => {
       <div className="text-white flex-grow">
         {/* RESUMEN */}
         <div className="flex justify-center">
-          <div className="p-5 shadow-md rounded-lg mb-6 bg-gray-800 w-full md:w-7/12 lg:w-3/12">
+          <div className="p-5 shadow-md rounded-lg mb-6 bg-gray-800 w-full md:w-7/12 lg:w-4/12">
             <h1 className="text-2xl font-bold mb-4 text-center uppercase ">
               Resumen de compra
             </h1>
@@ -46,8 +49,10 @@ const ClientCartSummary: React.FC<ClientCartSummaryProps> = ({ products }) => {
                   {subtotal.toFixed(2)}
                 </p>
               </div>
-              <div className="w-1/2">
-                <ClientCartForm products={products} />
+              <div className="w-1/2 h-100 flex justify-end items-end">
+                <ClientCartForm
+                  products={products}
+                />
               </div>
             </div>
 

@@ -32,11 +32,39 @@ async function fetchProducts(
   );
 
   if (!response.ok) {
-    throw new Error("No estas autenticado");
+    throw new Error(await response.text());
   }
 
   const products: Product[] = await response.json();
   return products;
 }
 
-export { fetchProducts };
+async function fetchFilterProduct(
+  token: string,
+  category?: string,
+  name?: string,
+  id?: number
+): Promise<Product[]> {
+  if (!token) {
+    throw new Error("Token invalido");
+  }
+
+  const response = await fetch(
+    API_ENDPOINTS.PRODUCTS.SEARCH({ category, name, id }),
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+
+  return await response.json();
+}
+
+export { fetchProducts, fetchFilterProduct };

@@ -1,5 +1,5 @@
 export interface SignUpProps {
-  switchToSignIn: () => void;
+  switchToSignIn?: () => void;
 }
 
 export type SignUpFormData = {
@@ -10,4 +10,5 @@ export type SignUpFormData = {
   NIT?: string | null;
   fecha_nacimiento: string; // Cambiado a string porque React Hook Form no maneja Date directamente
   terms: boolean;
+  rol_id?: number;
 };

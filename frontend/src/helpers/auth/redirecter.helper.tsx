@@ -7,14 +7,15 @@ import { useNavigate } from "react-router-dom";
 
 const useRedirectWithMessage = () => {
   const notificationContext = useContext(NotificationContext);
-
   const navigate = useNavigate();
 
   const redirectTo = (
     path: string,
     message?: string,
-    messageType?: NotificationTypes
+    messageType?: NotificationTypes,
+    dataToSend?: unknown // New parameter to send data
   ) => {
+    // Show the appropriate notification based on messageType
     switch (messageType) {
       case NotificationTypes.ERROR:
         notificationContext?.showError(`${message}`);
@@ -25,11 +26,12 @@ const useRedirectWithMessage = () => {
       case NotificationTypes.INFO:
         notificationContext?.showInfo(`${message}`);
         break;
-      default: // no message if no messageType
+      default:
         break;
     }
 
-    navigate(path);
+    // Redirect with the state containing dataToSend
+    navigate(path, { state: dataToSend });
   };
 
   return redirectTo;

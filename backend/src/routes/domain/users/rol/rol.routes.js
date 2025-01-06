@@ -20,6 +20,7 @@ rol_router.post("/create", async (req, res) => {
  */
 rol_router.get("/list", async (req, res) => {
   try {
+    return res.send("hola")
     res.status(200).json(await controller.list(req.query));
   } catch (error) {
     res.status(500).send(error.message);
