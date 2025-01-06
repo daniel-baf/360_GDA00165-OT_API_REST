@@ -24,6 +24,13 @@ type ApiEndpoints = {
     };
     UPDATE: (id: number) => string;
   };
+  STATUS: {
+    USER: {
+      LIST: string;
+      ENABLE: (id: number) => string;
+      DISABLE: (id: number) => string;
+    };
+  };
   ORDERS: {
     CREATE: string;
     DELETE: (orderId: number) => string;
@@ -48,7 +55,9 @@ type ApiEndpoints = {
     DIRECTIONS: {
       LIST: (userId?: number, offset?: number, limit?: number) => string;
     };
+    LIST: (offset: number, limit: number) => string;
     CREATE: string;
+    DELETE: (id: number) => string;
   };
 };
 
@@ -56,6 +65,13 @@ export const API_ENDPOINTS: ApiEndpoints = {
   AUTH: {
     SIGNIN: `${API_URL}/auth/`,
     SIGNUP: `${API_URL}/auth/signup`,
+  },
+  STATUS: {
+    USER: {
+      LIST: `${API_URL}/states/user/list`,
+      ENABLE: (id: number) => `${API_URL}/user/unlock/${id}`,
+      DISABLE: (id: number) => `${API_URL}/user/block/${id}`,
+    },
   },
   PRODUCTS: {
     LIST: {
@@ -113,6 +129,9 @@ export const API_ENDPOINTS: ApiEndpoints = {
           userId ? `usuario_id=${userId}` : ""
         }${limit ? `&limit=${limit}` : ""}${offset ? `&offset=${offset}` : ""}`,
     },
+    DELETE: (id: number) => `${API_URL}/user/delete/${id}`,
     CREATE: `${API_URL}/user/create/`,
+    LIST: (offset: number = 0, limit: number) =>
+      `${API_URL}/user/list?offset=${offset}${limit ? `&limit=${limit}` : ""}`,
   },
 };

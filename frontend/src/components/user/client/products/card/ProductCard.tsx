@@ -104,17 +104,19 @@ const ProductCard: React.FC<ProductCard> = ({
                 <FaEdit className="inline-block text-lg" />
               </Link>
             )}{" "}
-            <button
-              onClick={() => addProductToCart()}
-              className={`${
-                stock === 0
-                  ? "bg-red-500 cursor-not-allowed"
-                  : "bg-blue-500 dark:bg-blue-600"
-              } text-white px-4 py-2 rounded sm:col-span-1 mt-2 sm:mt-0 w-full sm:w-auto`}
-              disabled={stock === 0}
-            >
-              <FaCartPlus className="inline-block" />
-            </button>
+            {tokenDecoded?.rol_id !== 2 && (
+              <button
+                onClick={() => addProductToCart()}
+                className={`${
+                  stock === 0
+                    ? "bg-red-500 cursor-not-allowed"
+                    : "bg-blue-500 dark:bg-blue-600"
+                } text-white px-4 py-2 rounded sm:col-span-1 mt-2 sm:mt-0 w-full sm:w-auto`}
+                disabled={stock === 0}
+              >
+                <FaCartPlus className="inline-block" />
+              </button>
+            )}
           </>
         )}
       </div>

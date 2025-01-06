@@ -37,7 +37,7 @@ async function createUser(user) {
     telefono = null,
     fecha_nacimiento,
     rol_id = 1,
-    estado_usuario_id = 1,
+    estado_usuario_id = 2,
   } = user;
 
   let db_user = null;
@@ -135,7 +135,7 @@ async function updateUser(id, user) {
  * @throws {Error} - Throws an error if the 'inhabilitado' status is not found or if there is an error during the process.
  */
 async function blockUserAccess(id) {
-  return await changeUserAccess(id, "inhabilitado");
+  return await changeUserAccess(id, 1);
 }
 
 /**
@@ -147,7 +147,7 @@ async function blockUserAccess(id) {
  * @throws {Error} - Throws an error if the 'habilitado' status is not found or if there is an error during the process.
  */
 async function grantUserAccess(id) {
-  return await changeUserAccess(id, "activado");
+  return await changeUserAccess(id, 3);
 }
 
 /**
@@ -155,18 +155,18 @@ async function grantUserAccess(id) {
  * This function retrieves the list of user statuses and finds the specified status.
  * If the status is found, it updates the user's status to the specified status.
  * @param {number} id - The ID of the user to change access.
- * @param {string} statusName - The name of the status to set for the user.
+ * @param {number} status_id - The name of the status to set for the user.
  * @returns {Promise<Object>} - A promise that resolves to the result of the update.
  * @throws {Error} - Throws an error if the specified status is not found or if there is an error during the process.
  */
-async function changeUserAccess(id, statusName) {
+async function changeUserAccess(id, status_id) {
   try {
-    let statuses = await listUserStatuses();
-    let status = statuses.find(
-      (status) => status.nombre === statusName.toUpperCase()
-    );
+
+    let statuses = await listUserStatuses({});
+
+    let status = statuses.find((status) => status.id === status_id);
     if (!status) {
-      throw new Error(`Estado de usuario '${statusName}' no encontrado`);
+      throw new Error("Estado no encontrado");
     }
     return await updateUser(id, { estado_usuario_id: status.id });
   } catch (error) {

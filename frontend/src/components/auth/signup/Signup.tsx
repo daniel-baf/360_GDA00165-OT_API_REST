@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { signUpSchema } from "./signup.validatons";
@@ -6,6 +6,7 @@ import { SignUpFormData, SignUpProps } from "@services/users/signup.types";
 import SignUpForm from "./signup.form";
 import { fetchPutNewUser } from "@services/users/users.service";
 import { useNotification } from "@context/Notification.context";
+import { AuthContext } from "@context/auth/signin/Signin.context";
 
 const SignUp: React.FC<SignUpProps> = ({ switchToSignIn }) => {
   const {
@@ -16,9 +17,10 @@ const SignUp: React.FC<SignUpProps> = ({ switchToSignIn }) => {
     resolver: yupResolver(signUpSchema),
   });
   const notifContext = useNotification();
+  const authContext = useContext(AuthContext);
 
   const onSubmit: SubmitHandler<SignUpFormData> = (data) => {
-    fetchPutNewUser(data)
+    fetchPutNewUser(data, authContext?.token)
       .then((message) => {
         notifContext.showSuccess(message);
       })

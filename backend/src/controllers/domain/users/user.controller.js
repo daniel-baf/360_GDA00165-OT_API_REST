@@ -137,16 +137,16 @@ async function verifyCreation(new_user, token) {
   if (!new_user) {
     throw new Error("Se requiere un objeto de usuario para crear un usuario");
   }
-  let logged_user = null;
 
-  // try to recover the token, 'cause only admins can create admins
+  // Verificar el token
+  let user_log = undefined;
+
   if (token) {
-    // Verificar el token
-    const decoded = await checkToken(token);
-    logged_user = decoded.payload.user;
+    const decoded = checkToken(token);
+    user_log = decoded.payload.user;
   }
 
-  if (logged_user?.rol_id !== 2 && new_user.rol_id === 2) {
+  if (user_log?.rol_id !== 2 && new_user.rol_id === 2) {
     throw new Error(
       "No tienes permisos para crear un usuario con rol de administrador"
     );

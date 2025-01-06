@@ -7,6 +7,7 @@ import {
   FaMizuni,
   FaSignOutAlt,
   FaUser,
+  FaUserAltSlash,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import useRedirectWithMessage from "@helpers/auth/redirecter.helper";
@@ -73,6 +74,15 @@ const HeaderAdmin: React.FC = () => {
                   </Link>
                 </li>
               </ul>
+            </li>
+
+            <li>
+              <Link
+                to={`${current_url_path}/users`}
+                className="flex items-center hover:text-blue-300 transition text-2xl"
+              >
+                <FaUserAltSlash />
+              </Link>
             </li>
           </div>
 
